@@ -97,4 +97,98 @@ func (instructions InstructionTable) InitInstructions() {
 			cpu.Lda(cpu.indirectIndexedAddress(&cycles))
 			return
 		}})
+
+	// LDX
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0xa2,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Ldx(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xa6,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Ldx(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0xb6,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ldx(cpu.zeroPageIndexedAddress(cpu.registers.Y))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xae,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ldx(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0xbe,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ldx(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			return
+		}})
+
+	// LDY
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0xa0,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Ldy(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xa4,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Ldy(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xb4,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ldy(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xac,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ldy(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xbc,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ldy(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			return
+		}})
 }

@@ -76,9 +76,9 @@ func (cpu *Cpu) Execute() {
 	cpu.clock.await(ticks)
 }
 
-func (cpu *Cpu) Lda(address uint16) {
+func (cpu *Cpu) Ld(address uint16, register *uint8) {
 	value := cpu.memory.fetch(address)
-	cpu.registers.A = value
+	*register = value
 
 	cpu.registers.P &= ^Z
 	cpu.registers.P &= ^N
@@ -89,6 +89,18 @@ func (cpu *Cpu) Lda(address uint16) {
 	case value&(uint8(1)<<7) != 0:
 		cpu.registers.P |= N
 	}
+}
+
+func (cpu *Cpu) Lda(address uint16) {
+	cpu.Ld(address, &cpu.registers.A)
+}
+
+func (cpu *Cpu) Ldx(address uint16) {
+	cpu.Ld(address, &cpu.registers.X)
+}
+
+func (cpu *Cpu) Ldy(address uint16) {
+	cpu.Ld(address, &cpu.registers.Y)
 }
 
 func (cpu *Cpu) immediateAddress() (result uint16) {
