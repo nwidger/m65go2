@@ -57,6 +57,8 @@ func (cpu *Cpu) Reset() {
 }
 
 func (cpu *Cpu) Execute() {
+	ticks := cpu.clock.ticks
+
 	// fetch
 	opcode := OpCode(cpu.memory.fetch(cpu.registers.PC))
 	inst, ok := cpu.instructions[opcode]
@@ -68,16 +70,10 @@ func (cpu *Cpu) Execute() {
 
 	// execute
 	cpu.registers.PC++
-	cycles := inst.exec(cpu) * uint16(cpu.clock.divisor)
+	ticks += uint64(inst.exec(cpu))
 
 	// count cycles
-	for _ = range cpu.clock.ticker.C {
-		cycles--
-
-		if cycles == 0 {
-			break
-		}
-	}
+	cpu.clock.await(ticks)
 }
 
 func (cpu *Cpu) Lda(address uint16) {
@@ -122,17 +118,17 @@ func (cpu *Cpu) absoluteAddress() (result uint16) {
 	return
 }
 
-func (cpu *Cpu) absoluteIndexedAddress(index uint8) (result uint16, pageCrossed bool) {
-	address := uint16(cpu.memory.fetch(cpu.registers.PC))
-	cpu.registers.PC++
+func (cpu *Cpu) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
+	low := cpu.memory.fetch(cpu.registers.PC)
+	high := cpu.memory.fetch(cpu.registers.PC + 1)
+	cpu.registers.PC += 2
 
-	low := cpu.memory.fetch(address)
-	high := cpu.memory.fetch(address + 1)
-
-	address = (uint16(high) << 8) | uint16(low)
-
+	address := (uint16(high) << 8) | uint16(low)
 	result = address + uint16(index)
-	pageCrossed = !SamePage(address, result)
+
+	if !SamePage(address, result) {
+		*cycles++
+	}
 
 	return
 }
@@ -148,7 +144,7 @@ func (cpu *Cpu) indexedIndirectAddress() (result uint16) {
 	return
 }
 
-func (cpu *Cpu) indirectIndexedAddress() (result uint16, pageCrossed bool) {
+func (cpu *Cpu) indirectIndexedAddress(cycles *uint16) (result uint16) {
 	address := uint16(cpu.memory.fetch(cpu.registers.PC))
 	cpu.registers.PC++
 
@@ -158,7 +154,10 @@ func (cpu *Cpu) indirectIndexedAddress() (result uint16, pageCrossed bool) {
 	address = (uint16(high) << 8) | uint16(low)
 
 	result = address + uint16(cpu.registers.Y)
-	pageCrossed = !SamePage(address, result)
+
+	if !SamePage(address, result) {
+		*cycles++
+	}
 
 	return
 }

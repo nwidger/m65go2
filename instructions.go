@@ -11,6 +11,7 @@ type InstructionTable map[OpCode]Instruction
 
 func NewInstructionTable() InstructionTable {
 	instructions := make(map[OpCode]Instruction)
+	InstructionTable(instructions).InitInstructions()
 	return instructions
 }
 
@@ -66,14 +67,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xbd,
 		exec: func(cpu *Cpu) (cycles uint16) {
 			cycles = 4
-			address, pageCrossed := cpu.absoluteIndexedAddress(cpu.registers.Y)
-
-			cpu.Lda(address)
-
-			if pageCrossed {
-				cycles++
-			}
-
+			cpu.Lda(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
 			return
 		}})
 
@@ -82,14 +76,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xb9,
 		exec: func(cpu *Cpu) (cycles uint16) {
 			cycles = 4
-			address, pageCrossed := cpu.absoluteIndexedAddress(cpu.registers.Y)
-
-			cpu.Lda(address)
-
-			if pageCrossed {
-				cycles++
-			}
-
+			cpu.Lda(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
 			return
 		}})
 
@@ -107,15 +94,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xb1,
 		exec: func(cpu *Cpu) (cycles uint16) {
 			cycles = 5
-			address, pageCrossed := cpu.indirectIndexedAddress()
-
-			cpu.Lda(address)
-
-			if pageCrossed {
-				cycles++
-			}
-
+			cpu.Lda(cpu.indirectIndexedAddress(&cycles))
 			return
 		}})
-
 }
