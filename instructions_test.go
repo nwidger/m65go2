@@ -570,3 +570,259 @@ func TestLdyNFlagUnset(t *testing.T) {
 
 	Teardown()
 }
+
+// STA
+
+func TestStaZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x85)
+	cpu.memory.store(0x0101, 0x84)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStaZeroPageX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x95)
+	cpu.memory.store(0x0101, 0x84)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStaAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x8d)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStaAbsoluteX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x9d)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStaAbsoluteY(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x99)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStaIndirectX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x81)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0085, 0x87)
+	cpu.memory.store(0x0086, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0087) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStaIndirectY(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x91)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x86)
+	cpu.memory.store(0x0085, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0087) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+// STX
+
+func TestStxZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x86)
+	cpu.memory.store(0x0101, 0x84)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStxZeroPageY(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x96)
+	cpu.memory.store(0x0101, 0x84)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStxAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x8e)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+// STY
+
+func TestStyZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x84)
+	cpu.memory.store(0x0101, 0x84)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStyZeroPageY(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x94)
+	cpu.memory.store(0x0101, 0x84)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestStyAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x8c)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}

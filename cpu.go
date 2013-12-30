@@ -103,6 +103,22 @@ func (cpu *Cpu) Ldy(address uint16) {
 	cpu.Ld(address, &cpu.registers.Y)
 }
 
+func (cpu *Cpu) St(address uint16, value uint8) {
+	cpu.memory.store(address, value)
+}
+
+func (cpu *Cpu) Sta(address uint16) {
+	cpu.St(address, cpu.registers.A)
+}
+
+func (cpu *Cpu) Stx(address uint16) {
+	cpu.St(address, cpu.registers.X)
+}
+
+func (cpu *Cpu) Sty(address uint16) {
+	cpu.St(address, cpu.registers.Y)
+}
+
 func (cpu *Cpu) immediateAddress() (result uint16) {
 	result = cpu.registers.PC
 	cpu.registers.PC++
@@ -138,7 +154,7 @@ func (cpu *Cpu) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint
 	address := (uint16(high) << 8) | uint16(low)
 	result = address + uint16(index)
 
-	if !SamePage(address, result) {
+	if cycles != nil && !SamePage(address, result) {
 		*cycles++
 	}
 
@@ -167,7 +183,7 @@ func (cpu *Cpu) indirectIndexedAddress(cycles *uint16) (result uint16) {
 
 	result = address + uint16(cpu.registers.Y)
 
-	if !SamePage(address, result) {
+	if cycles != nil && !SamePage(address, result) {
 		*cycles++
 	}
 

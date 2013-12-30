@@ -191,4 +191,127 @@ func (instructions InstructionTable) InitInstructions() {
 			cpu.Ldy(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
 			return
 		}})
+
+	// STA
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x85,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Sta(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x95,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Sta(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x8d,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Sta(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x9d,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Sta(cpu.absoluteIndexedAddress(cpu.registers.X, nil))
+			return
+		}})
+
+	//     Absolute,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x99,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Sta(cpu.absoluteIndexedAddress(cpu.registers.Y, nil))
+			return
+		}})
+
+	//     (Indirect,X)
+	instructions.AddInstruction(Instruction{
+		opcode: 0x81,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Sta(cpu.indexedIndirectAddress())
+			return
+		}})
+
+	//     (Indirect),Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x91,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Sta(cpu.indirectIndexedAddress(nil))
+			return
+		}})
+
+	// STX
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x86,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Stx(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x96,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Stx(cpu.zeroPageIndexedAddress(cpu.registers.Y))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x8e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Stx(cpu.absoluteAddress())
+			return
+		}})
+
+	// STY
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x84,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Sty(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x94,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Sty(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x8c,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Sty(cpu.absoluteAddress())
+			return
+		}})
 }
