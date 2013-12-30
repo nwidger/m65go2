@@ -23,7 +23,6 @@ func Teardown() {
 func TestLdaImmediate(t *testing.T) {
 	Setup()
 
-	// 0xa9 == LDA immediate
 	cpu.registers.PC = 0x0100
 
 	cpu.memory.store(0x0100, 0xa9)
@@ -41,7 +40,6 @@ func TestLdaImmediate(t *testing.T) {
 func TestLdaZeroPage(t *testing.T) {
 	Setup()
 
-	// 0xa9 == LDA zero page
 	cpu.registers.PC = 0x0100
 
 	cpu.memory.store(0x0100, 0xa5)
@@ -60,7 +58,6 @@ func TestLdaZeroPage(t *testing.T) {
 func TestLdaZeroPageX(t *testing.T) {
 	Setup()
 
-	// 0xb5 == LDA zero page,x
 	cpu.registers.X = 0x01
 	cpu.registers.PC = 0x0100
 
@@ -80,7 +77,6 @@ func TestLdaZeroPageX(t *testing.T) {
 func TestLdaAbsolute(t *testing.T) {
 	Setup()
 
-	// 0xad == LDA absolute
 	cpu.registers.PC = 0x0100
 
 	cpu.memory.store(0x0100, 0xad)
@@ -100,7 +96,6 @@ func TestLdaAbsolute(t *testing.T) {
 func TestLdaAbsoluteX(t *testing.T) {
 	Setup()
 
-	// 0xbd == LDA absolute,x
 	cpu.registers.X = 1
 	cpu.registers.PC = 0x0100
 
@@ -121,7 +116,6 @@ func TestLdaAbsoluteX(t *testing.T) {
 func TestLdaAbsoluteY(t *testing.T) {
 	Setup()
 
-	// 0xb9 == LDA absolute,y
 	cpu.registers.Y = 1
 	cpu.registers.PC = 0x0100
 
@@ -142,7 +136,6 @@ func TestLdaAbsoluteY(t *testing.T) {
 func TestLdaIndirectX(t *testing.T) {
 	Setup()
 
-	// 0xa1 == LDA (indirect,x)
 	cpu.registers.X = 1
 	cpu.registers.PC = 0x0100
 
@@ -164,7 +157,6 @@ func TestLdaIndirectX(t *testing.T) {
 func TestLdaIndirectY(t *testing.T) {
 	Setup()
 
-	// 0xb1 == LDA (indirect),y
 	cpu.registers.Y = 1
 	cpu.registers.PC = 0x0100
 
@@ -178,6 +170,74 @@ func TestLdaIndirectY(t *testing.T) {
 
 	if cpu.registers.A != 0xff {
 		t.Error("LDA (indirect),y: Register A is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestLdaZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xa9)
+	cpu.memory.store(0x0101, 0x00)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("LDA Z Flag Set: Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestLdaZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xa9)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("LDA Z Flag Unset: Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestLdaNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xa9)
+	cpu.memory.store(0x0101, 0x81)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("LDA N Flag Set: N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestLdaNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xa9)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("LDA N Flag Unset: N flag is set")
 	}
 
 	Teardown()
