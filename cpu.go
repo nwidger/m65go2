@@ -251,3 +251,11 @@ func (cpu *Cpu) Plp() {
 func (cpu *Cpu) And(address uint16) {
 	cpu.registers.A = cpu.setZNFlags(cpu.registers.A & cpu.memory.fetch(address))
 }
+
+func (cpu *Cpu) Eor(address uint16) {
+	cpu.registers.A = cpu.setZNFlags(cpu.registers.A ^ cpu.memory.fetch(address))
+}
+
+func (cpu *Cpu) Ora(address uint16) {
+	cpu.registers.A = cpu.setZNFlags(cpu.registers.A | cpu.memory.fetch(address))
+}

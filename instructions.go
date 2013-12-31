@@ -498,4 +498,79 @@ func (instructions InstructionTable) InitInstructions() {
 			cpu.And(cpu.indirectIndexedAddress(&cycles))
 			return
 		}})
+
+	// EOR
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0x49,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Eor(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x45,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Eor(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x55,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Eor(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x4d,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Eor(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x5d,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Eor(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			return
+		}})
+
+	//     Absolute,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x59,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Eor(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			return
+		}})
+
+	//     (Indirect,X)
+	instructions.AddInstruction(Instruction{
+		opcode: 0x41,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Eor(cpu.indexedIndirectAddress())
+			return
+		}})
+
+	//     (Indirect),Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x51,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Eor(cpu.indirectIndexedAddress(&cycles))
+			return
+		}})
+
 }
