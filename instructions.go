@@ -573,4 +573,78 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// ORA
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0x09,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Ora(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x05,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Ora(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x15,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ora(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x0d,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ora(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x1d,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ora(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			return
+		}})
+
+	//     Absolute,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x19,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Ora(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			return
+		}})
+
+	//     (Indirect,X)
+	instructions.AddInstruction(Instruction{
+		opcode: 0x01,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Ora(cpu.indexedIndirectAddress())
+			return
+		}})
+
+	//     (Indirect),Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0x11,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Ora(cpu.indirectIndexedAddress(&cycles))
+			return
+		}})
+
 }
