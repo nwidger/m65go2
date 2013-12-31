@@ -36,7 +36,7 @@ func (reg *Registers) reset() {
 	reg.X = 0
 	reg.Y = 0
 	reg.P = 0
-	reg.SP = 0
+	reg.SP = 0xff
 	reg.PC = 0
 }
 
@@ -76,86 +76,22 @@ func (cpu *Cpu) Execute() {
 	cpu.clock.await(ticks)
 }
 
+func (cpu *Cpu) setZNFlags(value uint8) uint8 {
+	cpu.registers.P &= ^Z
+	cpu.registers.P &= ^N
+
+	switch {
+	case value == 0:
+		cpu.registers.P |= Z
+	case value&(uint8(1)<<7) != 0:
+		cpu.registers.P |= N
+	}
+
+	return value
+}
+
 func (cpu *Cpu) load(address uint16, register *uint8) {
-	value := cpu.memory.fetch(address)
-	*register = value
-
-	cpu.registers.P &= ^Z
-	cpu.registers.P &= ^N
-
-	switch {
-	case value == 0:
-		cpu.registers.P |= Z
-	case value&(uint8(1)<<7) != 0:
-		cpu.registers.P |= N
-	}
-}
-
-func (cpu *Cpu) Lda(address uint16) {
-	cpu.load(address, &cpu.registers.A)
-}
-
-func (cpu *Cpu) Ldx(address uint16) {
-	cpu.load(address, &cpu.registers.X)
-}
-
-func (cpu *Cpu) Ldy(address uint16) {
-	cpu.load(address, &cpu.registers.Y)
-}
-
-func (cpu *Cpu) store(address uint16, value uint8) {
-	cpu.memory.store(address, value)
-}
-
-func (cpu *Cpu) Sta(address uint16) {
-	cpu.store(address, cpu.registers.A)
-}
-
-func (cpu *Cpu) Stx(address uint16) {
-	cpu.store(address, cpu.registers.X)
-}
-
-func (cpu *Cpu) Sty(address uint16) {
-	cpu.store(address, cpu.registers.Y)
-}
-
-func (cpu *Cpu) transfer(from uint8, to *uint8) {
-	value := from
-	*to = value
-
-	cpu.registers.P &= ^Z
-	cpu.registers.P &= ^N
-
-	switch {
-	case value == 0:
-		cpu.registers.P |= Z
-	case value&(uint8(1)<<7) != 0:
-		cpu.registers.P |= N
-	}
-}
-
-func (cpu *Cpu) Tax() {
-	cpu.transfer(cpu.registers.A, &cpu.registers.X)
-}
-
-func (cpu *Cpu) Tay() {
-	cpu.transfer(cpu.registers.A, &cpu.registers.Y)
-}
-
-func (cpu *Cpu) Txa() {
-	cpu.transfer(cpu.registers.X, &cpu.registers.A)
-}
-
-func (cpu *Cpu) Tya() {
-	cpu.transfer(cpu.registers.Y, &cpu.registers.A)
-}
-
-func (cpu *Cpu) Tsx() {
-	cpu.transfer(cpu.registers.SP, &cpu.registers.X)
-}
-
-func (cpu *Cpu) Txs() {
-	cpu.transfer(cpu.registers.X, &cpu.registers.SP)
+	*register = cpu.setZNFlags(cpu.memory.fetch(address))
 }
 
 func (cpu *Cpu) immediateAddress() (result uint16) {
@@ -227,4 +163,87 @@ func (cpu *Cpu) indirectIndexedAddress(cycles *uint16) (result uint16) {
 	}
 
 	return
+}
+
+func (cpu *Cpu) Lda(address uint16) {
+	cpu.load(address, &cpu.registers.A)
+}
+
+func (cpu *Cpu) Ldx(address uint16) {
+	cpu.load(address, &cpu.registers.X)
+}
+
+func (cpu *Cpu) Ldy(address uint16) {
+	cpu.load(address, &cpu.registers.Y)
+}
+
+func (cpu *Cpu) store(address uint16, value uint8) {
+	cpu.memory.store(address, value)
+}
+
+func (cpu *Cpu) Sta(address uint16) {
+	cpu.store(address, cpu.registers.A)
+}
+
+func (cpu *Cpu) Stx(address uint16) {
+	cpu.store(address, cpu.registers.X)
+}
+
+func (cpu *Cpu) Sty(address uint16) {
+	cpu.store(address, cpu.registers.Y)
+}
+
+func (cpu *Cpu) transfer(from uint8, to *uint8) {
+	*to = cpu.setZNFlags(from)
+}
+
+func (cpu *Cpu) Tax() {
+	cpu.transfer(cpu.registers.A, &cpu.registers.X)
+}
+
+func (cpu *Cpu) Tay() {
+	cpu.transfer(cpu.registers.A, &cpu.registers.Y)
+}
+
+func (cpu *Cpu) Txa() {
+	cpu.transfer(cpu.registers.X, &cpu.registers.A)
+}
+
+func (cpu *Cpu) Tya() {
+	cpu.transfer(cpu.registers.Y, &cpu.registers.A)
+}
+
+func (cpu *Cpu) Tsx() {
+	cpu.transfer(cpu.registers.SP, &cpu.registers.X)
+}
+
+func (cpu *Cpu) Txs() {
+	cpu.transfer(cpu.registers.X, &cpu.registers.SP)
+}
+
+func (cpu *Cpu) push(value uint8) {
+	cpu.memory.store(0x0100|uint16(cpu.registers.SP), value)
+	cpu.registers.SP--
+}
+
+func (cpu *Cpu) pull() (value uint8) {
+	cpu.registers.SP++
+	value = cpu.memory.fetch(0x0100 | uint16(cpu.registers.SP))
+	return
+}
+
+func (cpu *Cpu) Pha() {
+	cpu.push(cpu.registers.A)
+}
+
+func (cpu *Cpu) Php() {
+	cpu.push(uint8(cpu.registers.P))
+}
+
+func (cpu *Cpu) Pla() {
+	cpu.registers.A = cpu.setZNFlags(cpu.pull())
+}
+
+func (cpu *Cpu) Plp() {
+	cpu.registers.P = Status(cpu.pull())
 }

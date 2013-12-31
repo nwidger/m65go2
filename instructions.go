@@ -381,4 +381,47 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// PHA
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x48,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Pha()
+			return
+		}})
+
+	// PHP
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x08,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Php()
+			return
+		}})
+
+	// PLA
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x68,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Pla()
+			return
+		}})
+
+	// PLP
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x28,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Plp()
+			return
+		}})
 }
