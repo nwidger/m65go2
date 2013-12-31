@@ -826,3 +826,173 @@ func TestStyAbsolute(t *testing.T) {
 
 	Teardown()
 }
+
+func TestTax(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xaa)
+
+	cpu.Execute()
+
+	if cpu.registers.X != 0xff {
+		t.Error("Register is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestTaxZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x00
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xaa)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestTaxZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xaa)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestTaxNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x81
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xaa)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestTaxNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xaa)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+func TestTay(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xa8)
+
+	cpu.Execute()
+
+	if cpu.registers.Y != 0xff {
+		t.Error("Register is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestTxa(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x8a)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0xff {
+		t.Error("Register is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestTya(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x98)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0xff {
+		t.Error("Register is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestTsx(t *testing.T) {
+	Setup()
+
+	cpu.registers.SP = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xba)
+
+	cpu.Execute()
+
+	if cpu.registers.X != 0xff {
+		t.Error("Register is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestTxs(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x9a)
+
+	cpu.Execute()
+
+	if cpu.registers.SP != 0xff {
+		t.Error("Register is not 0xff")
+	}
+
+	Teardown()
+}

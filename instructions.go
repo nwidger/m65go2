@@ -314,4 +314,71 @@ func (instructions InstructionTable) InitInstructions() {
 			cpu.Sty(cpu.absoluteAddress())
 			return
 		}})
+
+	// TAX
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xaa,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Tax()
+			return
+		}})
+
+	// TAY
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xa8,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Tay()
+			return
+		}})
+
+	// TXA
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x8a,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Txa()
+			return
+		}})
+
+	// TYA
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x98,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Tya()
+			return
+		}})
+
+	// TSX
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xba,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Tsx()
+			return
+		}})
+
+	// TXS
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x9a,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Txs()
+			return
+		}})
+
 }

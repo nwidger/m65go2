@@ -76,7 +76,7 @@ func (cpu *Cpu) Execute() {
 	cpu.clock.await(ticks)
 }
 
-func (cpu *Cpu) Ld(address uint16, register *uint8) {
+func (cpu *Cpu) load(address uint16, register *uint8) {
 	value := cpu.memory.fetch(address)
 	*register = value
 
@@ -92,31 +92,70 @@ func (cpu *Cpu) Ld(address uint16, register *uint8) {
 }
 
 func (cpu *Cpu) Lda(address uint16) {
-	cpu.Ld(address, &cpu.registers.A)
+	cpu.load(address, &cpu.registers.A)
 }
 
 func (cpu *Cpu) Ldx(address uint16) {
-	cpu.Ld(address, &cpu.registers.X)
+	cpu.load(address, &cpu.registers.X)
 }
 
 func (cpu *Cpu) Ldy(address uint16) {
-	cpu.Ld(address, &cpu.registers.Y)
+	cpu.load(address, &cpu.registers.Y)
 }
 
-func (cpu *Cpu) St(address uint16, value uint8) {
+func (cpu *Cpu) store(address uint16, value uint8) {
 	cpu.memory.store(address, value)
 }
 
 func (cpu *Cpu) Sta(address uint16) {
-	cpu.St(address, cpu.registers.A)
+	cpu.store(address, cpu.registers.A)
 }
 
 func (cpu *Cpu) Stx(address uint16) {
-	cpu.St(address, cpu.registers.X)
+	cpu.store(address, cpu.registers.X)
 }
 
 func (cpu *Cpu) Sty(address uint16) {
-	cpu.St(address, cpu.registers.Y)
+	cpu.store(address, cpu.registers.Y)
+}
+
+func (cpu *Cpu) transfer(from uint8, to *uint8) {
+	value := from
+	*to = value
+
+	cpu.registers.P &= ^Z
+	cpu.registers.P &= ^N
+
+	switch {
+	case value == 0:
+		cpu.registers.P |= Z
+	case value&(uint8(1)<<7) != 0:
+		cpu.registers.P |= N
+	}
+}
+
+func (cpu *Cpu) Tax() {
+	cpu.transfer(cpu.registers.A, &cpu.registers.X)
+}
+
+func (cpu *Cpu) Tay() {
+	cpu.transfer(cpu.registers.A, &cpu.registers.Y)
+}
+
+func (cpu *Cpu) Txa() {
+	cpu.transfer(cpu.registers.X, &cpu.registers.A)
+}
+
+func (cpu *Cpu) Tya() {
+	cpu.transfer(cpu.registers.Y, &cpu.registers.A)
+}
+
+func (cpu *Cpu) Tsx() {
+	cpu.transfer(cpu.registers.SP, &cpu.registers.X)
+}
+
+func (cpu *Cpu) Txs() {
+	cpu.transfer(cpu.registers.X, &cpu.registers.SP)
 }
 
 func (cpu *Cpu) immediateAddress() (result uint16) {
