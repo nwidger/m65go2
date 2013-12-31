@@ -247,3 +247,7 @@ func (cpu *Cpu) Pla() {
 func (cpu *Cpu) Plp() {
 	cpu.registers.P = Status(cpu.pull())
 }
+
+func (cpu *Cpu) And(address uint16) {
+	cpu.registers.A = cpu.setZNFlags(cpu.registers.A & cpu.memory.fetch(address))
+}
