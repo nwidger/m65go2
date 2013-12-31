@@ -647,4 +647,23 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// BIT
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x24,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Bit(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x2c,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Bit(cpu.absoluteAddress())
+			return
+		}})
 }

@@ -76,17 +76,29 @@ func (cpu *Cpu) Execute() {
 	cpu.clock.await(ticks)
 }
 
-func (cpu *Cpu) setZNFlags(value uint8) uint8 {
+func (cpu *Cpu) setZFlag(value uint8) uint8 {
 	cpu.registers.P &= ^Z
+
+	if value == 0 {
+		cpu.registers.P |= Z
+	}
+
+	return value
+}
+
+func (cpu *Cpu) setNFlag(value uint8) uint8 {
 	cpu.registers.P &= ^N
 
-	switch {
-	case value == 0:
-		cpu.registers.P |= Z
-	case value&(uint8(1)<<7) != 0:
+	if value&(uint8(1)<<7) != 0 {
 		cpu.registers.P |= N
 	}
 
+	return value
+}
+
+func (cpu *Cpu) setZNFlags(value uint8) uint8 {
+	cpu.setZFlag(value)
+	cpu.setNFlag(value)
 	return value
 }
 
@@ -258,4 +270,10 @@ func (cpu *Cpu) Eor(address uint16) {
 
 func (cpu *Cpu) Ora(address uint16) {
 	cpu.registers.A = cpu.setZNFlags(cpu.registers.A | cpu.memory.fetch(address))
+}
+
+func (cpu *Cpu) Bit(address uint16) {
+	value := cpu.memory.fetch(address)
+	cpu.setZFlag(value & cpu.registers.A)
+	cpu.registers.P = Status(uint8(cpu.registers.P) | (value & 0xc0))
 }

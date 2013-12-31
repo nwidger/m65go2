@@ -1857,3 +1857,158 @@ func TestOraNFlagUnset(t *testing.T) {
 
 	Teardown()
 }
+
+//  BIT
+
+func TestBitZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x7f)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+func TestBitAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x2c)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0084, 0x7f)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+func TestBitNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestBitNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x7f)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+func TestBitVFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&V == 0 {
+		t.Error("V flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestBitVFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x3f)
+
+	cpu.Execute()
+
+	if cpu.registers.P&V != 0 {
+		t.Error("V flag is set")
+	}
+
+	Teardown()
+}
+
+func TestBitZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x00
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestBitZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x24)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x3f)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
