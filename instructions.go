@@ -815,4 +815,78 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// CMP
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc9,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Cmp(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc5,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Cmp(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xd5,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Cmp(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xcd,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Cmp(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xdd,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Cmp(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			return
+		}})
+
+	//     Absolute,Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0xd9,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Cmp(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			return
+		}})
+
+	//     (Indirect,X)
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc1,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Cmp(cpu.indexedIndirectAddress())
+			return
+		}})
+
+	//     (Indirect),Y
+	instructions.AddInstruction(Instruction{
+		opcode: 0xd1,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Cmp(cpu.indirectIndexedAddress(&cycles))
+			return
+		}})
+
 }

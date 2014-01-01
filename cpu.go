@@ -336,7 +336,7 @@ func (cpu *Cpu) Sbc(address uint16) {
 
 func (cpu *Cpu) compare(address uint16, register uint8) {
 	value := cpu.memory.fetch(address)
-	cpu.setCFlagSubtraction(int16(cpu.setZNFlags(register - value)))
+	cpu.setZNFlags(uint8(cpu.setCFlagSubtraction(int16(register) - int16(value))))
 }
 
 func (cpu *Cpu) Cmp(address uint16) {
