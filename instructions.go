@@ -889,4 +889,62 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// CPX
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0xe0,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Cpx(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xe4,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Cpx(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xec,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Cpx(cpu.absoluteAddress())
+			return
+		}})
+
+	// CPY
+
+	//     Immediate
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc0,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Cpy(cpu.immediateAddress())
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc4,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Cpy(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xcc,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 4
+			cpu.Cpy(cpu.absoluteAddress())
+			return
+		}})
+
 }

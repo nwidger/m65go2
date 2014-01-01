@@ -2903,3 +2903,337 @@ func TestCmpCFlagUnset(t *testing.T) {
 
 	Teardown()
 }
+
+// CPX
+
+func TestCpxImmediate(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpxZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe4)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpxAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xec)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpxNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpxNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+func TestCpxZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpxZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestCpxCFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpxCFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe0)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	Teardown()
+}
+
+// CPY
+
+func TestCpyImmediate(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpyZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc4)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpyAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xcc)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0084, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpyNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpyNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+func TestCpyZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpyZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestCpyCFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestCpyCFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc0)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	Teardown()
+}
