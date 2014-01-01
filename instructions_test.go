@@ -1,7 +1,6 @@
 package _65go2
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
