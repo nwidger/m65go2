@@ -1161,4 +1161,98 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// ROL
+
+	//     Accumulator
+	instructions.AddInstruction(Instruction{
+		opcode: 0x2a,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.RolA()
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x26,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Rol(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x36,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Rol(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x2e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Rol(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x3e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Rol(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cycles = 7
+			return
+		}})
+
+	// ROR
+
+	//     Accumulator
+	instructions.AddInstruction(Instruction{
+		opcode: 0x6a,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.RorA()
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x66,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Ror(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x76,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Ror(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x6e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Ror(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x7e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Ror(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cycles = 7
+			return
+		}})
+
 }

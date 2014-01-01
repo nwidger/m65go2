@@ -426,3 +426,40 @@ func (cpu *Cpu) LsrA() {
 func (cpu *Cpu) Lsr(address uint16) {
 	cpu.shift(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
 }
+
+func (cpu *Cpu) rotate(direction Direction, value uint8, store func(uint8)) {
+	bit := uint8(0)
+
+	switch direction {
+	case left:
+		bit = value & uint8(N)
+		value = ((value << 1) & uint8(^C)) | uint8(cpu.registers.P&C)
+	case right:
+		bit = value & uint8(C)
+		value = ((value >> 1) & uint8(^N)) | uint8((cpu.registers.P&C)<<7)
+	}
+
+	if bit == 0 {
+		cpu.registers.P &= ^C
+	} else {
+		cpu.registers.P |= C
+	}
+
+	store(cpu.setZNFlags(value))
+}
+
+func (cpu *Cpu) RolA() {
+	cpu.rotate(left, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+}
+
+func (cpu *Cpu) Rol(address uint16) {
+	cpu.rotate(left, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+}
+
+func (cpu *Cpu) RorA() {
+	cpu.rotate(right, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+}
+
+func (cpu *Cpu) Ror(address uint16) {
+	cpu.rotate(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+}
