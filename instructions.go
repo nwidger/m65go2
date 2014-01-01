@@ -1114,4 +1114,51 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// LSR
+
+	//     Accumulator
+	instructions.AddInstruction(Instruction{
+		opcode: 0x4a,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.LsrA()
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x46,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Lsr(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x56,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Lsr(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x4e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Lsr(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x5e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Lsr(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cycles = 7
+			return
+		}})
+
 }

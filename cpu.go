@@ -383,20 +383,46 @@ func (cpu *Cpu) Dey() {
 	cpu.decrement(&cpu.registers.Y)
 }
 
-func (cpu *Cpu) shift(value uint8, store func(uint8)) {
-	if value&uint8(N) == 0 {
+type Direction int
+
+const (
+	left Direction = iota
+	right
+)
+
+func (cpu *Cpu) shift(direction Direction, value uint8, store func(uint8)) {
+	bit := uint8(0)
+
+	switch direction {
+	case left:
+		bit = value & uint8(N)
+		value <<= 1
+	case right:
+		bit = value & uint8(C)
+		value >>= 1
+	}
+
+	if bit == 0 {
 		cpu.registers.P &= ^C
 	} else {
 		cpu.registers.P |= C
 	}
 
-	store(cpu.setZNFlags(value << 1))
+	store(cpu.setZNFlags(value))
 }
 
 func (cpu *Cpu) AslA() {
-	cpu.shift(cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+	cpu.shift(left, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
 }
 
 func (cpu *Cpu) Asl(address uint16) {
-	cpu.shift(cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+	cpu.shift(left, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+}
+
+func (cpu *Cpu) LsrA() {
+	cpu.shift(right, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+}
+
+func (cpu *Cpu) Lsr(address uint16) {
+	cpu.shift(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
 }
