@@ -2012,3 +2012,621 @@ func TestBitZFlagUnset(t *testing.T) {
 
 	Teardown()
 }
+
+// ADC
+
+func TestAdcImmediate(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x65)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcZeroPageX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x75)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0085, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x6d)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0084, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcAbsoluteX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x7d)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0085, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcAbsoluteY(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x79)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0085, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcIndirectX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x61)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0085, 0x87)
+	cpu.memory.store(0x0086, 0x00)
+	cpu.memory.store(0x0087, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcIndirectY(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x71)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x86)
+	cpu.memory.store(0x0085, 0x00)
+	cpu.memory.store(0x0087, 0x02)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x03 {
+		t.Error("Register A is not 0x03")
+	}
+
+	Teardown()
+}
+
+func TestAdcCFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xff // -1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestAdcCFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x00 // +0
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	Teardown()
+}
+
+func TestAdcZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x00 // +0
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x00) // +0
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestAdcZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x00 // +0
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0xff) // -1
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestAdcVFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x7f // +127
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&V == 0 {
+		t.Error("V flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestAdcVFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01 // +1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&V != 0 {
+		t.Error("V flag is set")
+	}
+
+	Teardown()
+}
+
+func TestAdcNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01 // +1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestAdcNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01 // +1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x69)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+// SBC
+
+func TestSbcImmediate(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Errorf("Register A is 0x%x not 0x01", cpu.registers.A)
+	}
+
+	Teardown()
+}
+
+func TestSbcZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe5)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcZeroPageX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf5)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0085, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xed)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0084, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcAbsoluteX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xfd)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0085, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcAbsoluteY(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf9)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0085, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcIndirectX(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe1)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0085, 0x87)
+	cpu.memory.store(0x0086, 0x00)
+	cpu.memory.store(0x0087, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcIndirectY(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf1)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x86)
+	cpu.memory.store(0x0085, 0x00)
+	cpu.memory.store(0x0087, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.A != 0x01 {
+		t.Error("Register A is not 0x01")
+	}
+
+	Teardown()
+}
+
+func TestSbcCFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xd0 // -60
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x40) // +60
+
+	cpu.Execute()
+
+	if cpu.registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestSbcCFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02 // +2
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x04) // +4
+
+	cpu.Execute()
+
+	if cpu.registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	Teardown()
+}
+
+func TestSbcZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02 // +2
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestSbcZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02 // +2
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestSbcVFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x80 // -128
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&V == 0 {
+		t.Error("V flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestSbcVFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x01 // +1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&V != 0 {
+		t.Error("V flag is set")
+	}
+
+	Teardown()
+}
+
+func TestSbcNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0xfd // -3
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestSbcNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.A = 0x02 // +2
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe9)
+	cpu.memory.store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
