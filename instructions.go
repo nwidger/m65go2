@@ -1007,4 +1007,64 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// DEC
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc6,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Dec(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xd6,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Dec(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xce,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Dec(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xde,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Dec(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cycles = 7
+			return
+		}})
+
+	// DEX
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xca,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Dex()
+			return
+		}})
+
+	// DEY
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x88,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Dey()
+			return
+		}})
+
 }

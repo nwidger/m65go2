@@ -366,3 +366,19 @@ func (cpu *Cpu) Inx() {
 func (cpu *Cpu) Iny() {
 	cpu.increment(&cpu.registers.Y)
 }
+
+func (cpu *Cpu) Dec(address uint16) {
+	cpu.memory.store(address, cpu.setZNFlags(cpu.memory.fetch(address)-1))
+}
+
+func (cpu *Cpu) decrement(register *uint8) {
+	*register = cpu.setZNFlags(*register - 1)
+}
+
+func (cpu *Cpu) Dex() {
+	cpu.decrement(&cpu.registers.X)
+}
+
+func (cpu *Cpu) Dey() {
+	cpu.decrement(&cpu.registers.Y)
+}
