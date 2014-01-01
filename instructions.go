@@ -1255,4 +1255,23 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// JMP
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x4c,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 3
+			cpu.Jmp(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Indirect
+	instructions.AddInstruction(Instruction{
+		opcode: 0x6c,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Jmp(cpu.indirectAddress())
+			return
+		}})
 }

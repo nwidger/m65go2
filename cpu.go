@@ -173,6 +173,28 @@ func (cpu *Cpu) absoluteAddress() (result uint16) {
 	return
 }
 
+func (cpu *Cpu) indirectAddress() (result uint16) {
+	low := cpu.memory.fetch(cpu.registers.PC)
+	high := cpu.memory.fetch(cpu.registers.PC + 1)
+	cpu.registers.PC += 2
+
+	// XXX: The 6502 had a bug in which it incremented only the
+	// high byte instead of the whole 16-bit address when
+	// computing the address.
+	//
+	// See http://www.obelisk.demon.co.uk/6502/reference.html#JMP
+	// and http://www.6502.org/tutorials/6502opcodes.html#JMP for
+	// details
+	a_high := (uint16(high) << 8) | uint16(low+1)
+	a_low := (uint16(high) << 8) | uint16(low)
+
+	low = cpu.memory.fetch(a_low)
+	high = cpu.memory.fetch(a_high)
+
+	result = (uint16(high) << 8) | uint16(low)
+	return
+}
+
 func (cpu *Cpu) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
 	low := cpu.memory.fetch(cpu.registers.PC)
 	high := cpu.memory.fetch(cpu.registers.PC + 1)
@@ -462,4 +484,8 @@ func (cpu *Cpu) RorA() {
 
 func (cpu *Cpu) Ror(address uint16) {
 	cpu.rotate(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+}
+
+func (cpu *Cpu) Jmp(address uint16) {
+	cpu.registers.PC = address
 }

@@ -4671,3 +4671,43 @@ func TestRorNFlagUnset(t *testing.T) {
 
 	Teardown()
 }
+
+// JMP
+
+func TestJmpAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x4c)
+	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.store(0x0102, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x01ff {
+		t.Error("Register PC is not 0x01ff")
+	}
+
+	Teardown()
+}
+
+func TestJmpIndirect(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x6c)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x01)
+	cpu.memory.store(0x0184, 0xff)
+	cpu.memory.store(0x0185, 0xff)
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0xffff {
+		t.Error("Register PC is not 0xffff")
+	}
+
+	Teardown()
+}
