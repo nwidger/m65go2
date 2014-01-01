@@ -1,6 +1,7 @@
 package _65go2
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -2490,11 +2491,11 @@ func TestSbcIndirectY(t *testing.T) {
 func TestSbcCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xd0 // -60
+	cpu.registers.A = 0xc4 // -60
 	cpu.registers.PC = 0x0100
 
 	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x40) // +60
+	cpu.memory.store(0x0101, 0x3c) // +60
 
 	cpu.Execute()
 
