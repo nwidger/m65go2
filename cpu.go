@@ -350,3 +350,19 @@ func (cpu *Cpu) Cpx(address uint16) {
 func (cpu *Cpu) Cpy(address uint16) {
 	cpu.compare(address, cpu.registers.Y)
 }
+
+func (cpu *Cpu) Inc(address uint16) {
+	cpu.memory.store(address, cpu.setZNFlags(cpu.memory.fetch(address)+1))
+}
+
+func (cpu *Cpu) increment(register *uint8) {
+	*register = cpu.setZNFlags(*register + 1)
+}
+
+func (cpu *Cpu) Inx() {
+	cpu.increment(&cpu.registers.X)
+}
+
+func (cpu *Cpu) Iny() {
+	cpu.increment(&cpu.registers.Y)
+}

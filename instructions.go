@@ -947,4 +947,64 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// INC
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0xe6,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Inc(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xf6,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Inc(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0xee,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Inc(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0xfe,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Inc(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cycles = 7
+			return
+		}})
+
+	// INX
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xe8,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Inx()
+			return
+		}})
+
+	// INY
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xc8,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Iny()
+			return
+		}})
+
 }

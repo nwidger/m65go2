@@ -1147,7 +1147,7 @@ func TestPlp(t *testing.T) {
 	cpu.Execute()
 
 	if cpu.registers.P != 0xff {
-		t.Error("Memory is not 0xff")
+		t.Error("Status is not 0xff")
 	}
 
 	Teardown()
@@ -3233,6 +3233,330 @@ func TestCpyCFlagUnset(t *testing.T) {
 
 	if cpu.registers.P&C != 0 {
 		t.Error("C flag is set")
+	}
+
+	Teardown()
+}
+
+// INC
+
+func TestIncZeroPage(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe6)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xfe)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestIncZeroPageX(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf6)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0085, 0xfe)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestIncAbsolute(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xee)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0084, 0xfe)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0084) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestIncAbsoluteX(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xfe)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.store(0x0085, 0xfe)
+
+	cpu.Execute()
+
+	if cpu.memory.fetch(0x0085) != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestIncZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe6)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff) // -1
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestIncZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe6)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x00)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestIncNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe6)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestIncNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe6)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0x00)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+// INX
+
+func TestInx(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xfe
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe8)
+
+	cpu.Execute()
+
+	if cpu.registers.X != 0xff {
+		t.Error("Register X is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestInxZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xff // -1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestInxZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestInxNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0xfe // -2
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestInxNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.X = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xe8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
+	}
+
+	Teardown()
+}
+
+// INY
+
+func TestIny(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xfe
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc8)
+
+	cpu.Execute()
+
+	if cpu.registers.Y != 0xff {
+		t.Error("Register X is not 0xff")
+	}
+
+	Teardown()
+}
+
+func TestInyZFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xff // -1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestInyZFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	Teardown()
+}
+
+func TestInyNFlagSet(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0xfe // -2
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N == 0 {
+		t.Error("N flag is not set")
+	}
+
+	Teardown()
+}
+
+func TestInyNFlagUnset(t *testing.T) {
+	Setup()
+
+	cpu.registers.Y = 0x01
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xc8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&N != 0 {
+		t.Error("N flag is set")
 	}
 
 	Teardown()
