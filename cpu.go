@@ -382,3 +382,21 @@ func (cpu *Cpu) Dex() {
 func (cpu *Cpu) Dey() {
 	cpu.decrement(&cpu.registers.Y)
 }
+
+func (cpu *Cpu) shift(value uint8, store func(uint8)) {
+	if value&uint8(N) == 0 {
+		cpu.registers.P &= ^C
+	} else {
+		cpu.registers.P |= C
+	}
+
+	store(cpu.setZNFlags(value << 1))
+}
+
+func (cpu *Cpu) AslA() {
+	cpu.shift(cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+}
+
+func (cpu *Cpu) Asl(address uint16) {
+	cpu.shift(cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+}

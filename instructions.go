@@ -1067,4 +1067,51 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// ASL
+
+	//     Accumulator
+	instructions.AddInstruction(Instruction{
+		opcode: 0x0a,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.AslA()
+			return
+		}})
+
+	//     Zero Page
+	instructions.AddInstruction(Instruction{
+		opcode: 0x06,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 5
+			cpu.Asl(cpu.zeroPageAddress())
+			return
+		}})
+
+	//     Zero Page,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x16,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Asl(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			return
+		}})
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x0e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Asl(cpu.absoluteAddress())
+			return
+		}})
+
+	//     Absolute,X
+	instructions.AddInstruction(Instruction{
+		opcode: 0x1e,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Asl(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cycles = 7
+			return
+		}})
+
 }
