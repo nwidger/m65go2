@@ -1473,4 +1473,25 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// NOP
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xea,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			return
+		}})
+
+	// RTI
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x40,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Rti()
+			return
+		}})
+
 }

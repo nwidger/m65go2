@@ -623,3 +623,12 @@ func (cpu *Cpu) Brk() {
 
 	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
 }
+
+func (cpu *Cpu) Rti() {
+	cpu.registers.P = Status(cpu.pull())
+
+	low := cpu.pull()
+	high := cpu.pull()
+
+	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
+}

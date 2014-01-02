@@ -5258,3 +5258,28 @@ func TestBrk(t *testing.T) {
 
 	Teardown()
 }
+
+// RTI
+
+func TestRti(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+	cpu.push(0x01)
+	cpu.push(0x02)
+	cpu.push(0x03)
+
+	cpu.memory.store(0x0100, 0x40)
+
+	cpu.Execute()
+
+	if cpu.registers.P != 0x03 {
+		t.Error("Register P is not 0x03")
+	}
+
+	if cpu.registers.PC != 0x0102 {
+		t.Error("Register PC is not 0x0102")
+	}
+
+	Teardown()
+}
