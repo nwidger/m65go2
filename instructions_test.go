@@ -13,6 +13,7 @@ var cpu *Cpu
 func Setup() {
 	cpu = NewCpu(NewBasicMemory(), NewClock(rate, divisor))
 	cpu.Reset()
+	// cpu.decode = true
 	go cpu.clock.start()
 }
 
@@ -2336,7 +2337,7 @@ func TestSbcImmediate(t *testing.T) {
 	cpu.Execute()
 
 	if cpu.registers.A != 0x01 {
-		t.Errorf("Register A is not 0x01", cpu.registers.A)
+		t.Errorf("Register A is not 0x01")
 	}
 
 	Teardown()
@@ -4753,8 +4754,8 @@ func TestRts(t *testing.T) {
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0102 {
-		t.Error("Register PC is not 0x0102")
+	if cpu.registers.PC != 0x0103 {
+		t.Error("Register PC is not 0x0103")
 	}
 
 	Teardown()

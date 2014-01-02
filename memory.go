@@ -70,5 +70,5 @@ func (mem *BasicMemory) load(path string) {
 }
 
 func SamePage(addr1 uint16, addr2 uint16) bool {
-	return (0xff00 & addr1) == (0xff00 & addr2)
+	return (addr1^addr2)>>8 == 0
 }
