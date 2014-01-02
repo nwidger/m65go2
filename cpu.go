@@ -562,3 +562,49 @@ func (cpu *Cpu) Bvc(address uint16, cycles *uint16) {
 func (cpu *Cpu) Bvs(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&V != 0 }, cycles)
 }
+
+type Change int
+
+const (
+	set Change = iota
+	clear
+)
+
+func (cpu *Cpu) status(flag Status, change Change) Status {
+	switch change {
+	case set:
+		cpu.registers.P |= flag
+	case clear:
+		cpu.registers.P &^= flag
+	}
+
+	return cpu.registers.P
+}
+
+func (cpu *Cpu) Clc() {
+	cpu.status(C, clear)
+}
+
+func (cpu *Cpu) Cld() {
+	cpu.status(D, clear)
+}
+
+func (cpu *Cpu) Cli() {
+	cpu.status(I, clear)
+}
+
+func (cpu *Cpu) Clv() {
+	cpu.status(V, clear)
+}
+
+func (cpu *Cpu) Sec() {
+	cpu.status(C, set)
+}
+
+func (cpu *Cpu) Sed() {
+	cpu.status(D, set)
+}
+
+func (cpu *Cpu) Sei() {
+	cpu.status(I, set)
+}

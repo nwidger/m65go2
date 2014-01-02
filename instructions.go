@@ -1385,4 +1385,81 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// CLC
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x18,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Clc()
+			return
+		}})
+
+	// CLD
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xd8,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Cld()
+			return
+		}})
+
+	// CLI
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x58,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Cli()
+			return
+		}})
+
+	// CLV
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xb8,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Clv()
+			return
+		}})
+
+	// SEC
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x38,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Sec()
+			return
+		}})
+
+	// SED
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0xf8,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Sed()
+			return
+		}})
+
+	// SEI
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x78,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Sei()
+			return
+		}})
+
 }

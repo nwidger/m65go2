@@ -5015,3 +5015,213 @@ func TestBvs(t *testing.T) {
 
 	Teardown()
 }
+
+// CLC
+
+func TestClc(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x18)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	cpu.registers.P |= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x18)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	Teardown()
+}
+
+// CLD
+
+func TestCld(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= D
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xd8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&D != 0 {
+		t.Error("D flag is set")
+	}
+
+	cpu.registers.P |= D
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xd8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&D != 0 {
+		t.Error("D flag is set")
+	}
+
+	Teardown()
+}
+
+// CLI
+
+func TestCli(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= I
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x58)
+
+	cpu.Execute()
+
+	if cpu.registers.P&I != 0 {
+		t.Error("I flag is set")
+	}
+
+	cpu.registers.P |= I
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x58)
+
+	cpu.Execute()
+
+	if cpu.registers.P&I != 0 {
+		t.Error("I flag is set")
+	}
+
+	Teardown()
+}
+
+// CLV
+
+func TestClv(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= V
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xb8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&V != 0 {
+		t.Error("V flag is set")
+	}
+
+	cpu.registers.P |= V
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xb8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&V != 0 {
+		t.Error("V flag is set")
+	}
+
+	Teardown()
+}
+
+// SEC
+
+func TestSec(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x38)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	cpu.registers.P |= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x38)
+
+	cpu.Execute()
+
+	if cpu.registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	Teardown()
+}
+
+// SED
+
+func TestSed(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= D
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&D == 0 {
+		t.Error("D flag is not set")
+	}
+
+	cpu.registers.P |= D
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf8)
+
+	cpu.Execute()
+
+	if cpu.registers.P&D == 0 {
+		t.Error("D flag is not set")
+	}
+
+	Teardown()
+}
+
+// SEI
+
+func TestSei(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= I
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x78)
+
+	cpu.Execute()
+
+	if cpu.registers.P&I == 0 {
+		t.Error("I flag is not set")
+	}
+
+	cpu.registers.P |= I
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x78)
+
+	cpu.Execute()
+
+	if cpu.registers.P&I == 0 {
+		t.Error("I flag is not set")
+	}
+
+	Teardown()
+}
