@@ -35,9 +35,9 @@ func (reg *Registers) reset() {
 	reg.A = 0
 	reg.X = 0
 	reg.Y = 0
-	reg.P = 0
-	reg.SP = 0xff
-	reg.PC = 0
+	reg.P = I
+	reg.SP = 0xfd
+	reg.PC = 0xfffc
 }
 
 type Cpu struct {
@@ -102,43 +102,15 @@ func (cpu *Cpu) setZNFlags(value uint8) uint8 {
 	return value
 }
 
-func (cpu *Cpu) setCFlagAddition(value int16) uint16 {
-	if value > 0xff {
-		cpu.registers.P |= C
-	} else {
-		cpu.registers.P &= ^C
-	}
-
-	return uint16(value)
-}
-
-func (cpu *Cpu) setCFlagSubtraction(value int16) uint16 {
-	if value >= 0 {
-		cpu.registers.P |= C
-	} else {
-		cpu.registers.P &= ^C
-	}
-
-	return uint16(value)
+func (cpu *Cpu) setCFlagAddition(value uint16) uint16 {
+	cpu.registers.P &= ^C
+	cpu.registers.P |= Status(value >> 8 & 0x1)
+	return value
 }
 
 func (cpu *Cpu) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
-	if ((term1^term2)&uint16(N) == 0) && ((term1^result)&uint16(N) == uint16(N)) {
-		cpu.registers.P |= V
-	} else {
-		cpu.registers.P &= ^V
-	}
-
-	return result
-}
-
-func (cpu *Cpu) setVFlagSubtraction(term1 uint16, term2 uint16, result uint16) uint16 {
-	if ((term1^result)&uint16(N)) != 0 && ((term1^term2)&uint16(N)) != 0 {
-		cpu.registers.P |= V
-	} else {
-		cpu.registers.P &= ^V
-	}
-
+	cpu.registers.P &= ^V
+	cpu.registers.P |= Status((^(term1 ^ term2) & (term1 ^ result) & 0x80) >> 1)
 	return result
 }
 
@@ -353,25 +325,25 @@ func (cpu *Cpu) Bit(address uint16) {
 	cpu.registers.P = Status(uint8(cpu.registers.P) | (value & 0xc0))
 }
 
-func (cpu *Cpu) Adc(address uint16) {
+func (cpu *Cpu) addition(value uint16) {
 	orig := uint16(cpu.registers.A)
-	value := uint16(cpu.memory.fetch(address))
-
-	result := cpu.setCFlagAddition(int16(orig) + int16(value) + int16(cpu.registers.P&C))
+	result := cpu.setCFlagAddition(orig + value + uint16(cpu.registers.P&C))
 	cpu.registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
 }
 
-func (cpu *Cpu) Sbc(address uint16) {
-	orig := uint16(cpu.registers.A)
+func (cpu *Cpu) Adc(address uint16) {
 	value := uint16(cpu.memory.fetch(address))
+	cpu.addition(value)
+}
 
-	result := cpu.setCFlagSubtraction(int16(orig) - int16(value) - int16(cpu.registers.P&C))
-	cpu.registers.A = cpu.setZNFlags(uint8(cpu.setVFlagSubtraction(orig, value, result)))
+func (cpu *Cpu) Sbc(address uint16) {
+	value := uint16(cpu.memory.fetch(address)) ^ 0xff + 1
+	cpu.addition(value)
 }
 
 func (cpu *Cpu) compare(address uint16, register uint8) {
-	value := cpu.memory.fetch(address)
-	cpu.setZNFlags(uint8(cpu.setCFlagSubtraction(int16(register) - int16(value))))
+	value := uint16(cpu.memory.fetch(address)) ^ 0xff + 1
+	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
 
 func (cpu *Cpu) Cmp(address uint16) {

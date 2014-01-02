@@ -252,8 +252,8 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0x91,
 		exec: func(cpu *Cpu) (cycles uint16) {
+			cpu.Sta(cpu.indirectIndexedAddress(&cycles))
 			cycles = 6
-			cpu.Sta(cpu.indirectIndexedAddress(nil))
 			return
 		}})
 

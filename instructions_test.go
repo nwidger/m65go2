@@ -2336,7 +2336,7 @@ func TestSbcImmediate(t *testing.T) {
 	cpu.Execute()
 
 	if cpu.registers.A != 0x01 {
-		t.Errorf("Register A is 0x%x not 0x01", cpu.registers.A)
+		t.Errorf("Register A is not 0x01", cpu.registers.A)
 	}
 
 	Teardown()
@@ -4729,11 +4729,11 @@ func TestJsr(t *testing.T) {
 		t.Error("Register PC is not 0x01ff")
 	}
 
-	if cpu.memory.fetch(0x01ff) != 0x01 {
+	if cpu.memory.fetch(0x01fd) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
-	if cpu.memory.fetch(0x01fe) != 0x02 {
+	if cpu.memory.fetch(0x01fc) != 0x02 {
 		t.Error("Memory is not 0x02")
 	}
 
