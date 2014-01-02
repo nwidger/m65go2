@@ -1274,4 +1274,26 @@ func (instructions InstructionTable) InitInstructions() {
 			cpu.Jmp(cpu.indirectAddress())
 			return
 		}})
+
+	// JSR
+
+	//     Absolute
+	instructions.AddInstruction(Instruction{
+		opcode: 0x20,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Jsr(cpu.absoluteAddress())
+			return
+		}})
+
+	// RTS
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x60,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 6
+			cpu.Rts()
+			return
+		}})
 }

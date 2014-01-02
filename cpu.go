@@ -489,3 +489,19 @@ func (cpu *Cpu) Ror(address uint16) {
 func (cpu *Cpu) Jmp(address uint16) {
 	cpu.registers.PC = address
 }
+
+func (cpu *Cpu) Jsr(address uint16) {
+	value := cpu.registers.PC - 1
+
+	cpu.push(uint8(value >> 8))
+	cpu.push(uint8(value))
+
+	cpu.registers.PC = address
+}
+
+func (cpu *Cpu) Rts() {
+	low := cpu.pull()
+	high := cpu.pull()
+
+	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
+}

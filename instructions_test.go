@@ -4711,3 +4711,51 @@ func TestJmpIndirect(t *testing.T) {
 
 	Teardown()
 }
+
+// JSR
+
+func TestJsr(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x20)
+	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.store(0x0102, 0x01)
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x01ff {
+		t.Error("Register PC is not 0x01ff")
+	}
+
+	if cpu.memory.fetch(0x01ff) != 0x01 {
+		t.Error("Memory is not 0x01")
+	}
+
+	if cpu.memory.fetch(0x01fe) != 0x02 {
+		t.Error("Memory is not 0x02")
+	}
+
+	Teardown()
+}
+
+// RTS
+
+func TestRts(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+	cpu.push(0x01)
+	cpu.push(0x02)
+
+	cpu.memory.store(0x0100, 0x60)
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0102 {
+		t.Error("Register PC is not 0x0102")
+	}
+
+	Teardown()
+}
