@@ -40,6 +40,36 @@ func (reg *Registers) reset() {
 	reg.PC = 0xfffc
 }
 
+func (reg *Registers) print() {
+	fmt.Printf("A:  %#02x (%03dd) (%08bb)\n", reg.A, reg.A, reg.A)
+	fmt.Printf("X:  %#02x (%03dd) (%08bb)\n", reg.X, reg.X, reg.X)
+	fmt.Printf("Y:  %#02x (%03dd) (%08bb)\n", reg.Y, reg.Y, reg.Y)
+	fmt.Printf("SP: %#02x (%03dd) (%08bb)\n", reg.SP, reg.SP, reg.SP)
+
+	f := ""
+
+	getFlag := func(flag Status, set string) string {
+		if reg.P&flag != 0 {
+			return set
+		} else {
+			return "-"
+		}
+	}
+
+	f += getFlag(N, "N")
+	f += getFlag(V, "V")
+	f += "-" // -UNUSED-
+	f += getFlag(B, "B")
+	f += getFlag(D, "D")
+	f += getFlag(I, "I")
+	f += getFlag(Z, "Z")
+	f += getFlag(C, "C")
+
+	fmt.Printf("P:  %08bb (%s)\n", reg.P, f)
+
+	fmt.Printf("PC: %#04x (%05dd) (%016bb)\n", reg.PC, reg.PC, reg.PC)
+}
+
 type Cpu struct {
 	clock        Clock
 	registers    Registers
@@ -65,6 +95,7 @@ func (cpu *Cpu) Execute() {
 
 	if !ok {
 		fmt.Printf("No such opcode 0x%x\n", opcode)
+		cpu.registers.print()
 		os.Exit(1)
 	}
 
@@ -74,6 +105,12 @@ func (cpu *Cpu) Execute() {
 
 	// count cycles
 	cpu.clock.await(ticks)
+}
+
+func (cpu *Cpu) Run() {
+	for {
+		cpu.Execute()
+	}
 }
 
 func (cpu *Cpu) setZFlag(value uint8) uint8 {
@@ -87,12 +124,8 @@ func (cpu *Cpu) setZFlag(value uint8) uint8 {
 }
 
 func (cpu *Cpu) setNFlag(value uint8) uint8 {
-	if value&(uint8(1)<<7) != 0 {
-		cpu.registers.P |= N
-	} else {
-		cpu.registers.P &= ^N
-	}
-
+	cpu.registers.P &= ^N
+	cpu.registers.P |= Status(value & (uint8(1) << 7))
 	return value
 }
 
@@ -398,22 +431,19 @@ const (
 )
 
 func (cpu *Cpu) shift(direction Direction, value uint8, store func(uint8)) {
-	bit := uint8(0)
+	c := Status(0)
 
 	switch direction {
 	case left:
-		bit = value & uint8(N)
+		c = Status((value & uint8(N)) >> 7)
 		value <<= 1
 	case right:
-		bit = value & uint8(C)
+		c = Status(value & uint8(C))
 		value >>= 1
 	}
 
-	if bit == 0 {
-		cpu.registers.P &= ^C
-	} else {
-		cpu.registers.P |= C
-	}
+	cpu.registers.P &= ^C
+	cpu.registers.P |= c
 
 	store(cpu.setZNFlags(value))
 }
@@ -435,22 +465,19 @@ func (cpu *Cpu) Lsr(address uint16) {
 }
 
 func (cpu *Cpu) rotate(direction Direction, value uint8, store func(uint8)) {
-	bit := uint8(0)
+	c := Status(0)
 
 	switch direction {
 	case left:
-		bit = value & uint8(N)
+		c = Status(value & uint8(N) >> 7)
 		value = ((value << 1) & uint8(^C)) | uint8(cpu.registers.P&C)
 	case right:
-		bit = value & uint8(C)
+		c = Status(value & uint8(C))
 		value = ((value >> 1) & uint8(^N)) | uint8((cpu.registers.P&C)<<7)
 	}
 
-	if bit == 0 {
-		cpu.registers.P &= ^C
-	} else {
-		cpu.registers.P |= C
-	}
+	cpu.registers.P &= ^C
+	cpu.registers.P |= c
 
 	store(cpu.setZNFlags(value))
 }
