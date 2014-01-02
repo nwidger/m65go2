@@ -5225,3 +5225,36 @@ func TestSei(t *testing.T) {
 
 	Teardown()
 }
+
+// BRK
+
+func TestBrk(t *testing.T) {
+	Setup()
+
+	cpu.registers.P = 0xff & (^B)
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x00)
+	cpu.memory.store(0xfffe, 0xff)
+	cpu.memory.store(0xffff, 0x01)
+
+	cpu.Execute()
+
+	if cpu.pull() != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	if cpu.pull() != 0x02 {
+		t.Error("Memory is not 0x02")
+	}
+
+	if cpu.pull() != 0x01 {
+		t.Error("Memory is not 0x01")
+	}
+
+	if cpu.registers.PC != 0x01ff {
+		t.Error("Register PC is not 0x01ff")
+	}
+
+	Teardown()
+}

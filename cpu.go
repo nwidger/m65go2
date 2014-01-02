@@ -324,7 +324,7 @@ func (cpu *Cpu) Pha() {
 }
 
 func (cpu *Cpu) Php() {
-	cpu.push(uint8(cpu.registers.P))
+	cpu.push(uint8(cpu.registers.P | B))
 }
 
 func (cpu *Cpu) Pla() {
@@ -607,4 +607,19 @@ func (cpu *Cpu) Sed() {
 
 func (cpu *Cpu) Sei() {
 	cpu.status(I, set)
+}
+
+func (cpu *Cpu) Brk() {
+	cpu.registers.PC++
+
+	cpu.push(uint8(cpu.registers.PC >> 8))
+	cpu.push(uint8(cpu.registers.PC))
+
+	cpu.Php()
+	cpu.status(I, set)
+
+	low := cpu.memory.fetch(0xfffe)
+	high := cpu.memory.fetch(0xffff)
+
+	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
 }

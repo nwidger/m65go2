@@ -1462,4 +1462,15 @@ func (instructions InstructionTable) InitInstructions() {
 			return
 		}})
 
+	// BRK
+
+	//     Implied
+	instructions.AddInstruction(Instruction{
+		opcode: 0x00,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 7
+			cpu.Brk()
+			return
+		}})
+
 }
