@@ -164,6 +164,19 @@ func (cpu *Cpu) zeroPageIndexedAddress(index uint8) (result uint16) {
 	return
 }
 
+func (cpu *Cpu) relativeAddress() (result uint16) {
+	value := uint16(cpu.memory.fetch(cpu.registers.PC))
+	cpu.registers.PC++
+
+	if value > 0x7f {
+		result = cpu.registers.PC - (0x0100 - value)
+	} else {
+		result = cpu.registers.PC + value
+	}
+
+	return
+}
+
 func (cpu *Cpu) absoluteAddress() (result uint16) {
 	low := cpu.memory.fetch(cpu.registers.PC)
 	high := cpu.memory.fetch(cpu.registers.PC + 1)
@@ -504,4 +517,48 @@ func (cpu *Cpu) Rts() {
 	high := cpu.pull()
 
 	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
+}
+
+func (cpu *Cpu) branch(address uint16, condition func() bool, cycles *uint16) {
+	if condition() {
+		*cycles++
+
+		if !SamePage(cpu.registers.PC, address) {
+			*cycles++
+		}
+
+		cpu.registers.PC = address
+	}
+}
+
+func (cpu *Cpu) Bcc(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&C == 0 }, cycles)
+}
+
+func (cpu *Cpu) Bcs(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&C != 0 }, cycles)
+}
+
+func (cpu *Cpu) Beq(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&Z != 0 }, cycles)
+}
+
+func (cpu *Cpu) Bmi(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&N != 0 }, cycles)
+}
+
+func (cpu *Cpu) Bne(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&Z == 0 }, cycles)
+}
+
+func (cpu *Cpu) Bpl(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&N == 0 }, cycles)
+}
+
+func (cpu *Cpu) Bvc(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&V == 0 }, cycles)
+}
+
+func (cpu *Cpu) Bvs(address uint16, cycles *uint16) {
+	cpu.branch(address, func() bool { return cpu.registers.P&V != 0 }, cycles)
 }

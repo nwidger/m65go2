@@ -1296,4 +1296,93 @@ func (instructions InstructionTable) InitInstructions() {
 			cpu.Rts()
 			return
 		}})
+
+	// BCC
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0x90,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bcc(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BCS
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0xb0,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bcs(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BEQ
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0xf0,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Beq(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BMI
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0x30,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bmi(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BNE
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0xd0,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bne(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BPL
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0x10,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bpl(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BVC
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0x50,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bvc(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
+	// BVS
+
+	//     Relative
+	instructions.AddInstruction(Instruction{
+		opcode: 0x70,
+		exec: func(cpu *Cpu) (cycles uint16) {
+			cycles = 2
+			cpu.Bvs(cpu.relativeAddress(), &cycles)
+			return
+		}})
+
 }

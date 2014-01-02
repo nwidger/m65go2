@@ -4759,3 +4759,259 @@ func TestRts(t *testing.T) {
 
 	Teardown()
 }
+
+// BCC
+
+func TestBcc(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x90)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P &^= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x90)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BCS
+
+func TestBcs(t *testing.T) {
+	Setup()
+
+	cpu.registers.P |= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xb0)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P |= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xb0)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BEQ
+
+func TestBeq(t *testing.T) {
+	Setup()
+
+	cpu.registers.P |= Z
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf0)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P |= Z
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xf0)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BMI
+
+func TestBmi(t *testing.T) {
+	Setup()
+
+	cpu.registers.P |= N
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x30)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P |= N
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x30)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BNE
+
+func TestBne(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= Z
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xd0)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P &^= Z
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xd0)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BPL
+
+func TestBpl(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= N
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x10)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P &^= N
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x10)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BVC
+
+func TestBvc(t *testing.T) {
+	Setup()
+
+	cpu.registers.P &^= V
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x50)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P &^= V
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x50)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
+
+// BVS
+
+func TestBvs(t *testing.T) {
+	Setup()
+
+	cpu.registers.P |= V
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x70)
+	cpu.memory.store(0x0101, 0x02) // +2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0104 {
+		t.Error("Register PC is not 0x0104")
+	}
+
+	cpu.registers.P |= V
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x70)
+	cpu.memory.store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.registers.PC != 0x0100 {
+		t.Error("Register PC is not 0x0100")
+	}
+
+	Teardown()
+}
