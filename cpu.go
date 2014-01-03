@@ -86,7 +86,13 @@ func (cpu *Cpu) Reset() {
 	cpu.memory.reset()
 }
 
-func (cpu *Cpu) Execute() {
+type BadOpCodeError OpCode
+
+func (b BadOpCodeError) Error() string {
+	return fmt.Sprintf("No such opcode %#02x", b)
+}
+
+func (cpu *Cpu) Execute() (cycles uint16, error error) {
 	ticks := cpu.clock.ticks
 
 	// fetch
@@ -94,23 +100,28 @@ func (cpu *Cpu) Execute() {
 	inst, ok := cpu.instructions[opcode]
 
 	if !ok {
-		fmt.Printf("No such opcode 0x%x\n", opcode)
-		cpu.registers.print()
-		os.Exit(1)
+		return 0, BadOpCodeError(opcode)
 	}
 
 	// execute
 	cpu.registers.PC++
-	ticks += uint64(inst.exec(cpu))
+	cycles = inst.exec(cpu)
 
 	// count cycles
-	cpu.clock.await(ticks)
+	cpu.clock.await(ticks + uint64(cycles))
+
+	return cycles, nil
 }
 
-func (cpu *Cpu) Run() {
+func (cpu *Cpu) Run() (error error) {
 	for {
-		cpu.Execute()
+		if _, error := cpu.Execute(); error != nil {
+			fmt.Println(error)
+			break
+		}
 	}
+
+	return nil
 }
 
 func (cpu *Cpu) setZFlag(value uint8) uint8 {

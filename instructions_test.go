@@ -21,6 +21,28 @@ func Teardown() {
 	cpu.clock.stop()
 }
 
+// BadOpCodeError
+
+func TestBadOpCodeError(t *testing.T) {
+	Setup()
+
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x02)
+
+	_, error := cpu.Execute()
+
+	if error == nil {
+		t.Error("No error returned")
+	}
+
+	if _, ok := error.(BadOpCodeError); !ok {
+		t.Error("Did not receive expected error type BadOpCodeError")
+	}
+
+	Teardown()
+}
+
 // LDA
 
 func TestLdaImmediate(t *testing.T) {
@@ -107,10 +129,28 @@ func TestLdaAbsoluteX(t *testing.T) {
 	cpu.memory.store(0x0102, 0x00)
 	cpu.memory.store(0x0085, 0xff)
 
-	cpu.Execute()
+	cycles, _ := cpu.Execute()
+
+	if cycles != 4 {
+		t.Error("Cycles is not 4")
+	}
 
 	if cpu.registers.A != 0xff {
 		t.Error("Register A is not 0xff")
+	}
+
+	cpu.registers.X = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xbd)
+	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.store(0x0102, 0x02)
+	cpu.memory.store(0x0300, 0xff)
+
+	cycles, _ = cpu.Execute()
+
+	if cycles != 5 {
+		t.Error("Cycles is not 5")
 	}
 
 	Teardown()
@@ -127,10 +167,28 @@ func TestLdaAbsoluteY(t *testing.T) {
 	cpu.memory.store(0x0102, 0x00)
 	cpu.memory.store(0x0085, 0xff)
 
-	cpu.Execute()
+	cycles, _ := cpu.Execute()
+
+	if cycles != 4 {
+		t.Error("Cycles is not 4")
+	}
 
 	if cpu.registers.A != 0xff {
 		t.Error("Register A is not 0xff")
+	}
+
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xb9)
+	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.store(0x0102, 0x02)
+	cpu.memory.store(0x0300, 0xff)
+
+	cycles, _ = cpu.Execute()
+
+	if cycles != 5 {
+		t.Error("Cycles is not 5")
 	}
 
 	Teardown()
@@ -169,10 +227,29 @@ func TestLdaIndirectY(t *testing.T) {
 	cpu.memory.store(0x0085, 0x00)
 	cpu.memory.store(0x0087, 0xff)
 
-	cpu.Execute()
+	cycles, _ := cpu.Execute()
+
+	if cycles != 5 {
+		t.Error("Cycles is not 5")
+	}
 
 	if cpu.registers.A != 0xff {
 		t.Error("Register A is not 0xff")
+	}
+
+	cpu.registers.Y = 1
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0xb1)
+	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.store(0x0300, 0xff)
+
+	cycles, _ = cpu.Execute()
+
+	if cycles != 6 {
+		t.Error("Cycles is not 6")
 	}
 
 	Teardown()
@@ -4766,13 +4843,32 @@ func TestRts(t *testing.T) {
 func TestBcc(t *testing.T) {
 	Setup()
 
+	cpu.registers.P |= C
+	cpu.registers.PC = 0x0100
+
+	cpu.memory.store(0x0100, 0x90)
+
+	cycles, _ := cpu.Execute()
+
+	if cycles != 2 {
+		t.Error("Cycles is not 2")
+	}
+
+	if cpu.registers.PC != 0x0102 {
+		t.Error("Register PC is not 0x0102")
+	}
+
 	cpu.registers.P &^= C
 	cpu.registers.PC = 0x0100
 
 	cpu.memory.store(0x0100, 0x90)
 	cpu.memory.store(0x0101, 0x02) // +2
 
-	cpu.Execute()
+	cycles, _ = cpu.Execute()
+
+	if cycles != 3 {
+		t.Error("Cycles is not 3")
+	}
 
 	if cpu.registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
@@ -4782,12 +4878,16 @@ func TestBcc(t *testing.T) {
 	cpu.registers.PC = 0x0100
 
 	cpu.memory.store(0x0100, 0x90)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.store(0x0101, 0xfd) // -3
 
-	cpu.Execute()
+	cycles, _ = cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
-		t.Error("Register PC is not 0x0100")
+	if cycles != 4 {
+		t.Error("Cycles is not 4")
+	}
+
+	if cpu.registers.PC != 0x00ff {
+		t.Error("Register PC is not 0x00ff")
 	}
 
 	Teardown()
