@@ -1937,7 +1937,7 @@ func TestOraNFlagUnset(t *testing.T) {
 	Teardown()
 }
 
-//  BIT
+// BIT
 
 func TestBitZeroPage(t *testing.T) {
 	Setup()
@@ -2272,6 +2272,19 @@ func TestAdcCFlagSet(t *testing.T) {
 		t.Error("C flag is not set")
 	}
 
+	cpu.Registers.P |= C
+	cpu.Registers.A = 0xff // -1
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x00) // +0
+
+	cpu.Execute()
+
+	if cpu.Registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
 	Teardown()
 }
 
@@ -2283,6 +2296,19 @@ func TestAdcCFlagUnset(t *testing.T) {
 
 	cpu.memory.Store(0x0100, 0x69)
 	cpu.memory.Store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.Registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	cpu.Registers.P &^= C
+	cpu.Registers.A = 0xff // -1
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x00) // +0
 
 	cpu.Execute()
 
@@ -2308,6 +2334,19 @@ func TestAdcZFlagSet(t *testing.T) {
 		t.Error("Z flag is not set")
 	}
 
+	cpu.Registers.P |= C
+	cpu.Registers.A = 0xfe // -2
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
+
+	cpu.Execute()
+
+	if cpu.Registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
 	Teardown()
 }
 
@@ -2319,6 +2358,18 @@ func TestAdcZFlagUnset(t *testing.T) {
 
 	cpu.memory.Store(0x0100, 0x69)
 	cpu.memory.Store(0x0101, 0xff) // -1
+
+	cpu.Execute()
+
+	if cpu.Registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	cpu.Registers.A = 0xfe // -2
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2406,6 +2457,7 @@ func TestAdcNFlagUnset(t *testing.T) {
 func TestSbcImmediate(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
@@ -2424,6 +2476,7 @@ func TestSbcImmediate(t *testing.T) {
 func TestSbcZeroPage(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
@@ -2443,6 +2496,7 @@ func TestSbcZeroPage(t *testing.T) {
 func TestSbcZeroPageX(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
@@ -2463,6 +2517,7 @@ func TestSbcZeroPageX(t *testing.T) {
 func TestSbcAbsolute(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
@@ -2483,6 +2538,7 @@ func TestSbcAbsolute(t *testing.T) {
 func TestSbcAbsoluteX(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
@@ -2504,6 +2560,7 @@ func TestSbcAbsoluteX(t *testing.T) {
 func TestSbcAbsoluteY(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
@@ -2525,6 +2582,7 @@ func TestSbcAbsoluteY(t *testing.T) {
 func TestSbcIndirectX(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
@@ -2547,6 +2605,7 @@ func TestSbcIndirectX(t *testing.T) {
 func TestSbcIndirectY(t *testing.T) {
 	Setup()
 
+	cpu.Registers.P |= C
 	cpu.Registers.A = 0x02
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
@@ -2609,7 +2668,7 @@ func TestSbcZFlagSet(t *testing.T) {
 	cpu.Registers.PC = 0x0100
 
 	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2627,7 +2686,7 @@ func TestSbcZFlagUnset(t *testing.T) {
 	cpu.Registers.PC = 0x0100
 
 	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -2926,6 +2985,18 @@ func TestCmpZFlagSet(t *testing.T) {
 		t.Error("Z flag is not set")
 	}
 
+	cpu.Registers.A = 0xfe // -2
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0xfe) // -2
+
+	cpu.Execute()
+
+	if cpu.Registers.P&Z == 0 {
+		t.Error("Z flag is not set")
+	}
+
 	Teardown()
 }
 
@@ -2937,6 +3008,18 @@ func TestCmpZFlagUnset(t *testing.T) {
 
 	cpu.memory.Store(0x0100, 0xc9)
 	cpu.memory.Store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.Registers.P&Z != 0 {
+		t.Error("Z flag is set")
+	}
+
+	cpu.Registers.A = 0xfe // -2
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0xff) // -1
 
 	cpu.Execute()
 
@@ -2962,6 +3045,30 @@ func TestCmpCFlagSet(t *testing.T) {
 		t.Error("C flag is not set")
 	}
 
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x01)
+
+	cpu.Execute()
+
+	if cpu.Registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
+	cpu.Registers.A = 0xfe // -2
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0xfd) // -3
+
+	cpu.Execute()
+
+	if cpu.Registers.P&C == 0 {
+		t.Error("C flag is not set")
+	}
+
 	Teardown()
 }
 
@@ -2973,6 +3080,18 @@ func TestCmpCFlagUnset(t *testing.T) {
 
 	cpu.memory.Store(0x0100, 0xc9)
 	cpu.memory.Store(0x0101, 0x02)
+
+	cpu.Execute()
+
+	if cpu.Registers.P&C != 0 {
+		t.Error("C flag is set")
+	}
+
+	cpu.Registers.A = 0xfd // -3
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -4817,6 +4936,49 @@ func TestJsr(t *testing.T) {
 	}
 
 	Teardown()
+
+	Setup()
+
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0x20) // JSR
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x60) // RTS
+
+	cpu.Execute()
+	cpu.Execute()
+
+	if cpu.Registers.PC != 0x0103 {
+		t.Error("Register PC is not 0x0103")
+	}
+
+	if cpu.Registers.SP != 0xfd {
+		t.Error("Register SP is not 0xfd")
+	}
+
+	Teardown()
+
+	Setup()
+
+	cpu.Registers.PC = 0x0100
+
+	cpu.memory.Store(0x0100, 0x20) // JSR $0084
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0103, 0xa9) // LDA #$ff
+	cpu.memory.Store(0x0104, 0xff)
+	cpu.memory.Store(0x0105, 0x02) // illegal opcode
+	cpu.memory.Store(0x0084, 0x60) // RTS
+
+	cpu.Run()
+
+	if cpu.Registers.A != 0xff {
+		t.Error("Register A is not 0xff")
+	}
+
+	Teardown()
+
 }
 
 // RTS
@@ -4825,8 +4987,7 @@ func TestRts(t *testing.T) {
 	Setup()
 
 	cpu.Registers.PC = 0x0100
-	cpu.push(0x01)
-	cpu.push(0x02)
+	cpu.push16(0x0102)
 
 	cpu.memory.Store(0x0100, 0x60)
 
@@ -5346,12 +5507,8 @@ func TestBrk(t *testing.T) {
 		t.Error("Memory is not 0xff")
 	}
 
-	if cpu.pull() != 0x02 {
-		t.Error("Memory is not 0x02")
-	}
-
-	if cpu.pull() != 0x01 {
-		t.Error("Memory is not 0x01")
+	if cpu.pull16() != 0x0102 {
+		t.Error("Memory is not 0x0102")
 	}
 
 	if cpu.Registers.PC != 0x01ff {
@@ -5367,8 +5524,7 @@ func TestRti(t *testing.T) {
 	Setup()
 
 	cpu.Registers.PC = 0x0100
-	cpu.push(0x01)
-	cpu.push(0x02)
+	cpu.push16(0x0102)
 	cpu.push(0x03)
 
 	cpu.memory.Store(0x0100, 0x40)

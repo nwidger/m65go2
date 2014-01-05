@@ -117,8 +117,7 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 func (cpu *CPU) Run() (error error) {
 	for {
 		if _, error := cpu.Execute(); error != nil {
-			fmt.Println(error)
-			break
+			return error
 		}
 	}
 
@@ -378,9 +377,22 @@ func (cpu *CPU) push(value uint8) {
 	cpu.Registers.SP--
 }
 
+func (cpu *CPU) push16(value uint16) {
+	cpu.push(uint8(value >> 8))
+	cpu.push(uint8(value))
+}
+
 func (cpu *CPU) pull() (value uint8) {
 	cpu.Registers.SP++
 	value = cpu.memory.Fetch(0x0100 | uint16(cpu.Registers.SP))
+	return
+}
+
+func (cpu *CPU) pull16() (value uint16) {
+	low := cpu.pull()
+	high := cpu.pull()
+
+	value = (uint16(high) << 8) | uint16(low)
 	return
 }
 
@@ -470,7 +482,7 @@ func (cpu *CPU) Sbc(address uint16) {
 		fmt.Printf("  %04x: SBC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := uint16(cpu.memory.Fetch(address)) ^ 0xff + 1
+	value := uint16(cpu.memory.Fetch(address)) ^ 0xff
 	cpu.addition(value)
 }
 
@@ -681,8 +693,7 @@ func (cpu *CPU) Jsr(address uint16) {
 
 	value := cpu.Registers.PC - 1
 
-	cpu.push(uint8(value >> 8))
-	cpu.push(uint8(value))
+	cpu.push16(value)
 
 	cpu.Registers.PC = address
 }
@@ -692,10 +703,7 @@ func (cpu *CPU) Rts() {
 		fmt.Printf("  %04x: RTS\n", cpu.Registers.PC)
 	}
 
-	low := cpu.pull()
-	high := cpu.pull()
-
-	cpu.Registers.PC = (uint16(high) << 8) | uint16(low) + 1
+	cpu.Registers.PC = cpu.pull16() + 1
 }
 
 func (cpu *CPU) branch(address uint16, condition func() bool, cycles *uint16) {
@@ -837,8 +845,7 @@ func (cpu *CPU) Brk() {
 
 	cpu.Registers.PC++
 
-	cpu.push(uint8(cpu.Registers.PC >> 8))
-	cpu.push(uint8(cpu.Registers.PC))
+	cpu.push16(cpu.Registers.PC)
 	cpu.push(uint8(cpu.Registers.P | B))
 
 	cpu.Registers.P |= I
@@ -855,9 +862,5 @@ func (cpu *CPU) Rti() {
 	}
 
 	cpu.Registers.P = Status(cpu.pull())
-
-	low := cpu.pull()
-	high := cpu.pull()
-
-	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
+	cpu.Registers.PC = cpu.pull16()
 }
