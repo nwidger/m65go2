@@ -6,10 +6,9 @@ import (
 )
 
 type Memory interface {
-	reset()
-	load(path string)
-	fetch(address uint16) (value uint8)
-	store(address uint16, value uint8) (oldValue uint8)
+	Reset()
+	Fetch(address uint16) (value uint8)
+	Store(address uint16, value uint8) (oldValue uint8)
 }
 
 type BasicMemory [65536]uint8
@@ -18,18 +17,18 @@ func NewBasicMemory() *BasicMemory {
 	return &BasicMemory{}
 }
 
-func (mem *BasicMemory) reset() {
+func (mem *BasicMemory) Reset() {
 	for i := range mem {
 		mem[i] = 0
 	}
 }
 
-func (mem *BasicMemory) fetch(address uint16) (value uint8) {
+func (mem *BasicMemory) Fetch(address uint16) (value uint8) {
 	value = mem[address]
 	return
 }
 
-func (mem *BasicMemory) store(address uint16, value uint8) (oldValue uint8) {
+func (mem *BasicMemory) Store(address uint16, value uint8) (oldValue uint8) {
 	oldValue = mem[address]
 	mem[address] = value
 	return

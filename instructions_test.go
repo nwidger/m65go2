@@ -15,11 +15,11 @@ func Setup() {
 	cpu = NewCPU(NewBasicMemory(), divisor, clock)
 	cpu.Reset()
 	// cpu.decode = true
-	go clock.start()
+	go clock.Start()
 }
 
 func Teardown() {
-	cpu.clock.stop()
+	cpu.clock.Stop()
 }
 
 // BadOpCodeError
@@ -27,9 +27,9 @@ func Teardown() {
 func TestBadOpCodeError(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x02)
+	cpu.memory.Store(0x0100, 0x02)
 
 	_, error := cpu.Execute()
 
@@ -49,14 +49,14 @@ func TestBadOpCodeError(t *testing.T) {
 func TestLdaImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa9)
-	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.Store(0x0100, 0xa9)
+	cpu.memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -66,15 +66,15 @@ func TestLdaImmediate(t *testing.T) {
 func TestLdaZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa5)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xa5)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -84,16 +84,16 @@ func TestLdaZeroPage(t *testing.T) {
 func TestLdaZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb5)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xb5)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -103,16 +103,16 @@ func TestLdaZeroPageX(t *testing.T) {
 func TestLdaAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xad)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xad)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -122,13 +122,13 @@ func TestLdaAbsolute(t *testing.T) {
 func TestLdaAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xbd)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xbd)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cycles, _ := cpu.Execute()
 
@@ -136,17 +136,17 @@ func TestLdaAbsoluteX(t *testing.T) {
 		t.Error("Cycles is not 4")
 	}
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xbd)
-	cpu.memory.store(0x0101, 0xff)
-	cpu.memory.store(0x0102, 0x02)
-	cpu.memory.store(0x0300, 0xff)
+	cpu.memory.Store(0x0100, 0xbd)
+	cpu.memory.Store(0x0101, 0xff)
+	cpu.memory.Store(0x0102, 0x02)
+	cpu.memory.Store(0x0300, 0xff)
 
 	cycles, _ = cpu.Execute()
 
@@ -160,13 +160,13 @@ func TestLdaAbsoluteX(t *testing.T) {
 func TestLdaAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb9)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xb9)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cycles, _ := cpu.Execute()
 
@@ -174,17 +174,17 @@ func TestLdaAbsoluteY(t *testing.T) {
 		t.Error("Cycles is not 4")
 	}
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb9)
-	cpu.memory.store(0x0101, 0xff)
-	cpu.memory.store(0x0102, 0x02)
-	cpu.memory.store(0x0300, 0xff)
+	cpu.memory.Store(0x0100, 0xb9)
+	cpu.memory.Store(0x0101, 0xff)
+	cpu.memory.Store(0x0102, 0x02)
+	cpu.memory.Store(0x0300, 0xff)
 
 	cycles, _ = cpu.Execute()
 
@@ -198,18 +198,18 @@ func TestLdaAbsoluteY(t *testing.T) {
 func TestLdaIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0xff)
+	cpu.memory.Store(0x0100, 0xa1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -219,14 +219,14 @@ func TestLdaIndirectX(t *testing.T) {
 func TestLdaIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0xff)
+	cpu.memory.Store(0x0100, 0xb1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0xff)
 
 	cycles, _ := cpu.Execute()
 
@@ -234,18 +234,18 @@ func TestLdaIndirectY(t *testing.T) {
 		t.Error("Cycles is not 5")
 	}
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
-	cpu.memory.store(0x0085, 0x02)
-	cpu.memory.store(0x0300, 0xff)
+	cpu.memory.Store(0x0100, 0xb1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
+	cpu.memory.Store(0x0085, 0x02)
+	cpu.memory.Store(0x0300, 0xff)
 
 	cycles, _ = cpu.Execute()
 
@@ -259,14 +259,14 @@ func TestLdaIndirectY(t *testing.T) {
 func TestLdaZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa9)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0xa9)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -276,14 +276,14 @@ func TestLdaZFlagSet(t *testing.T) {
 func TestLdaZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa9)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xa9)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -293,14 +293,14 @@ func TestLdaZFlagUnset(t *testing.T) {
 func TestLdaNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa9)
-	cpu.memory.store(0x0101, 0x81)
+	cpu.memory.Store(0x0100, 0xa9)
+	cpu.memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -310,14 +310,14 @@ func TestLdaNFlagSet(t *testing.T) {
 func TestLdaNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa9)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xa9)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -329,14 +329,14 @@ func TestLdaNFlagUnset(t *testing.T) {
 func TestLdxImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa2)
-	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.Store(0x0100, 0xa2)
+	cpu.memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -346,15 +346,15 @@ func TestLdxImmediate(t *testing.T) {
 func TestLdxZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xa6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -364,16 +364,16 @@ func TestLdxZeroPage(t *testing.T) {
 func TestLdxZeroPageY(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xb6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -383,16 +383,16 @@ func TestLdxZeroPageY(t *testing.T) {
 func TestLdxAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xae)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xae)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -402,17 +402,17 @@ func TestLdxAbsolute(t *testing.T) {
 func TestLdxAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xbe)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xbe)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -422,14 +422,14 @@ func TestLdxAbsoluteY(t *testing.T) {
 func TestLdxZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa2)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0xa2)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -439,14 +439,14 @@ func TestLdxZFlagSet(t *testing.T) {
 func TestLdxZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa2)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xa2)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -456,14 +456,14 @@ func TestLdxZFlagUnset(t *testing.T) {
 func TestLdxNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa2)
-	cpu.memory.store(0x0101, 0x81)
+	cpu.memory.Store(0x0100, 0xa2)
+	cpu.memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -473,14 +473,14 @@ func TestLdxNFlagSet(t *testing.T) {
 func TestLdxNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa2)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xa2)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -492,14 +492,14 @@ func TestLdxNFlagUnset(t *testing.T) {
 func TestLdyImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa0)
-	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.Store(0x0100, 0xa0)
+	cpu.memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register Y is not 0xff")
 	}
 
@@ -509,15 +509,15 @@ func TestLdyImmediate(t *testing.T) {
 func TestLdyZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa4)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xa4)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register Y is not 0xff")
 	}
 
@@ -527,16 +527,16 @@ func TestLdyZeroPage(t *testing.T) {
 func TestLdyZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb4)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xb4)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register Y is not 0xff")
 	}
 
@@ -546,16 +546,16 @@ func TestLdyZeroPageX(t *testing.T) {
 func TestLdyAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xac)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xac)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register Y is not 0xff")
 	}
 
@@ -565,17 +565,17 @@ func TestLdyAbsolute(t *testing.T) {
 func TestLdyAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xbc)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xbc)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register Y is not 0xff")
 	}
 
@@ -585,14 +585,14 @@ func TestLdyAbsoluteX(t *testing.T) {
 func TestLdyZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa0)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0xa0)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -602,14 +602,14 @@ func TestLdyZFlagSet(t *testing.T) {
 func TestLdyZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xa0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -619,14 +619,14 @@ func TestLdyZFlagUnset(t *testing.T) {
 func TestLdyNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa0)
-	cpu.memory.store(0x0101, 0x81)
+	cpu.memory.Store(0x0100, 0xa0)
+	cpu.memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -636,14 +636,14 @@ func TestLdyNFlagSet(t *testing.T) {
 func TestLdyNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xa0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -655,15 +655,15 @@ func TestLdyNFlagUnset(t *testing.T) {
 func TestStaZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x85)
-	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.Store(0x0100, 0x85)
+	cpu.memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -673,16 +673,16 @@ func TestStaZeroPage(t *testing.T) {
 func TestStaZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x95)
-	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.Store(0x0100, 0x95)
+	cpu.memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -692,16 +692,16 @@ func TestStaZeroPageX(t *testing.T) {
 func TestStaAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x8d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.Store(0x0100, 0x8d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -711,17 +711,17 @@ func TestStaAbsolute(t *testing.T) {
 func TestStaAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x9d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.Store(0x0100, 0x9d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -731,17 +731,17 @@ func TestStaAbsoluteX(t *testing.T) {
 func TestStaAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x99)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.Store(0x0100, 0x99)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -751,18 +751,18 @@ func TestStaAbsoluteY(t *testing.T) {
 func TestStaIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x81)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
+	cpu.memory.Store(0x0100, 0x81)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0087) != 0xff {
+	if cpu.memory.Fetch(0x0087) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -772,18 +772,18 @@ func TestStaIndirectX(t *testing.T) {
 func TestStaIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x91)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
+	cpu.memory.Store(0x0100, 0x91)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0087) != 0xff {
+	if cpu.memory.Fetch(0x0087) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -795,15 +795,15 @@ func TestStaIndirectY(t *testing.T) {
 func TestStxZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x86)
-	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.Store(0x0100, 0x86)
+	cpu.memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -813,16 +813,16 @@ func TestStxZeroPage(t *testing.T) {
 func TestStxZeroPageY(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x96)
-	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.Store(0x0100, 0x96)
+	cpu.memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -832,16 +832,16 @@ func TestStxZeroPageY(t *testing.T) {
 func TestStxAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x8e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.Store(0x0100, 0x8e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -853,15 +853,15 @@ func TestStxAbsolute(t *testing.T) {
 func TestStyZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x84)
-	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.Store(0x0100, 0x84)
+	cpu.memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -871,16 +871,16 @@ func TestStyZeroPage(t *testing.T) {
 func TestStyZeroPageY(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x94)
-	cpu.memory.store(0x0101, 0x84)
+	cpu.memory.Store(0x0100, 0x94)
+	cpu.memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -890,16 +890,16 @@ func TestStyZeroPageY(t *testing.T) {
 func TestStyAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x8c)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
+	cpu.memory.Store(0x0100, 0x8c)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -911,14 +911,14 @@ func TestStyAbsolute(t *testing.T) {
 func TestTax(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xaa)
+	cpu.memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register is not 0xff")
 	}
 
@@ -928,14 +928,14 @@ func TestTax(t *testing.T) {
 func TestTaxZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xaa)
+	cpu.memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -945,14 +945,14 @@ func TestTaxZFlagSet(t *testing.T) {
 func TestTaxZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xaa)
+	cpu.memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -962,14 +962,14 @@ func TestTaxZFlagUnset(t *testing.T) {
 func TestTaxNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x81
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x81
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xaa)
+	cpu.memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -979,14 +979,14 @@ func TestTaxNFlagSet(t *testing.T) {
 func TestTaxNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xaa)
+	cpu.memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -998,14 +998,14 @@ func TestTaxNFlagUnset(t *testing.T) {
 func TestTay(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xa8)
+	cpu.memory.Store(0x0100, 0xa8)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register is not 0xff")
 	}
 
@@ -1017,14 +1017,14 @@ func TestTay(t *testing.T) {
 func TestTxa(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x8a)
+	cpu.memory.Store(0x0100, 0x8a)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register is not 0xff")
 	}
 
@@ -1036,14 +1036,14 @@ func TestTxa(t *testing.T) {
 func TestTya(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x98)
+	cpu.memory.Store(0x0100, 0x98)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register is not 0xff")
 	}
 
@@ -1055,14 +1055,14 @@ func TestTya(t *testing.T) {
 func TestTsx(t *testing.T) {
 	Setup()
 
-	cpu.registers.SP = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.SP = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xba)
+	cpu.memory.Store(0x0100, 0xba)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register is not 0xff")
 	}
 
@@ -1074,14 +1074,14 @@ func TestTsx(t *testing.T) {
 func TestTxs(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x9a)
+	cpu.memory.Store(0x0100, 0x9a)
 
 	cpu.Execute()
 
-	if cpu.registers.SP != 0xff {
+	if cpu.Registers.SP != 0xff {
 		t.Error("Register is not 0xff")
 	}
 
@@ -1093,10 +1093,10 @@ func TestTxs(t *testing.T) {
 func TestPha(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x48)
+	cpu.memory.Store(0x0100, 0x48)
 
 	cpu.Execute()
 
@@ -1112,10 +1112,10 @@ func TestPha(t *testing.T) {
 func TestPhp(t *testing.T) {
 	Setup()
 
-	cpu.registers.P = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x08)
+	cpu.memory.Store(0x0100, 0x08)
 
 	cpu.Execute()
 
@@ -1131,14 +1131,14 @@ func TestPhp(t *testing.T) {
 func TestPla(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 	cpu.push(0xff)
 
-	cpu.memory.store(0x0100, 0x68)
+	cpu.memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -1149,13 +1149,13 @@ func TestPlaZFlagSet(t *testing.T) {
 	Setup()
 
 	cpu.push(0x00)
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x68)
+	cpu.memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -1166,13 +1166,13 @@ func TestPlaZFlagUnset(t *testing.T) {
 	Setup()
 
 	cpu.push(0x01)
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x68)
+	cpu.memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -1183,13 +1183,13 @@ func TestPlaNFlagSet(t *testing.T) {
 	Setup()
 
 	cpu.push(0x81)
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x68)
+	cpu.memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -1200,13 +1200,13 @@ func TestPlaNFlagUnset(t *testing.T) {
 	Setup()
 
 	cpu.push(0x01)
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x68)
+	cpu.memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -1218,14 +1218,14 @@ func TestPlaNFlagUnset(t *testing.T) {
 func TestPlp(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 	cpu.push(0xff)
 
-	cpu.memory.store(0x0100, 0x28)
+	cpu.memory.Store(0x0100, 0x28)
 
 	cpu.Execute()
 
-	if cpu.registers.P != 0xff {
+	if cpu.Registers.P != 0xff {
 		t.Error("Status is not 0xff")
 	}
 
@@ -1237,15 +1237,15 @@ func TestPlp(t *testing.T) {
 func TestAndImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x29)
-	cpu.memory.store(0x0101, 0x0f)
+	cpu.memory.Store(0x0100, 0x29)
+	cpu.memory.Store(0x0101, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1255,16 +1255,16 @@ func TestAndImmediate(t *testing.T) {
 func TestAndZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x25)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x0f)
+	cpu.memory.Store(0x0100, 0x25)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1274,17 +1274,17 @@ func TestAndZeroPage(t *testing.T) {
 func TestAndZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x35)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x35)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1294,17 +1294,17 @@ func TestAndZeroPageX(t *testing.T) {
 func TestAndAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x0f)
+	cpu.memory.Store(0x0100, 0x2d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1314,18 +1314,18 @@ func TestAndAbsolute(t *testing.T) {
 func TestAndAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x3d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x3d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1335,18 +1335,18 @@ func TestAndAbsoluteX(t *testing.T) {
 func TestAndAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x39)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x39)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1356,19 +1356,19 @@ func TestAndAbsoluteY(t *testing.T) {
 func TestAndIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x21)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0x0f)
+	cpu.memory.Store(0x0100, 0x21)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1378,19 +1378,19 @@ func TestAndIndirectX(t *testing.T) {
 func TestAndIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x31)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0x0f)
+	cpu.memory.Store(0x0100, 0x31)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x0f {
+	if cpu.Registers.A != 0x0f {
 		t.Error("Register A is not 0x0f")
 	}
 
@@ -1400,14 +1400,14 @@ func TestAndIndirectY(t *testing.T) {
 func TestAndZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x29)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0x29)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -1417,15 +1417,15 @@ func TestAndZFlagSet(t *testing.T) {
 func TestAndZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x29)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0x29)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -1435,15 +1435,15 @@ func TestAndZFlagUnset(t *testing.T) {
 func TestAndNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x81
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x81
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x29)
-	cpu.memory.store(0x0101, 0x81)
+	cpu.memory.Store(0x0100, 0x29)
+	cpu.memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -1453,14 +1453,14 @@ func TestAndNFlagSet(t *testing.T) {
 func TestAndNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x29)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0x29)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -1472,15 +1472,15 @@ func TestAndNFlagUnset(t *testing.T) {
 func TestEorImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x49)
-	cpu.memory.store(0x0101, 0x0f)
+	cpu.memory.Store(0x0100, 0x49)
+	cpu.memory.Store(0x0101, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1490,16 +1490,16 @@ func TestEorImmediate(t *testing.T) {
 func TestEorZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x45)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x0f)
+	cpu.memory.Store(0x0100, 0x45)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1509,17 +1509,17 @@ func TestEorZeroPage(t *testing.T) {
 func TestEorZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x55)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x55)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1529,17 +1529,17 @@ func TestEorZeroPageX(t *testing.T) {
 func TestEorAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x0f)
+	cpu.memory.Store(0x0100, 0x4d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1549,18 +1549,18 @@ func TestEorAbsolute(t *testing.T) {
 func TestEorAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x5d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x5d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1570,18 +1570,18 @@ func TestEorAbsoluteX(t *testing.T) {
 func TestEorAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x59)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x59)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1591,19 +1591,19 @@ func TestEorAbsoluteY(t *testing.T) {
 func TestEorIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x41)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0x0f)
+	cpu.memory.Store(0x0100, 0x41)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1613,19 +1613,19 @@ func TestEorIndirectX(t *testing.T) {
 func TestEorIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x51)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0x0f)
+	cpu.memory.Store(0x0100, 0x51)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xf0 {
+	if cpu.Registers.A != 0xf0 {
 		t.Error("Register A is not 0xf0")
 	}
 
@@ -1635,14 +1635,14 @@ func TestEorIndirectY(t *testing.T) {
 func TestEorZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x49)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0x49)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -1652,15 +1652,15 @@ func TestEorZFlagSet(t *testing.T) {
 func TestEorZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x49)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0x49)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -1670,15 +1670,15 @@ func TestEorZFlagUnset(t *testing.T) {
 func TestEorNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x49)
-	cpu.memory.store(0x0101, 0x81)
+	cpu.memory.Store(0x0100, 0x49)
+	cpu.memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -1688,14 +1688,14 @@ func TestEorNFlagSet(t *testing.T) {
 func TestEorNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x49)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0x49)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -1707,15 +1707,15 @@ func TestEorNFlagUnset(t *testing.T) {
 func TestOraImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x09)
-	cpu.memory.store(0x0101, 0x0f)
+	cpu.memory.Store(0x0100, 0x09)
+	cpu.memory.Store(0x0101, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1725,16 +1725,16 @@ func TestOraImmediate(t *testing.T) {
 func TestOraZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x05)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x0f)
+	cpu.memory.Store(0x0100, 0x05)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1744,17 +1744,17 @@ func TestOraZeroPage(t *testing.T) {
 func TestOraZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x15)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x15)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1764,17 +1764,17 @@ func TestOraZeroPageX(t *testing.T) {
 func TestOraAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x0f)
+	cpu.memory.Store(0x0100, 0x0d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1784,18 +1784,18 @@ func TestOraAbsolute(t *testing.T) {
 func TestOraAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x1d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x1d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1805,18 +1805,18 @@ func TestOraAbsoluteX(t *testing.T) {
 func TestOraAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x19)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x0f)
+	cpu.memory.Store(0x0100, 0x19)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1826,19 +1826,19 @@ func TestOraAbsoluteY(t *testing.T) {
 func TestOraIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x01)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0x0f)
+	cpu.memory.Store(0x0100, 0x01)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1848,19 +1848,19 @@ func TestOraIndirectX(t *testing.T) {
 func TestOraIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xf0
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xf0
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x11)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0x0f)
+	cpu.memory.Store(0x0100, 0x11)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0xff {
+	if cpu.Registers.A != 0xff {
 		t.Error("Register A is not 0xff")
 	}
 
@@ -1870,14 +1870,14 @@ func TestOraIndirectY(t *testing.T) {
 func TestOraZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x09)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0x09)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -1887,15 +1887,15 @@ func TestOraZFlagSet(t *testing.T) {
 func TestOraZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x09)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0x09)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -1905,15 +1905,15 @@ func TestOraZFlagUnset(t *testing.T) {
 func TestOraNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x81
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x81
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x09)
-	cpu.memory.store(0x0101, 0x00)
+	cpu.memory.Store(0x0100, 0x09)
+	cpu.memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -1923,14 +1923,14 @@ func TestOraNFlagSet(t *testing.T) {
 func TestOraNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x09)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0x09)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -1942,16 +1942,16 @@ func TestOraNFlagUnset(t *testing.T) {
 func TestBitZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x7f)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x7f)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -1961,17 +1961,17 @@ func TestBitZeroPage(t *testing.T) {
 func TestBitAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2c)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x7f)
+	cpu.memory.Store(0x0100, 0x2c)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x7f)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -1981,16 +1981,16 @@ func TestBitAbsolute(t *testing.T) {
 func TestBitNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -2000,16 +2000,16 @@ func TestBitNFlagSet(t *testing.T) {
 func TestBitNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x7f)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x7f)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -2019,16 +2019,16 @@ func TestBitNFlagUnset(t *testing.T) {
 func TestBitVFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&V == 0 {
+	if cpu.Registers.P&V == 0 {
 		t.Error("V flag is not set")
 	}
 
@@ -2038,16 +2038,16 @@ func TestBitVFlagSet(t *testing.T) {
 func TestBitVFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x3f)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x3f)
 
 	cpu.Execute()
 
-	if cpu.registers.P&V != 0 {
+	if cpu.Registers.P&V != 0 {
 		t.Error("V flag is set")
 	}
 
@@ -2057,16 +2057,16 @@ func TestBitVFlagUnset(t *testing.T) {
 func TestBitZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2076,16 +2076,16 @@ func TestBitZFlagSet(t *testing.T) {
 func TestBitZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x24)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x3f)
+	cpu.memory.Store(0x0100, 0x24)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x3f)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -2097,15 +2097,15 @@ func TestBitZFlagUnset(t *testing.T) {
 func TestAdcImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2115,16 +2115,16 @@ func TestAdcImmediate(t *testing.T) {
 func TestAdcZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x65)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x65)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2134,17 +2134,17 @@ func TestAdcZeroPage(t *testing.T) {
 func TestAdcZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x75)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x75)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2154,17 +2154,17 @@ func TestAdcZeroPageX(t *testing.T) {
 func TestAdcAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x6d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2174,18 +2174,18 @@ func TestAdcAbsolute(t *testing.T) {
 func TestAdcAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x7d)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x7d)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2195,18 +2195,18 @@ func TestAdcAbsoluteX(t *testing.T) {
 func TestAdcAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x79)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x79)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2216,19 +2216,19 @@ func TestAdcAbsoluteY(t *testing.T) {
 func TestAdcIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x61)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0x02)
+	cpu.memory.Store(0x0100, 0x61)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2238,19 +2238,19 @@ func TestAdcIndirectX(t *testing.T) {
 func TestAdcIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x71)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0x02)
+	cpu.memory.Store(0x0100, 0x71)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x03 {
+	if cpu.Registers.A != 0x03 {
 		t.Error("Register A is not 0x03")
 	}
 
@@ -2260,15 +2260,15 @@ func TestAdcIndirectY(t *testing.T) {
 func TestAdcCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff // -1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff // -1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -2278,15 +2278,15 @@ func TestAdcCFlagSet(t *testing.T) {
 func TestAdcCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00 // +0
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00 // +0
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -2296,15 +2296,15 @@ func TestAdcCFlagUnset(t *testing.T) {
 func TestAdcZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00 // +0
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00 // +0
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x00) // +0
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x00) // +0
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2314,15 +2314,15 @@ func TestAdcZFlagSet(t *testing.T) {
 func TestAdcZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00 // +0
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00 // +0
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0xff) // -1
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0xff) // -1
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -2332,15 +2332,15 @@ func TestAdcZFlagUnset(t *testing.T) {
 func TestAdcVFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x7f // +127
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x7f // +127
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&V == 0 {
+	if cpu.Registers.P&V == 0 {
 		t.Error("V flag is not set")
 	}
 
@@ -2350,15 +2350,15 @@ func TestAdcVFlagSet(t *testing.T) {
 func TestAdcVFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01 // +1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01 // +1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&V != 0 {
+	if cpu.Registers.P&V != 0 {
 		t.Error("V flag is set")
 	}
 
@@ -2368,15 +2368,15 @@ func TestAdcVFlagUnset(t *testing.T) {
 func TestAdcNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01 // +1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01 // +1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -2386,15 +2386,15 @@ func TestAdcNFlagSet(t *testing.T) {
 func TestAdcNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01 // +1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01 // +1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x69)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0x69)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -2406,15 +2406,15 @@ func TestAdcNFlagUnset(t *testing.T) {
 func TestSbcImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Errorf("Register A is not 0x01")
 	}
 
@@ -2424,16 +2424,16 @@ func TestSbcImmediate(t *testing.T) {
 func TestSbcZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe5)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x01)
+	cpu.memory.Store(0x0100, 0xe5)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2443,17 +2443,17 @@ func TestSbcZeroPage(t *testing.T) {
 func TestSbcZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf5)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x01)
+	cpu.memory.Store(0x0100, 0xf5)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2463,17 +2463,17 @@ func TestSbcZeroPageX(t *testing.T) {
 func TestSbcAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xed)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x01)
+	cpu.memory.Store(0x0100, 0xed)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2483,18 +2483,18 @@ func TestSbcAbsolute(t *testing.T) {
 func TestSbcAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xfd)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x01)
+	cpu.memory.Store(0x0100, 0xfd)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2504,18 +2504,18 @@ func TestSbcAbsoluteX(t *testing.T) {
 func TestSbcAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf9)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x01)
+	cpu.memory.Store(0x0100, 0xf9)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2525,19 +2525,19 @@ func TestSbcAbsoluteY(t *testing.T) {
 func TestSbcIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0x01)
+	cpu.memory.Store(0x0100, 0xe1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2547,19 +2547,19 @@ func TestSbcIndirectX(t *testing.T) {
 func TestSbcIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0x01)
+	cpu.memory.Store(0x0100, 0xf1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -2569,15 +2569,15 @@ func TestSbcIndirectY(t *testing.T) {
 func TestSbcCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xc4 // -60
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xc4 // -60
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x3c) // +60
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x3c) // +60
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -2587,15 +2587,15 @@ func TestSbcCFlagSet(t *testing.T) {
 func TestSbcCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02 // +2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02 // +2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x04) // +4
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x04) // +4
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -2605,15 +2605,15 @@ func TestSbcCFlagUnset(t *testing.T) {
 func TestSbcZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02 // +2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02 // +2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2623,15 +2623,15 @@ func TestSbcZFlagSet(t *testing.T) {
 func TestSbcZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02 // +2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02 // +2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -2641,15 +2641,15 @@ func TestSbcZFlagUnset(t *testing.T) {
 func TestSbcVFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x80 // -128
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x80 // -128
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&V == 0 {
+	if cpu.Registers.P&V == 0 {
 		t.Error("V flag is not set")
 	}
 
@@ -2659,15 +2659,15 @@ func TestSbcVFlagSet(t *testing.T) {
 func TestSbcVFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01 // +1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01 // +1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&V != 0 {
+	if cpu.Registers.P&V != 0 {
 		t.Error("V flag is set")
 	}
 
@@ -2677,15 +2677,15 @@ func TestSbcVFlagUnset(t *testing.T) {
 func TestSbcNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xfd // -3
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xfd // -3
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -2695,15 +2695,15 @@ func TestSbcNFlagSet(t *testing.T) {
 func TestSbcNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02 // +2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02 // +2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe9)
-	cpu.memory.store(0x0101, 0x01) // +1
+	cpu.memory.Store(0x0100, 0xe9)
+	cpu.memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -2715,15 +2715,15 @@ func TestSbcNFlagUnset(t *testing.T) {
 func TestCmpImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2733,16 +2733,16 @@ func TestCmpImmediate(t *testing.T) {
 func TestCmpZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc5)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xc5)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2752,17 +2752,17 @@ func TestCmpZeroPage(t *testing.T) {
 func TestCmpZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd5)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xd5)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2772,17 +2772,17 @@ func TestCmpZeroPageX(t *testing.T) {
 func TestCmpAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xcd)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xcd)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2792,18 +2792,18 @@ func TestCmpAbsolute(t *testing.T) {
 func TestCmpAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xdd)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xdd)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2813,18 +2813,18 @@ func TestCmpAbsoluteX(t *testing.T) {
 func TestCmpAbsoluteY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd9)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xff)
+	cpu.memory.Store(0x0100, 0xd9)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2834,19 +2834,19 @@ func TestCmpAbsoluteY(t *testing.T) {
 func TestCmpIndirectX(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x87)
-	cpu.memory.store(0x0086, 0x00)
-	cpu.memory.store(0x0087, 0xff)
+	cpu.memory.Store(0x0100, 0xc1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x87)
+	cpu.memory.Store(0x0086, 0x00)
+	cpu.memory.Store(0x0087, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2856,19 +2856,19 @@ func TestCmpIndirectX(t *testing.T) {
 func TestCmpIndirectY(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.Y = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.Y = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd1)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x86)
-	cpu.memory.store(0x0085, 0x00)
-	cpu.memory.store(0x0087, 0xff)
+	cpu.memory.Store(0x0100, 0xd1)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x86)
+	cpu.memory.Store(0x0085, 0x00)
+	cpu.memory.Store(0x0087, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2878,15 +2878,15 @@ func TestCmpIndirectY(t *testing.T) {
 func TestCmpNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -2896,15 +2896,15 @@ func TestCmpNFlagSet(t *testing.T) {
 func TestCmpNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -2914,15 +2914,15 @@ func TestCmpNFlagUnset(t *testing.T) {
 func TestCmpZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -2932,15 +2932,15 @@ func TestCmpZFlagSet(t *testing.T) {
 func TestCmpZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -2950,15 +2950,15 @@ func TestCmpZFlagUnset(t *testing.T) {
 func TestCmpCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -2968,15 +2968,15 @@ func TestCmpCFlagSet(t *testing.T) {
 func TestCmpCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc9)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xc9)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -2988,15 +2988,15 @@ func TestCmpCFlagUnset(t *testing.T) {
 func TestCpxImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3006,16 +3006,16 @@ func TestCpxImmediate(t *testing.T) {
 func TestCpxZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe4)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xe4)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3025,17 +3025,17 @@ func TestCpxZeroPage(t *testing.T) {
 func TestCpxAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xec)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xec)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3045,15 +3045,15 @@ func TestCpxAbsolute(t *testing.T) {
 func TestCpxNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3063,15 +3063,15 @@ func TestCpxNFlagSet(t *testing.T) {
 func TestCpxNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3081,15 +3081,15 @@ func TestCpxNFlagUnset(t *testing.T) {
 func TestCpxZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3099,15 +3099,15 @@ func TestCpxZFlagSet(t *testing.T) {
 func TestCpxZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3117,15 +3117,15 @@ func TestCpxZFlagUnset(t *testing.T) {
 func TestCpxCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -3135,15 +3135,15 @@ func TestCpxCFlagSet(t *testing.T) {
 func TestCpxCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe0)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xe0)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -3155,15 +3155,15 @@ func TestCpxCFlagUnset(t *testing.T) {
 func TestCpyImmediate(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0xff)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3173,16 +3173,16 @@ func TestCpyImmediate(t *testing.T) {
 func TestCpyZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc4)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xc4)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3192,17 +3192,17 @@ func TestCpyZeroPage(t *testing.T) {
 func TestCpyAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xcc)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xff)
+	cpu.memory.Store(0x0100, 0xcc)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3212,15 +3212,15 @@ func TestCpyAbsolute(t *testing.T) {
 func TestCpyNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3230,15 +3230,15 @@ func TestCpyNFlagSet(t *testing.T) {
 func TestCpyNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3248,15 +3248,15 @@ func TestCpyNFlagUnset(t *testing.T) {
 func TestCpyZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3266,15 +3266,15 @@ func TestCpyZFlagSet(t *testing.T) {
 func TestCpyZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3284,15 +3284,15 @@ func TestCpyZFlagUnset(t *testing.T) {
 func TestCpyCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0x01)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -3302,15 +3302,15 @@ func TestCpyCFlagSet(t *testing.T) {
 func TestCpyCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc0)
-	cpu.memory.store(0x0101, 0x02)
+	cpu.memory.Store(0x0100, 0xc0)
+	cpu.memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -3322,15 +3322,15 @@ func TestCpyCFlagUnset(t *testing.T) {
 func TestIncZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xfe)
+	cpu.memory.Store(0x0100, 0xe6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3340,16 +3340,16 @@ func TestIncZeroPage(t *testing.T) {
 func TestIncZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0xfe)
+	cpu.memory.Store(0x0100, 0xf6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3359,16 +3359,16 @@ func TestIncZeroPageX(t *testing.T) {
 func TestIncAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xee)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0xfe)
+	cpu.memory.Store(0x0100, 0xee)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0xff {
+	if cpu.memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3378,17 +3378,17 @@ func TestIncAbsolute(t *testing.T) {
 func TestIncAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xfe)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0xfe)
+	cpu.memory.Store(0x0100, 0xfe)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0xff {
+	if cpu.memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3398,15 +3398,15 @@ func TestIncAbsoluteX(t *testing.T) {
 func TestIncZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xff) // -1
+	cpu.memory.Store(0x0100, 0xe6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xff) // -1
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3416,15 +3416,15 @@ func TestIncZFlagSet(t *testing.T) {
 func TestIncZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x00)
+	cpu.memory.Store(0x0100, 0xe6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3434,15 +3434,15 @@ func TestIncZFlagUnset(t *testing.T) {
 func TestIncNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0xe6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3452,15 +3452,15 @@ func TestIncNFlagSet(t *testing.T) {
 func TestIncNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x00)
+	cpu.memory.Store(0x0100, 0xe6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3472,14 +3472,14 @@ func TestIncNFlagUnset(t *testing.T) {
 func TestInx(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xfe
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xfe
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe8)
+	cpu.memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0xff {
+	if cpu.Registers.X != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -3489,14 +3489,14 @@ func TestInx(t *testing.T) {
 func TestInxZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xff // -1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xff // -1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe8)
+	cpu.memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3506,14 +3506,14 @@ func TestInxZFlagSet(t *testing.T) {
 func TestInxZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe8)
+	cpu.memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3523,14 +3523,14 @@ func TestInxZFlagUnset(t *testing.T) {
 func TestInxNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0xfe // -2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0xfe // -2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe8)
+	cpu.memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3540,14 +3540,14 @@ func TestInxNFlagSet(t *testing.T) {
 func TestInxNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xe8)
+	cpu.memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3559,14 +3559,14 @@ func TestInxNFlagUnset(t *testing.T) {
 func TestIny(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xfe // -2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xfe // -2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc8)
+	cpu.memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0xff {
+	if cpu.Registers.Y != 0xff {
 		t.Error("Register X is not 0xff")
 	}
 
@@ -3576,14 +3576,14 @@ func TestIny(t *testing.T) {
 func TestInyZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xff // -1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xff // -1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc8)
+	cpu.memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3593,14 +3593,14 @@ func TestInyZFlagSet(t *testing.T) {
 func TestInyZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc8)
+	cpu.memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3610,14 +3610,14 @@ func TestInyZFlagUnset(t *testing.T) {
 func TestInyNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0xfe // -2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0xfe // -2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc8)
+	cpu.memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3627,14 +3627,14 @@ func TestInyNFlagSet(t *testing.T) {
 func TestInyNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc8)
+	cpu.memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3646,15 +3646,15 @@ func TestInyNFlagUnset(t *testing.T) {
 func TestDecZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0xc6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x01 {
+	if cpu.memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3664,16 +3664,16 @@ func TestDecZeroPage(t *testing.T) {
 func TestDecZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0xd6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x01 {
+	if cpu.memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3683,16 +3683,16 @@ func TestDecZeroPageX(t *testing.T) {
 func TestDecAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xce)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0xce)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x01 {
+	if cpu.memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3702,17 +3702,17 @@ func TestDecAbsolute(t *testing.T) {
 func TestDecAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xde)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0xde)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x01 {
+	if cpu.memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3722,15 +3722,15 @@ func TestDecAbsoluteX(t *testing.T) {
 func TestDecZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x01)
+	cpu.memory.Store(0x0100, 0xc6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3740,15 +3740,15 @@ func TestDecZFlagSet(t *testing.T) {
 func TestDecZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0xc6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3758,15 +3758,15 @@ func TestDecZFlagUnset(t *testing.T) {
 func TestDecNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x00)
+	cpu.memory.Store(0x0100, 0xc6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x00)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3776,15 +3776,15 @@ func TestDecNFlagSet(t *testing.T) {
 func TestDecNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xc6)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x01)
+	cpu.memory.Store(0x0100, 0xc6)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3796,14 +3796,14 @@ func TestDecNFlagUnset(t *testing.T) {
 func TestDex(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xca)
+	cpu.memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
-	if cpu.registers.X != 0x01 {
+	if cpu.Registers.X != 0x01 {
 		t.Error("Register X is not 0x01")
 	}
 
@@ -3813,14 +3813,14 @@ func TestDex(t *testing.T) {
 func TestDexZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xca)
+	cpu.memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3830,14 +3830,14 @@ func TestDexZFlagSet(t *testing.T) {
 func TestDexZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xca)
+	cpu.memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3847,14 +3847,14 @@ func TestDexZFlagUnset(t *testing.T) {
 func TestDexNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xca)
+	cpu.memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3864,14 +3864,14 @@ func TestDexNFlagSet(t *testing.T) {
 func TestDexNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xca)
+	cpu.memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3883,14 +3883,14 @@ func TestDexNFlagUnset(t *testing.T) {
 func TestDey(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x88)
+	cpu.memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
-	if cpu.registers.Y != 0x01 {
+	if cpu.Registers.Y != 0x01 {
 		t.Error("Register X is not 0x01")
 	}
 
@@ -3900,14 +3900,14 @@ func TestDey(t *testing.T) {
 func TestDeyZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x88)
+	cpu.memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -3917,14 +3917,14 @@ func TestDeyZFlagSet(t *testing.T) {
 func TestDeyZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x88)
+	cpu.memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -3934,14 +3934,14 @@ func TestDeyZFlagUnset(t *testing.T) {
 func TestDeyNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x88)
+	cpu.memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -3951,14 +3951,14 @@ func TestDeyNFlagSet(t *testing.T) {
 func TestDeyNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.Y = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.Y = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x88)
+	cpu.memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -3970,14 +3970,14 @@ func TestDeyNFlagUnset(t *testing.T) {
 func TestAslAccumulator(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x04 {
+	if cpu.Registers.A != 0x04 {
 		t.Error("Register A is not 0x04")
 	}
 
@@ -3987,15 +3987,15 @@ func TestAslAccumulator(t *testing.T) {
 func TestAslZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x06)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x06)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x04 {
+	if cpu.memory.Fetch(0x0084) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4005,16 +4005,16 @@ func TestAslZeroPage(t *testing.T) {
 func TestAslZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x16)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x16)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x04 {
+	if cpu.memory.Fetch(0x0085) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4024,16 +4024,16 @@ func TestAslZeroPageX(t *testing.T) {
 func TestAslAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x0e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x04 {
+	if cpu.memory.Fetch(0x0084) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4043,17 +4043,17 @@ func TestAslAbsolute(t *testing.T) {
 func TestAslAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x1e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x1e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x04 {
+	if cpu.memory.Fetch(0x0085) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4063,14 +4063,14 @@ func TestAslAbsoluteX(t *testing.T) {
 func TestAslCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -4080,14 +4080,14 @@ func TestAslCFlagSet(t *testing.T) {
 func TestAslCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -4097,14 +4097,14 @@ func TestAslCFlagUnset(t *testing.T) {
 func TestAslZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -4114,14 +4114,14 @@ func TestAslZFlagSet(t *testing.T) {
 func TestAslZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -4131,14 +4131,14 @@ func TestAslZFlagUnset(t *testing.T) {
 func TestAslNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xfe
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xfe
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -4148,14 +4148,14 @@ func TestAslNFlagSet(t *testing.T) {
 func TestAslNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x0a)
+	cpu.memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -4167,14 +4167,14 @@ func TestAslNFlagUnset(t *testing.T) {
 func TestLsrAccumulator(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4a)
+	cpu.memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x01 {
+	if cpu.Registers.A != 0x01 {
 		t.Error("Register A is not 0x01")
 	}
 
@@ -4184,15 +4184,15 @@ func TestLsrAccumulator(t *testing.T) {
 func TestLsrZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x46)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x46)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x01 {
+	if cpu.memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4202,16 +4202,16 @@ func TestLsrZeroPage(t *testing.T) {
 func TestLsrZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x56)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x56)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x01 {
+	if cpu.memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4221,16 +4221,16 @@ func TestLsrZeroPageX(t *testing.T) {
 func TestLsrAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x4e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x01 {
+	if cpu.memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4240,17 +4240,17 @@ func TestLsrAbsolute(t *testing.T) {
 func TestLsrAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x5e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x5e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x01 {
+	if cpu.memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4260,14 +4260,14 @@ func TestLsrAbsoluteX(t *testing.T) {
 func TestLsrCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xff
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xff
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4a)
+	cpu.memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -4277,14 +4277,14 @@ func TestLsrCFlagSet(t *testing.T) {
 func TestLsrCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x10
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x10
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4a)
+	cpu.memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -4294,14 +4294,14 @@ func TestLsrCFlagUnset(t *testing.T) {
 func TestLsrZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4a)
+	cpu.memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -4311,14 +4311,14 @@ func TestLsrZFlagSet(t *testing.T) {
 func TestLsrZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4a)
+	cpu.memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -4331,14 +4331,14 @@ func TestLsrZFlagUnset(t *testing.T) {
 func TestLsrNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4a)
+	cpu.memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -4350,15 +4350,15 @@ func TestLsrNFlagUnset(t *testing.T) {
 func TestRolAccumulator(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.A = 0x2
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.A = 0x2
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x05 {
+	if cpu.Registers.A != 0x05 {
 		t.Error("Register A is not 0x05")
 	}
 
@@ -4368,16 +4368,16 @@ func TestRolAccumulator(t *testing.T) {
 func TestRolZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x26)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x26)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x05 {
+	if cpu.memory.Fetch(0x0084) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4387,17 +4387,17 @@ func TestRolZeroPage(t *testing.T) {
 func TestRolZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x36)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x36)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x05 {
+	if cpu.memory.Fetch(0x0085) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4407,17 +4407,17 @@ func TestRolZeroPageX(t *testing.T) {
 func TestRolAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x02)
+	cpu.memory.Store(0x0100, 0x2e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x05 {
+	if cpu.memory.Fetch(0x0084) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4427,18 +4427,18 @@ func TestRolAbsolute(t *testing.T) {
 func TestRolAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x3e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x02)
+	cpu.memory.Store(0x0100, 0x3e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x05 {
+	if cpu.memory.Fetch(0x0085) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4448,14 +4448,14 @@ func TestRolAbsoluteX(t *testing.T) {
 func TestRolCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x80
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x80
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -4465,14 +4465,14 @@ func TestRolCFlagSet(t *testing.T) {
 func TestRolCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -4482,14 +4482,14 @@ func TestRolCFlagUnset(t *testing.T) {
 func TestRolZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -4499,14 +4499,14 @@ func TestRolZFlagSet(t *testing.T) {
 func TestRolZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -4516,14 +4516,14 @@ func TestRolZFlagUnset(t *testing.T) {
 func TestRolNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0xfe
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0xfe
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -4533,14 +4533,14 @@ func TestRolNFlagSet(t *testing.T) {
 func TestRolNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x2a)
+	cpu.memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -4552,15 +4552,15 @@ func TestRolNFlagUnset(t *testing.T) {
 func TestRorAccumulator(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.A = 0x08
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.A = 0x08
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.A != 0x84 {
+	if cpu.Registers.A != 0x84 {
 		t.Error("Register A is not 0x84")
 	}
 
@@ -4570,16 +4570,16 @@ func TestRorAccumulator(t *testing.T) {
 func TestRorZeroPage(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x66)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0084, 0x08)
+	cpu.memory.Store(0x0100, 0x66)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0084, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x84 {
+	if cpu.memory.Fetch(0x0084) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4589,17 +4589,17 @@ func TestRorZeroPage(t *testing.T) {
 func TestRorZeroPageX(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.X = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.X = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x76)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0085, 0x08)
+	cpu.memory.Store(0x0100, 0x76)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0085, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x84 {
+	if cpu.memory.Fetch(0x0085) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4609,17 +4609,17 @@ func TestRorZeroPageX(t *testing.T) {
 func TestRorAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0084, 0x08)
+	cpu.memory.Store(0x0100, 0x6e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0084, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0084) != 0x84 {
+	if cpu.memory.Fetch(0x0084) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4629,18 +4629,18 @@ func TestRorAbsolute(t *testing.T) {
 func TestRorAbsoluteX(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.X = 1
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.X = 1
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x7e)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x00)
-	cpu.memory.store(0x0085, 0x08)
+	cpu.memory.Store(0x0100, 0x7e)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x00)
+	cpu.memory.Store(0x0085, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.fetch(0x0085) != 0x84 {
+	if cpu.memory.Fetch(0x0085) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4650,14 +4650,14 @@ func TestRorAbsoluteX(t *testing.T) {
 func TestRorCFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -4667,14 +4667,14 @@ func TestRorCFlagSet(t *testing.T) {
 func TestRorCFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x10
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x10
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -4684,14 +4684,14 @@ func TestRorCFlagUnset(t *testing.T) {
 func TestRorZFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x00
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x00
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z == 0 {
+	if cpu.Registers.P&Z == 0 {
 		t.Error("Z flag is not set")
 	}
 
@@ -4701,14 +4701,14 @@ func TestRorZFlagSet(t *testing.T) {
 func TestRorZFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.A = 0x02
-	cpu.registers.PC = 0x0100
+	cpu.Registers.A = 0x02
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&Z != 0 {
+	if cpu.Registers.P&Z != 0 {
 		t.Error("Z flag is set")
 	}
 
@@ -4718,15 +4718,15 @@ func TestRorZFlagUnset(t *testing.T) {
 func TestRorNFlagSet(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.A = 0xfe
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.A = 0xfe
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N == 0 {
+	if cpu.Registers.P&N == 0 {
 		t.Error("N flag is not set")
 	}
 
@@ -4736,15 +4736,15 @@ func TestRorNFlagSet(t *testing.T) {
 func TestRorNFlagUnset(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= C
-	cpu.registers.A = 0x01
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= C
+	cpu.Registers.A = 0x01
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6a)
+	cpu.memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
-	if cpu.registers.P&N != 0 {
+	if cpu.Registers.P&N != 0 {
 		t.Error("N flag is set")
 	}
 
@@ -4756,15 +4756,15 @@ func TestRorNFlagUnset(t *testing.T) {
 func TestJmpAbsolute(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x4c)
-	cpu.memory.store(0x0101, 0xff)
-	cpu.memory.store(0x0102, 0x01)
+	cpu.memory.Store(0x0100, 0x4c)
+	cpu.memory.Store(0x0101, 0xff)
+	cpu.memory.Store(0x0102, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x01ff {
+	if cpu.Registers.PC != 0x01ff {
 		t.Error("Register PC is not 0x01ff")
 	}
 
@@ -4774,17 +4774,17 @@ func TestJmpAbsolute(t *testing.T) {
 func TestJmpIndirect(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x6c)
-	cpu.memory.store(0x0101, 0x84)
-	cpu.memory.store(0x0102, 0x01)
-	cpu.memory.store(0x0184, 0xff)
-	cpu.memory.store(0x0185, 0xff)
+	cpu.memory.Store(0x0100, 0x6c)
+	cpu.memory.Store(0x0101, 0x84)
+	cpu.memory.Store(0x0102, 0x01)
+	cpu.memory.Store(0x0184, 0xff)
+	cpu.memory.Store(0x0185, 0xff)
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0xffff {
+	if cpu.Registers.PC != 0xffff {
 		t.Error("Register PC is not 0xffff")
 	}
 
@@ -4796,23 +4796,23 @@ func TestJmpIndirect(t *testing.T) {
 func TestJsr(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x20)
-	cpu.memory.store(0x0101, 0xff)
-	cpu.memory.store(0x0102, 0x01)
+	cpu.memory.Store(0x0100, 0x20)
+	cpu.memory.Store(0x0101, 0xff)
+	cpu.memory.Store(0x0102, 0x01)
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x01ff {
+	if cpu.Registers.PC != 0x01ff {
 		t.Error("Register PC is not 0x01ff")
 	}
 
-	if cpu.memory.fetch(0x01fd) != 0x01 {
+	if cpu.memory.Fetch(0x01fd) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
-	if cpu.memory.fetch(0x01fc) != 0x02 {
+	if cpu.memory.Fetch(0x01fc) != 0x02 {
 		t.Error("Memory is not 0x02")
 	}
 
@@ -4824,15 +4824,15 @@ func TestJsr(t *testing.T) {
 func TestRts(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 	cpu.push(0x01)
 	cpu.push(0x02)
 
-	cpu.memory.store(0x0100, 0x60)
+	cpu.memory.Store(0x0100, 0x60)
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0103 {
+	if cpu.Registers.PC != 0x0103 {
 		t.Error("Register PC is not 0x0103")
 	}
 
@@ -4844,10 +4844,10 @@ func TestRts(t *testing.T) {
 func TestBcc(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x90)
+	cpu.memory.Store(0x0100, 0x90)
 
 	cycles, _ := cpu.Execute()
 
@@ -4855,15 +4855,15 @@ func TestBcc(t *testing.T) {
 		t.Error("Cycles is not 2")
 	}
 
-	if cpu.registers.PC != 0x0102 {
+	if cpu.Registers.PC != 0x0102 {
 		t.Error("Register PC is not 0x0102")
 	}
 
-	cpu.registers.P &^= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x90)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0x90)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cycles, _ = cpu.Execute()
 
@@ -4871,15 +4871,15 @@ func TestBcc(t *testing.T) {
 		t.Error("Cycles is not 3")
 	}
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P &^= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x90)
-	cpu.memory.store(0x0101, 0xfd) // -3
+	cpu.memory.Store(0x0100, 0x90)
+	cpu.memory.Store(0x0101, 0xfd) // -3
 
 	cycles, _ = cpu.Execute()
 
@@ -4887,7 +4887,7 @@ func TestBcc(t *testing.T) {
 		t.Error("Cycles is not 4")
 	}
 
-	if cpu.registers.PC != 0x00ff {
+	if cpu.Registers.PC != 0x00ff {
 		t.Error("Register PC is not 0x00ff")
 	}
 
@@ -4899,27 +4899,27 @@ func TestBcc(t *testing.T) {
 func TestBcs(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb0)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0xb0)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb0)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0xb0)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -4931,27 +4931,27 @@ func TestBcs(t *testing.T) {
 func TestBeq(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= Z
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= Z
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf0)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0xf0)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P |= Z
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= Z
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf0)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0xf0)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -4963,27 +4963,27 @@ func TestBeq(t *testing.T) {
 func TestBmi(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= N
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= N
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x30)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0x30)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P |= N
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= N
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x30)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0x30)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -4995,27 +4995,27 @@ func TestBmi(t *testing.T) {
 func TestBne(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= Z
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= Z
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd0)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0xd0)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P &^= Z
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= Z
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd0)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0xd0)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -5027,27 +5027,27 @@ func TestBne(t *testing.T) {
 func TestBpl(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= N
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= N
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x10)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0x10)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P &^= N
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= N
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x10)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0x10)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -5059,27 +5059,27 @@ func TestBpl(t *testing.T) {
 func TestBvc(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= V
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= V
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x50)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0x50)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P &^= V
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= V
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x50)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0x50)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -5091,27 +5091,27 @@ func TestBvc(t *testing.T) {
 func TestBvs(t *testing.T) {
 	Setup()
 
-	cpu.registers.P |= V
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= V
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x70)
-	cpu.memory.store(0x0101, 0x02) // +2
+	cpu.memory.Store(0x0100, 0x70)
+	cpu.memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0104 {
+	if cpu.Registers.PC != 0x0104 {
 		t.Error("Register PC is not 0x0104")
 	}
 
-	cpu.registers.P |= V
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= V
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x70)
-	cpu.memory.store(0x0101, 0xfe) // -2
+	cpu.memory.Store(0x0100, 0x70)
+	cpu.memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
-	if cpu.registers.PC != 0x0100 {
+	if cpu.Registers.PC != 0x0100 {
 		t.Error("Register PC is not 0x0100")
 	}
 
@@ -5123,25 +5123,25 @@ func TestBvs(t *testing.T) {
 func TestClc(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x18)
+	cpu.memory.Store(0x0100, 0x18)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x18)
+	cpu.memory.Store(0x0100, 0x18)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C != 0 {
+	if cpu.Registers.P&C != 0 {
 		t.Error("C flag is set")
 	}
 
@@ -5153,25 +5153,25 @@ func TestClc(t *testing.T) {
 func TestCld(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= D
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= D
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd8)
+	cpu.memory.Store(0x0100, 0xd8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&D != 0 {
+	if cpu.Registers.P&D != 0 {
 		t.Error("D flag is set")
 	}
 
-	cpu.registers.P |= D
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= D
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xd8)
+	cpu.memory.Store(0x0100, 0xd8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&D != 0 {
+	if cpu.Registers.P&D != 0 {
 		t.Error("D flag is set")
 	}
 
@@ -5183,25 +5183,25 @@ func TestCld(t *testing.T) {
 func TestCli(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= I
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= I
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x58)
+	cpu.memory.Store(0x0100, 0x58)
 
 	cpu.Execute()
 
-	if cpu.registers.P&I != 0 {
+	if cpu.Registers.P&I != 0 {
 		t.Error("I flag is set")
 	}
 
-	cpu.registers.P |= I
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= I
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x58)
+	cpu.memory.Store(0x0100, 0x58)
 
 	cpu.Execute()
 
-	if cpu.registers.P&I != 0 {
+	if cpu.Registers.P&I != 0 {
 		t.Error("I flag is set")
 	}
 
@@ -5213,25 +5213,25 @@ func TestCli(t *testing.T) {
 func TestClv(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= V
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= V
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb8)
+	cpu.memory.Store(0x0100, 0xb8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&V != 0 {
+	if cpu.Registers.P&V != 0 {
 		t.Error("V flag is set")
 	}
 
-	cpu.registers.P |= V
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= V
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xb8)
+	cpu.memory.Store(0x0100, 0xb8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&V != 0 {
+	if cpu.Registers.P&V != 0 {
 		t.Error("V flag is set")
 	}
 
@@ -5243,25 +5243,25 @@ func TestClv(t *testing.T) {
 func TestSec(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x38)
+	cpu.memory.Store(0x0100, 0x38)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
-	cpu.registers.P |= C
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= C
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x38)
+	cpu.memory.Store(0x0100, 0x38)
 
 	cpu.Execute()
 
-	if cpu.registers.P&C == 0 {
+	if cpu.Registers.P&C == 0 {
 		t.Error("C flag is not set")
 	}
 
@@ -5273,25 +5273,25 @@ func TestSec(t *testing.T) {
 func TestSed(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= D
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= D
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf8)
+	cpu.memory.Store(0x0100, 0xf8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&D == 0 {
+	if cpu.Registers.P&D == 0 {
 		t.Error("D flag is not set")
 	}
 
-	cpu.registers.P |= D
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= D
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0xf8)
+	cpu.memory.Store(0x0100, 0xf8)
 
 	cpu.Execute()
 
-	if cpu.registers.P&D == 0 {
+	if cpu.Registers.P&D == 0 {
 		t.Error("D flag is not set")
 	}
 
@@ -5303,25 +5303,25 @@ func TestSed(t *testing.T) {
 func TestSei(t *testing.T) {
 	Setup()
 
-	cpu.registers.P &^= I
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P &^= I
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x78)
+	cpu.memory.Store(0x0100, 0x78)
 
 	cpu.Execute()
 
-	if cpu.registers.P&I == 0 {
+	if cpu.Registers.P&I == 0 {
 		t.Error("I flag is not set")
 	}
 
-	cpu.registers.P |= I
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P |= I
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x78)
+	cpu.memory.Store(0x0100, 0x78)
 
 	cpu.Execute()
 
-	if cpu.registers.P&I == 0 {
+	if cpu.Registers.P&I == 0 {
 		t.Error("I flag is not set")
 	}
 
@@ -5333,12 +5333,12 @@ func TestSei(t *testing.T) {
 func TestBrk(t *testing.T) {
 	Setup()
 
-	cpu.registers.P = 0xff & (^B)
-	cpu.registers.PC = 0x0100
+	cpu.Registers.P = 0xff & (^B)
+	cpu.Registers.PC = 0x0100
 
-	cpu.memory.store(0x0100, 0x00)
-	cpu.memory.store(0xfffe, 0xff)
-	cpu.memory.store(0xffff, 0x01)
+	cpu.memory.Store(0x0100, 0x00)
+	cpu.memory.Store(0xfffe, 0xff)
+	cpu.memory.Store(0xffff, 0x01)
 
 	cpu.Execute()
 
@@ -5354,7 +5354,7 @@ func TestBrk(t *testing.T) {
 		t.Error("Memory is not 0x01")
 	}
 
-	if cpu.registers.PC != 0x01ff {
+	if cpu.Registers.PC != 0x01ff {
 		t.Error("Register PC is not 0x01ff")
 	}
 
@@ -5366,20 +5366,20 @@ func TestBrk(t *testing.T) {
 func TestRti(t *testing.T) {
 	Setup()
 
-	cpu.registers.PC = 0x0100
+	cpu.Registers.PC = 0x0100
 	cpu.push(0x01)
 	cpu.push(0x02)
 	cpu.push(0x03)
 
-	cpu.memory.store(0x0100, 0x40)
+	cpu.memory.Store(0x0100, 0x40)
 
 	cpu.Execute()
 
-	if cpu.registers.P != 0x03 {
+	if cpu.Registers.P != 0x03 {
 		t.Error("Register P is not 0x03")
 	}
 
-	if cpu.registers.PC != 0x0102 {
+	if cpu.Registers.PC != 0x0102 {
 		t.Error("Register PC is not 0x0102")
 	}
 

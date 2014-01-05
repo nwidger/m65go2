@@ -49,7 +49,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xb5,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Lda(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Lda(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -67,7 +67,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xbd,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Lda(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Lda(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -76,7 +76,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xb9,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Lda(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Lda(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -123,7 +123,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xb6,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ldx(cpu.zeroPageIndexedAddress(cpu.registers.Y))
+			cpu.Ldx(cpu.zeroPageIndexedAddress(cpu.Registers.Y))
 			return
 		}})
 
@@ -141,7 +141,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xbe,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ldx(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Ldx(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -170,7 +170,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xb4,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ldy(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Ldy(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -188,7 +188,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xbc,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ldy(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Ldy(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -208,7 +208,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x95,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Sta(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Sta(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -226,7 +226,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x9d,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 5
-			cpu.Sta(cpu.absoluteIndexedAddress(cpu.registers.X, nil))
+			cpu.Sta(cpu.absoluteIndexedAddress(cpu.Registers.X, nil))
 			return
 		}})
 
@@ -235,7 +235,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x99,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 5
-			cpu.Sta(cpu.absoluteIndexedAddress(cpu.registers.Y, nil))
+			cpu.Sta(cpu.absoluteIndexedAddress(cpu.Registers.Y, nil))
 			return
 		}})
 
@@ -273,7 +273,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x96,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Stx(cpu.zeroPageIndexedAddress(cpu.registers.Y))
+			cpu.Stx(cpu.zeroPageIndexedAddress(cpu.Registers.Y))
 			return
 		}})
 
@@ -302,7 +302,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x94,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Sty(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Sty(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -450,7 +450,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x35,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.And(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.And(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -468,7 +468,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x3d,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.And(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.And(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -477,7 +477,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x39,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.And(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.And(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -524,7 +524,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x55,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Eor(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Eor(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -542,7 +542,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x5d,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Eor(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Eor(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -551,7 +551,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x59,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Eor(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Eor(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -598,7 +598,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x15,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ora(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Ora(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -616,7 +616,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x1d,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ora(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Ora(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -625,7 +625,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x19,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Ora(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Ora(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -692,7 +692,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x75,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Adc(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Adc(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -710,7 +710,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x7d,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Adc(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Adc(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -719,7 +719,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x79,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Adc(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Adc(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -766,7 +766,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xf5,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Sbc(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Sbc(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -784,7 +784,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xfd,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Sbc(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Sbc(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -793,7 +793,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xf9,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Sbc(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Sbc(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -840,7 +840,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xd5,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Cmp(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Cmp(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -858,7 +858,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xdd,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Cmp(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Cmp(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			return
 		}})
 
@@ -867,7 +867,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xd9,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 4
-			cpu.Cmp(cpu.absoluteIndexedAddress(cpu.registers.Y, &cycles))
+			cpu.Cmp(cpu.absoluteIndexedAddress(cpu.Registers.Y, &cycles))
 			return
 		}})
 
@@ -963,7 +963,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xf6,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 6
-			cpu.Inc(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Inc(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -980,7 +980,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0xfe,
 		exec: func(cpu *CPU) (cycles uint16) {
-			cpu.Inc(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Inc(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			cycles = 7
 			return
 		}})
@@ -1023,7 +1023,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0xd6,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 6
-			cpu.Dec(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Dec(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -1040,7 +1040,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0xde,
 		exec: func(cpu *CPU) (cycles uint16) {
-			cpu.Dec(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Dec(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			cycles = 7
 			return
 		}})
@@ -1092,7 +1092,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x16,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 6
-			cpu.Asl(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Asl(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -1109,7 +1109,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0x1e,
 		exec: func(cpu *CPU) (cycles uint16) {
-			cpu.Asl(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Asl(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			cycles = 7
 			return
 		}})
@@ -1139,7 +1139,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x56,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 6
-			cpu.Lsr(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Lsr(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -1156,7 +1156,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0x5e,
 		exec: func(cpu *CPU) (cycles uint16) {
-			cpu.Lsr(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Lsr(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			cycles = 7
 			return
 		}})
@@ -1186,7 +1186,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x36,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 6
-			cpu.Rol(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Rol(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -1203,7 +1203,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0x3e,
 		exec: func(cpu *CPU) (cycles uint16) {
-			cpu.Rol(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Rol(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			cycles = 7
 			return
 		}})
@@ -1233,7 +1233,7 @@ func (instructions InstructionTable) InitInstructions() {
 		opcode: 0x76,
 		exec: func(cpu *CPU) (cycles uint16) {
 			cycles = 6
-			cpu.Ror(cpu.zeroPageIndexedAddress(cpu.registers.X))
+			cpu.Ror(cpu.zeroPageIndexedAddress(cpu.Registers.X))
 			return
 		}})
 
@@ -1250,7 +1250,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		opcode: 0x7e,
 		exec: func(cpu *CPU) (cycles uint16) {
-			cpu.Ror(cpu.absoluteIndexedAddress(cpu.registers.X, &cycles))
+			cpu.Ror(cpu.absoluteIndexedAddress(cpu.Registers.X, &cycles))
 			cycles = 7
 			return
 		}})

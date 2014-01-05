@@ -31,7 +31,7 @@ func NewRegisters() Registers {
 	return Registers{}
 }
 
-func (reg *Registers) reset() {
+func (reg *Registers) Reset() {
 	reg.A = 0
 	reg.X = 0
 	reg.Y = 0
@@ -73,18 +73,18 @@ type CPU struct {
 	decode       bool
 	divisor      uint16
 	clock        *Clock
-	registers    Registers
+	Registers    Registers
 	memory       Memory
 	instructions InstructionTable
 }
 
 func NewCPU(mem Memory, divisor uint16, clock *Clock) *CPU {
-	return &CPU{decode: false, divisor: divisor, clock: clock, registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
+	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
 }
 
 func (cpu *CPU) Reset() {
-	cpu.registers.reset()
-	cpu.memory.reset()
+	cpu.Registers.Reset()
+	cpu.memory.Reset()
 }
 
 type BadOpCodeError OpCode
@@ -97,7 +97,7 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 	ticks := cpu.clock.ticks
 
 	// fetch
-	opcode := OpCode(cpu.memory.fetch(cpu.registers.PC))
+	opcode := OpCode(cpu.memory.Fetch(cpu.Registers.PC))
 	inst, ok := cpu.instructions[opcode]
 
 	if !ok {
@@ -105,11 +105,11 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 	}
 
 	// execute
-	cpu.registers.PC++
+	cpu.Registers.PC++
 	cycles = inst.exec(cpu)
 
 	// count cycles
-	cpu.clock.await(ticks + uint64(cycles*cpu.divisor))
+	cpu.clock.Await(ticks + uint64(cycles*cpu.divisor))
 
 	return cycles, nil
 }
@@ -127,17 +127,17 @@ func (cpu *CPU) Run() (error error) {
 
 func (cpu *CPU) setZFlag(value uint8) uint8 {
 	if value == 0 {
-		cpu.registers.P |= Z
+		cpu.Registers.P |= Z
 	} else {
-		cpu.registers.P &= ^Z
+		cpu.Registers.P &= ^Z
 	}
 
 	return value
 }
 
 func (cpu *CPU) setNFlag(value uint8) uint8 {
-	cpu.registers.P &= ^N
-	cpu.registers.P |= Status(value & (uint8(1) << 7))
+	cpu.Registers.P &= ^N
+	cpu.Registers.P |= Status(value & (uint8(1) << 7))
 	return value
 }
 
@@ -148,65 +148,65 @@ func (cpu *CPU) setZNFlags(value uint8) uint8 {
 }
 
 func (cpu *CPU) setCFlagAddition(value uint16) uint16 {
-	cpu.registers.P &= ^C
-	cpu.registers.P |= Status(value >> 8 & 0x1)
+	cpu.Registers.P &= ^C
+	cpu.Registers.P |= Status(value >> 8 & 0x1)
 	return value
 }
 
 func (cpu *CPU) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
-	cpu.registers.P &= ^V
-	cpu.registers.P |= Status((^(term1 ^ term2) & (term1 ^ result) & 0x80) >> 1)
+	cpu.Registers.P &= ^V
+	cpu.Registers.P |= Status((^(term1 ^ term2) & (term1 ^ result) & 0x80) >> 1)
 	return result
 }
 
 func (cpu *CPU) load(address uint16, register *uint8) {
-	*register = cpu.setZNFlags(cpu.memory.fetch(address))
+	*register = cpu.setZNFlags(cpu.memory.Fetch(address))
 }
 
 func (cpu *CPU) immediateAddress() (result uint16) {
-	result = cpu.registers.PC
-	cpu.registers.PC++
+	result = cpu.Registers.PC
+	cpu.Registers.PC++
 	return
 }
 
 func (cpu *CPU) zeroPageAddress() (result uint16) {
-	result = uint16(cpu.memory.fetch(cpu.registers.PC))
-	cpu.registers.PC++
+	result = uint16(cpu.memory.Fetch(cpu.Registers.PC))
+	cpu.Registers.PC++
 	return
 }
 
 func (cpu *CPU) zeroPageIndexedAddress(index uint8) (result uint16) {
-	result = uint16(cpu.memory.fetch(cpu.registers.PC) + index)
-	cpu.registers.PC++
+	result = uint16(cpu.memory.Fetch(cpu.Registers.PC) + index)
+	cpu.Registers.PC++
 	return
 }
 
 func (cpu *CPU) relativeAddress() (result uint16) {
-	value := uint16(cpu.memory.fetch(cpu.registers.PC))
-	cpu.registers.PC++
+	value := uint16(cpu.memory.Fetch(cpu.Registers.PC))
+	cpu.Registers.PC++
 
 	if value > 0x7f {
-		result = cpu.registers.PC - (0x0100 - value)
+		result = cpu.Registers.PC - (0x0100 - value)
 	} else {
-		result = cpu.registers.PC + value
+		result = cpu.Registers.PC + value
 	}
 
 	return
 }
 
 func (cpu *CPU) absoluteAddress() (result uint16) {
-	low := cpu.memory.fetch(cpu.registers.PC)
-	high := cpu.memory.fetch(cpu.registers.PC + 1)
-	cpu.registers.PC += 2
+	low := cpu.memory.Fetch(cpu.Registers.PC)
+	high := cpu.memory.Fetch(cpu.Registers.PC + 1)
+	cpu.Registers.PC += 2
 
 	result = (uint16(high) << 8) | uint16(low)
 	return
 }
 
 func (cpu *CPU) indirectAddress() (result uint16) {
-	low := cpu.memory.fetch(cpu.registers.PC)
-	high := cpu.memory.fetch(cpu.registers.PC + 1)
-	cpu.registers.PC += 2
+	low := cpu.memory.Fetch(cpu.Registers.PC)
+	high := cpu.memory.Fetch(cpu.Registers.PC + 1)
+	cpu.Registers.PC += 2
 
 	// XXX: The 6502 had a bug in which it incremented only the
 	// high byte instead of the whole 16-bit address when
@@ -218,17 +218,17 @@ func (cpu *CPU) indirectAddress() (result uint16) {
 	aHigh := (uint16(high) << 8) | uint16(low+1)
 	aLow := (uint16(high) << 8) | uint16(low)
 
-	low = cpu.memory.fetch(aLow)
-	high = cpu.memory.fetch(aHigh)
+	low = cpu.memory.Fetch(aLow)
+	high = cpu.memory.Fetch(aHigh)
 
 	result = (uint16(high) << 8) | uint16(low)
 	return
 }
 
 func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
-	low := cpu.memory.fetch(cpu.registers.PC)
-	high := cpu.memory.fetch(cpu.registers.PC + 1)
-	cpu.registers.PC += 2
+	low := cpu.memory.Fetch(cpu.Registers.PC)
+	high := cpu.memory.Fetch(cpu.Registers.PC + 1)
+	cpu.Registers.PC += 2
 
 	address := (uint16(high) << 8) | uint16(low)
 	result = address + uint16(index)
@@ -241,26 +241,26 @@ func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint
 }
 
 func (cpu *CPU) indexedIndirectAddress() (result uint16) {
-	address := uint16(cpu.memory.fetch(cpu.registers.PC) + cpu.registers.X)
-	cpu.registers.PC++
+	address := uint16(cpu.memory.Fetch(cpu.Registers.PC) + cpu.Registers.X)
+	cpu.Registers.PC++
 
-	low := cpu.memory.fetch(address)
-	high := cpu.memory.fetch(address + 1)
+	low := cpu.memory.Fetch(address)
+	high := cpu.memory.Fetch(address + 1)
 
 	result = (uint16(high) << 8) | uint16(low)
 	return
 }
 
 func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
-	address := uint16(cpu.memory.fetch(cpu.registers.PC))
-	cpu.registers.PC++
+	address := uint16(cpu.memory.Fetch(cpu.Registers.PC))
+	cpu.Registers.PC++
 
-	low := cpu.memory.fetch(address)
-	high := cpu.memory.fetch(address + 1)
+	low := cpu.memory.Fetch(address)
+	high := cpu.memory.Fetch(address + 1)
 
 	address = (uint16(high) << 8) | uint16(low)
 
-	result = address + uint16(cpu.registers.Y)
+	result = address + uint16(cpu.Registers.Y)
 
 	if cycles != nil && !SamePage(address, result) {
 		*cycles++
@@ -271,54 +271,54 @@ func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
 
 func (cpu *CPU) Lda(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: LDA $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: LDA $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.load(address, &cpu.registers.A)
+	cpu.load(address, &cpu.Registers.A)
 }
 
 func (cpu *CPU) Ldx(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: LDX $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: LDX $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.load(address, &cpu.registers.X)
+	cpu.load(address, &cpu.Registers.X)
 }
 
 func (cpu *CPU) Ldy(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: LDY $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: LDY $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.load(address, &cpu.registers.Y)
+	cpu.load(address, &cpu.Registers.Y)
 }
 
 func (cpu *CPU) store(address uint16, value uint8) {
-	cpu.memory.store(address, value)
+	cpu.memory.Store(address, value)
 }
 
 func (cpu *CPU) Sta(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: STA $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: STA $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.store(address, cpu.registers.A)
+	cpu.store(address, cpu.Registers.A)
 }
 
 func (cpu *CPU) Stx(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: STX $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: STX $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.store(address, cpu.registers.X)
+	cpu.store(address, cpu.Registers.X)
 }
 
 func (cpu *CPU) Sty(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: STY $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: STY $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.store(address, cpu.registers.Y)
+	cpu.store(address, cpu.Registers.Y)
 }
 
 func (cpu *CPU) transfer(from uint8, to *uint8) {
@@ -327,188 +327,188 @@ func (cpu *CPU) transfer(from uint8, to *uint8) {
 
 func (cpu *CPU) Tax() {
 	if cpu.decode {
-		fmt.Printf("  %04x: TAX\n", cpu.registers.PC)
+		fmt.Printf("  %04x: TAX\n", cpu.Registers.PC)
 	}
 
-	cpu.transfer(cpu.registers.A, &cpu.registers.X)
+	cpu.transfer(cpu.Registers.A, &cpu.Registers.X)
 }
 
 func (cpu *CPU) Tay() {
 	if cpu.decode {
-		fmt.Printf("  %04x: TAY\n", cpu.registers.PC)
+		fmt.Printf("  %04x: TAY\n", cpu.Registers.PC)
 	}
 
-	cpu.transfer(cpu.registers.A, &cpu.registers.Y)
+	cpu.transfer(cpu.Registers.A, &cpu.Registers.Y)
 }
 
 func (cpu *CPU) Txa() {
 	if cpu.decode {
-		fmt.Printf("  %04x: TXA\n", cpu.registers.PC)
+		fmt.Printf("  %04x: TXA\n", cpu.Registers.PC)
 	}
 
-	cpu.transfer(cpu.registers.X, &cpu.registers.A)
+	cpu.transfer(cpu.Registers.X, &cpu.Registers.A)
 }
 
 func (cpu *CPU) Tya() {
 	if cpu.decode {
-		fmt.Printf("  %04x: TYA\n", cpu.registers.PC)
+		fmt.Printf("  %04x: TYA\n", cpu.Registers.PC)
 	}
 
-	cpu.transfer(cpu.registers.Y, &cpu.registers.A)
+	cpu.transfer(cpu.Registers.Y, &cpu.Registers.A)
 }
 
 func (cpu *CPU) Tsx() {
 	if cpu.decode {
-		fmt.Printf("  %04x: TSX\n", cpu.registers.PC)
+		fmt.Printf("  %04x: TSX\n", cpu.Registers.PC)
 	}
 
-	cpu.transfer(cpu.registers.SP, &cpu.registers.X)
+	cpu.transfer(cpu.Registers.SP, &cpu.Registers.X)
 }
 
 func (cpu *CPU) Txs() {
 	if cpu.decode {
-		fmt.Printf("  %04x: TXS\n", cpu.registers.PC)
+		fmt.Printf("  %04x: TXS\n", cpu.Registers.PC)
 	}
 
-	cpu.transfer(cpu.registers.X, &cpu.registers.SP)
+	cpu.transfer(cpu.Registers.X, &cpu.Registers.SP)
 }
 
 func (cpu *CPU) push(value uint8) {
-	cpu.memory.store(0x0100|uint16(cpu.registers.SP), value)
-	cpu.registers.SP--
+	cpu.memory.Store(0x0100|uint16(cpu.Registers.SP), value)
+	cpu.Registers.SP--
 }
 
 func (cpu *CPU) pull() (value uint8) {
-	cpu.registers.SP++
-	value = cpu.memory.fetch(0x0100 | uint16(cpu.registers.SP))
+	cpu.Registers.SP++
+	value = cpu.memory.Fetch(0x0100 | uint16(cpu.Registers.SP))
 	return
 }
 
 func (cpu *CPU) Pha() {
 	if cpu.decode {
-		fmt.Printf("  %04x: PHA\n", cpu.registers.PC)
+		fmt.Printf("  %04x: PHA\n", cpu.Registers.PC)
 	}
 
-	cpu.push(cpu.registers.A)
+	cpu.push(cpu.Registers.A)
 }
 
 func (cpu *CPU) Php() {
 	if cpu.decode {
-		fmt.Printf("  %04x: PHP\n", cpu.registers.PC)
+		fmt.Printf("  %04x: PHP\n", cpu.Registers.PC)
 	}
 
-	cpu.push(uint8(cpu.registers.P | B))
+	cpu.push(uint8(cpu.Registers.P | B))
 }
 
 func (cpu *CPU) Pla() {
 	if cpu.decode {
-		fmt.Printf("  %04x: PLA\n", cpu.registers.PC)
+		fmt.Printf("  %04x: PLA\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.A = cpu.setZNFlags(cpu.pull())
+	cpu.Registers.A = cpu.setZNFlags(cpu.pull())
 }
 
 func (cpu *CPU) Plp() {
 	if cpu.decode {
-		fmt.Printf("  %04x: PLP\n", cpu.registers.PC)
+		fmt.Printf("  %04x: PLP\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P = Status(cpu.pull())
+	cpu.Registers.P = Status(cpu.pull())
 }
 
 func (cpu *CPU) And(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: AND $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: AND $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.registers.A = cpu.setZNFlags(cpu.registers.A & cpu.memory.fetch(address))
+	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A & cpu.memory.Fetch(address))
 }
 
 func (cpu *CPU) Eor(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: EOR $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: EOR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.registers.A = cpu.setZNFlags(cpu.registers.A ^ cpu.memory.fetch(address))
+	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A ^ cpu.memory.Fetch(address))
 }
 
 func (cpu *CPU) Ora(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: ORA $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: ORA $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.registers.A = cpu.setZNFlags(cpu.registers.A | cpu.memory.fetch(address))
+	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A | cpu.memory.Fetch(address))
 }
 
 func (cpu *CPU) Bit(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BIT $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BIT $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := cpu.memory.fetch(address)
-	cpu.setZFlag(value & cpu.registers.A)
-	cpu.registers.P = Status(uint8(cpu.registers.P) | (value & 0xc0))
+	value := cpu.memory.Fetch(address)
+	cpu.setZFlag(value & cpu.Registers.A)
+	cpu.Registers.P = Status(uint8(cpu.Registers.P) | (value & 0xc0))
 }
 
 func (cpu *CPU) addition(value uint16) {
-	orig := uint16(cpu.registers.A)
-	result := cpu.setCFlagAddition(orig + value + uint16(cpu.registers.P&C))
-	cpu.registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
+	orig := uint16(cpu.Registers.A)
+	result := cpu.setCFlagAddition(orig + value + uint16(cpu.Registers.P&C))
+	cpu.Registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
 }
 
 func (cpu *CPU) Adc(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: ADC $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: ADC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := uint16(cpu.memory.fetch(address))
+	value := uint16(cpu.memory.Fetch(address))
 	cpu.addition(value)
 }
 
 func (cpu *CPU) Sbc(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: SBC $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: SBC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := uint16(cpu.memory.fetch(address)) ^ 0xff + 1
+	value := uint16(cpu.memory.Fetch(address)) ^ 0xff + 1
 	cpu.addition(value)
 }
 
 func (cpu *CPU) compare(address uint16, register uint8) {
-	value := uint16(cpu.memory.fetch(address)) ^ 0xff + 1
+	value := uint16(cpu.memory.Fetch(address)) ^ 0xff + 1
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
 
 func (cpu *CPU) Cmp(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: CMP $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: CMP $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.compare(address, cpu.registers.A)
+	cpu.compare(address, cpu.Registers.A)
 }
 
 func (cpu *CPU) Cpx(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: CPX $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: CPX $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.compare(address, cpu.registers.X)
+	cpu.compare(address, cpu.Registers.X)
 }
 
 func (cpu *CPU) Cpy(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: CPY $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: CPY $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.compare(address, cpu.registers.Y)
+	cpu.compare(address, cpu.Registers.Y)
 }
 
 func (cpu *CPU) Inc(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: INC $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: INC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.memory.store(address, cpu.setZNFlags(cpu.memory.fetch(address)+1))
+	cpu.memory.Store(address, cpu.setZNFlags(cpu.memory.Fetch(address)+1))
 }
 
 func (cpu *CPU) increment(register *uint8) {
@@ -517,26 +517,26 @@ func (cpu *CPU) increment(register *uint8) {
 
 func (cpu *CPU) Inx() {
 	if cpu.decode {
-		fmt.Printf("  %04x: INX\n", cpu.registers.PC)
+		fmt.Printf("  %04x: INX\n", cpu.Registers.PC)
 	}
 
-	cpu.increment(&cpu.registers.X)
+	cpu.increment(&cpu.Registers.X)
 }
 
 func (cpu *CPU) Iny() {
 	if cpu.decode {
-		fmt.Printf("  %04x: INY\n", cpu.registers.PC)
+		fmt.Printf("  %04x: INY\n", cpu.Registers.PC)
 	}
 
-	cpu.increment(&cpu.registers.Y)
+	cpu.increment(&cpu.Registers.Y)
 }
 
 func (cpu *CPU) Dec(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: DEC $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: DEC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.memory.store(address, cpu.setZNFlags(cpu.memory.fetch(address)-1))
+	cpu.memory.Store(address, cpu.setZNFlags(cpu.memory.Fetch(address)-1))
 }
 
 func (cpu *CPU) decrement(register *uint8) {
@@ -545,18 +545,18 @@ func (cpu *CPU) decrement(register *uint8) {
 
 func (cpu *CPU) Dex() {
 	if cpu.decode {
-		fmt.Printf("  %04x: DEX\n", cpu.registers.PC)
+		fmt.Printf("  %04x: DEX\n", cpu.Registers.PC)
 	}
 
-	cpu.decrement(&cpu.registers.X)
+	cpu.decrement(&cpu.Registers.X)
 }
 
 func (cpu *CPU) Dey() {
 	if cpu.decode {
-		fmt.Printf("  %04x: DEY\n", cpu.registers.PC)
+		fmt.Printf("  %04x: DEY\n", cpu.Registers.PC)
 	}
 
-	cpu.decrement(&cpu.registers.Y)
+	cpu.decrement(&cpu.Registers.Y)
 }
 
 type Direction int
@@ -578,42 +578,42 @@ func (cpu *CPU) shift(direction Direction, value uint8, store func(uint8)) {
 		value >>= 1
 	}
 
-	cpu.registers.P &= ^C
-	cpu.registers.P |= c
+	cpu.Registers.P &= ^C
+	cpu.Registers.P |= c
 
 	store(cpu.setZNFlags(value))
 }
 
 func (cpu *CPU) AslA() {
 	if cpu.decode {
-		fmt.Printf("  %04x: ASL A\n", cpu.registers.PC)
+		fmt.Printf("  %04x: ASL A\n", cpu.Registers.PC)
 	}
 
-	cpu.shift(left, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+	cpu.shift(left, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
 func (cpu *CPU) Asl(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: ASL $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: ASL $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.shift(left, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+	cpu.shift(left, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
 func (cpu *CPU) LsrA() {
 	if cpu.decode {
-		fmt.Printf("  %04x: LSR A\n", cpu.registers.PC)
+		fmt.Printf("  %04x: LSR A\n", cpu.Registers.PC)
 	}
 
-	cpu.shift(right, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+	cpu.shift(right, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
 func (cpu *CPU) Lsr(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: LSR $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: LSR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.shift(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+	cpu.shift(right, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
 func (cpu *CPU) rotate(direction Direction, value uint8, store func(uint8)) {
@@ -622,242 +622,242 @@ func (cpu *CPU) rotate(direction Direction, value uint8, store func(uint8)) {
 	switch direction {
 	case left:
 		c = Status(value & uint8(N) >> 7)
-		value = ((value << 1) & uint8(^C)) | uint8(cpu.registers.P&C)
+		value = ((value << 1) & uint8(^C)) | uint8(cpu.Registers.P&C)
 	case right:
 		c = Status(value & uint8(C))
-		value = ((value >> 1) & uint8(^N)) | uint8((cpu.registers.P&C)<<7)
+		value = ((value >> 1) & uint8(^N)) | uint8((cpu.Registers.P&C)<<7)
 	}
 
-	cpu.registers.P &= ^C
-	cpu.registers.P |= c
+	cpu.Registers.P &= ^C
+	cpu.Registers.P |= c
 
 	store(cpu.setZNFlags(value))
 }
 
 func (cpu *CPU) RolA() {
 	if cpu.decode {
-		fmt.Printf("  %04x: ROL A\n", cpu.registers.PC)
+		fmt.Printf("  %04x: ROL A\n", cpu.Registers.PC)
 	}
 
-	cpu.rotate(left, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+	cpu.rotate(left, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
 func (cpu *CPU) Rol(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: ROL $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: ROL $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.rotate(left, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+	cpu.rotate(left, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
 func (cpu *CPU) RorA() {
 	if cpu.decode {
-		fmt.Printf("  %04x: ROR A\n", cpu.registers.PC)
+		fmt.Printf("  %04x: ROR A\n", cpu.Registers.PC)
 	}
 
-	cpu.rotate(right, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
+	cpu.rotate(right, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
 func (cpu *CPU) Ror(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: ROR $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: ROR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.rotate(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
+	cpu.rotate(right, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
 func (cpu *CPU) Jmp(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: JMP $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: JMP $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.registers.PC = address
+	cpu.Registers.PC = address
 }
 
 func (cpu *CPU) Jsr(address uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: JSR $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: JSR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := cpu.registers.PC - 1
+	value := cpu.Registers.PC - 1
 
 	cpu.push(uint8(value >> 8))
 	cpu.push(uint8(value))
 
-	cpu.registers.PC = address
+	cpu.Registers.PC = address
 }
 
 func (cpu *CPU) Rts() {
 	if cpu.decode {
-		fmt.Printf("  %04x: RTS\n", cpu.registers.PC)
+		fmt.Printf("  %04x: RTS\n", cpu.Registers.PC)
 	}
 
 	low := cpu.pull()
 	high := cpu.pull()
 
-	cpu.registers.PC = (uint16(high) << 8) | uint16(low) + 1
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low) + 1
 }
 
 func (cpu *CPU) branch(address uint16, condition func() bool, cycles *uint16) {
 	if condition() {
 		*cycles++
 
-		if !SamePage(cpu.registers.PC, address) {
+		if !SamePage(cpu.Registers.PC, address) {
 			*cycles++
 		}
 
-		cpu.registers.PC = address
+		cpu.Registers.PC = address
 	}
 }
 
 func (cpu *CPU) Bcc(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BCC $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BCC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&C == 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&C == 0 }, cycles)
 }
 
 func (cpu *CPU) Bcs(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BCS $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BCS $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&C != 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&C != 0 }, cycles)
 }
 
 func (cpu *CPU) Beq(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BEQ $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BEQ $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&Z != 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&Z != 0 }, cycles)
 }
 
 func (cpu *CPU) Bmi(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BMI $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BMI $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&N != 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&N != 0 }, cycles)
 }
 
 func (cpu *CPU) Bne(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BNE $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BNE $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&Z == 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&Z == 0 }, cycles)
 }
 
 func (cpu *CPU) Bpl(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BPL $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BPL $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&N == 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&N == 0 }, cycles)
 }
 
 func (cpu *CPU) Bvc(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BVC $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BVC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&V == 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&V == 0 }, cycles)
 }
 
 func (cpu *CPU) Bvs(address uint16, cycles *uint16) {
 	if cpu.decode {
-		fmt.Printf("  %04x: BVS $%04x\n", cpu.registers.PC, address)
+		fmt.Printf("  %04x: BVS $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.branch(address, func() bool { return cpu.registers.P&V != 0 }, cycles)
+	cpu.branch(address, func() bool { return cpu.Registers.P&V != 0 }, cycles)
 }
 
 func (cpu *CPU) Clc() {
 	if cpu.decode {
-		fmt.Printf("  %04x: CLC\n", cpu.registers.PC)
+		fmt.Printf("  %04x: CLC\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P &^= C
+	cpu.Registers.P &^= C
 }
 
 func (cpu *CPU) Cld() {
 	if cpu.decode {
-		fmt.Printf("  %04x: CLD\n", cpu.registers.PC)
+		fmt.Printf("  %04x: CLD\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P &^= D
+	cpu.Registers.P &^= D
 }
 
 func (cpu *CPU) Cli() {
 	if cpu.decode {
-		fmt.Printf("  %04x: CLI\n", cpu.registers.PC)
+		fmt.Printf("  %04x: CLI\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P &^= I
+	cpu.Registers.P &^= I
 }
 
 func (cpu *CPU) Clv() {
 	if cpu.decode {
-		fmt.Printf("  %04x: CLV\n", cpu.registers.PC)
+		fmt.Printf("  %04x: CLV\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P &^= V
+	cpu.Registers.P &^= V
 }
 
 func (cpu *CPU) Sec() {
 	if cpu.decode {
-		fmt.Printf("  %04x: SEC\n", cpu.registers.PC)
+		fmt.Printf("  %04x: SEC\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P |= C
+	cpu.Registers.P |= C
 }
 
 func (cpu *CPU) Sed() {
 	if cpu.decode {
-		fmt.Printf("  %04x: SED\n", cpu.registers.PC)
+		fmt.Printf("  %04x: SED\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P |= D
+	cpu.Registers.P |= D
 }
 
 func (cpu *CPU) Sei() {
 	if cpu.decode {
-		fmt.Printf("  %04x: SEI\n", cpu.registers.PC)
+		fmt.Printf("  %04x: SEI\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P |= I
+	cpu.Registers.P |= I
 }
 
 func (cpu *CPU) Brk() {
 	if cpu.decode {
-		fmt.Printf("  %04x: BRK\n", cpu.registers.PC)
+		fmt.Printf("  %04x: BRK\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.PC++
+	cpu.Registers.PC++
 
-	cpu.push(uint8(cpu.registers.PC >> 8))
-	cpu.push(uint8(cpu.registers.PC))
-	cpu.push(uint8(cpu.registers.P | B))
+	cpu.push(uint8(cpu.Registers.PC >> 8))
+	cpu.push(uint8(cpu.Registers.PC))
+	cpu.push(uint8(cpu.Registers.P | B))
 
-	cpu.registers.P |= I
+	cpu.Registers.P |= I
 
-	low := cpu.memory.fetch(0xfffe)
-	high := cpu.memory.fetch(0xffff)
+	low := cpu.memory.Fetch(0xfffe)
+	high := cpu.memory.Fetch(0xffff)
 
-	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
 func (cpu *CPU) Rti() {
 	if cpu.decode {
-		fmt.Printf("  %04x: RTI\n", cpu.registers.PC)
+		fmt.Printf("  %04x: RTI\n", cpu.Registers.PC)
 	}
 
-	cpu.registers.P = Status(cpu.pull())
+	cpu.Registers.P = Status(cpu.pull())
 
 	low := cpu.pull()
 	high := cpu.pull()
 
-	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
