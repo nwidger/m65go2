@@ -5,16 +5,17 @@ import (
 	"time"
 )
 
-const rate time.Duration = 6708 * time.Nanosecond
+const rate time.Duration = 46 * time.Nanosecond // 21.477272Mhz
 const divisor = 12
 
 var cpu *Cpu
 
 func Setup() {
-	cpu = NewCpu(NewBasicMemory(), NewClock(rate, divisor))
+	clock := NewClock(rate)
+	cpu = NewCpu(NewBasicMemory(), divisor, clock)
 	cpu.Reset()
 	// cpu.decode = true
-	go cpu.clock.start()
+	go clock.start()
 }
 
 func Teardown() {

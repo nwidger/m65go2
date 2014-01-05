@@ -6,17 +6,15 @@ import (
 
 type Clock struct {
 	rate     time.Duration
-	divisor  int
 	ticks    uint64
 	ticker   *time.Ticker
 	stopChan chan int
 	waiting  map[uint64][]chan int
 }
 
-func NewClock(rate time.Duration, divisor int) Clock {
-	return Clock{
+func NewClock(rate time.Duration) *Clock {
+	return &Clock{
 		rate:     rate,
-		divisor:  divisor,
 		ticks:    0,
 		ticker:   nil,
 		stopChan: make(chan int, 1),
@@ -25,27 +23,20 @@ func NewClock(rate time.Duration, divisor int) Clock {
 }
 
 func (clock *Clock) maintainTime() {
-	ticks := 0
-
 	for {
 		select {
 		case <-clock.stopChan:
 			clock.ticker = nil
 			return
 		case _ = <-clock.ticker.C:
-			ticks++
+			clock.ticks++
 
-			if ticks == clock.divisor {
-				clock.ticks++
-				ticks = 0
-
-				if Ca, ok := clock.waiting[clock.ticks]; ok {
-					for _, C := range Ca {
-						C <- 1
-					}
-
-					delete(clock.waiting, clock.ticks)
+			if Ca, ok := clock.waiting[clock.ticks]; ok {
+				for _, C := range Ca {
+					C <- 1
 				}
+
+				delete(clock.waiting, clock.ticks)
 			}
 		}
 	}
@@ -64,12 +55,12 @@ func (clock *Clock) stop() {
 	}
 }
 
-func (clock *Clock) await(tick uint64) {
-	if clock.ticks >= tick {
-		return
+func (clock *Clock) await(tick uint64) uint64 {
+	if clock.ticks < tick {
+		C := make(chan int, 1)
+		clock.waiting[tick] = append(clock.waiting[tick], C)
+		<-C
 	}
 
-	C := make(chan int, 1)
-	clock.waiting[tick] = append(clock.waiting[tick], C)
-	<-C
+	return clock.ticks
 }

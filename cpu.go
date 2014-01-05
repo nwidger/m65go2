@@ -71,14 +71,15 @@ func (reg *Registers) print() {
 
 type Cpu struct {
 	decode       bool
-	clock        Clock
+	divisor      uint16
+	clock        *Clock
 	registers    Registers
 	memory       Memory
 	instructions InstructionTable
 }
 
-func NewCpu(mem Memory, clock Clock) *Cpu {
-	return &Cpu{decode: false, clock: clock, registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
+func NewCpu(mem Memory, divisor uint16, clock *Clock) *Cpu {
+	return &Cpu{decode: false, divisor: divisor, clock: clock, registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
 }
 
 func (cpu *Cpu) Reset() {
@@ -108,7 +109,7 @@ func (cpu *Cpu) Execute() (cycles uint16, error error) {
 	cycles = inst.exec(cpu)
 
 	// count cycles
-	cpu.clock.await(ticks + uint64(cycles))
+	cpu.clock.await(ticks + uint64(cycles*cpu.divisor))
 
 	return cycles, nil
 }
