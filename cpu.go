@@ -559,14 +559,14 @@ func (cpu *CPU) Dey() {
 	cpu.decrement(&cpu.Registers.Y)
 }
 
-type Direction int
+type direction int
 
 const (
-	left Direction = iota
+	left direction = iota
 	right
 )
 
-func (cpu *CPU) shift(direction Direction, value uint8, store func(uint8)) {
+func (cpu *CPU) shift(direction direction, value uint8, store func(uint8)) {
 	c := Status(0)
 
 	switch direction {
@@ -616,7 +616,7 @@ func (cpu *CPU) Lsr(address uint16) {
 	cpu.shift(right, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
-func (cpu *CPU) rotate(direction Direction, value uint8, store func(uint8)) {
+func (cpu *CPU) rotate(direction direction, value uint8, store func(uint8)) {
 	c := Status(0)
 
 	switch direction {
