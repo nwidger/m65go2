@@ -106,7 +106,7 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 
 	// execute
 	cpu.Registers.PC++
-	cycles = inst.exec(cpu)
+	cycles = inst.Exec(cpu)
 
 	// count cycles
 	cpu.clock.Await(ticks + uint64(cycles*cpu.divisor))
