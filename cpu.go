@@ -1,4 +1,4 @@
-package _65go2
+package go6502
 
 import (
 	"fmt"
@@ -51,9 +51,9 @@ func (reg *Registers) print() {
 	getFlag := func(flag Status, set string) string {
 		if reg.P&flag != 0 {
 			return set
-		} else {
-			return "-"
 		}
+
+		return "-"
 	}
 
 	f += getFlag(N, "N")
@@ -69,7 +69,7 @@ func (reg *Registers) print() {
 	fmt.Fprintf(os.Stderr, "PC: %#04x (%05dd) (%016bb)\n", reg.PC, reg.PC, reg.PC)
 }
 
-type Cpu struct {
+type CPU struct {
 	decode       bool
 	divisor      uint16
 	clock        *Clock
@@ -78,11 +78,11 @@ type Cpu struct {
 	instructions InstructionTable
 }
 
-func NewCpu(mem Memory, divisor uint16, clock *Clock) *Cpu {
-	return &Cpu{decode: false, divisor: divisor, clock: clock, registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
+func NewCPU(mem Memory, divisor uint16, clock *Clock) *CPU {
+	return &CPU{decode: false, divisor: divisor, clock: clock, registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
 }
 
-func (cpu *Cpu) Reset() {
+func (cpu *CPU) Reset() {
 	cpu.registers.reset()
 	cpu.memory.reset()
 }
@@ -93,7 +93,7 @@ func (b BadOpCodeError) Error() string {
 	return fmt.Sprintf("No such opcode %#02x", b)
 }
 
-func (cpu *Cpu) Execute() (cycles uint16, error error) {
+func (cpu *CPU) Execute() (cycles uint16, error error) {
 	ticks := cpu.clock.ticks
 
 	// fetch
@@ -114,7 +114,7 @@ func (cpu *Cpu) Execute() (cycles uint16, error error) {
 	return cycles, nil
 }
 
-func (cpu *Cpu) Run() (error error) {
+func (cpu *CPU) Run() (error error) {
 	for {
 		if _, error := cpu.Execute(); error != nil {
 			fmt.Println(error)
@@ -125,7 +125,7 @@ func (cpu *Cpu) Run() (error error) {
 	return nil
 }
 
-func (cpu *Cpu) setZFlag(value uint8) uint8 {
+func (cpu *CPU) setZFlag(value uint8) uint8 {
 	if value == 0 {
 		cpu.registers.P |= Z
 	} else {
@@ -135,53 +135,53 @@ func (cpu *Cpu) setZFlag(value uint8) uint8 {
 	return value
 }
 
-func (cpu *Cpu) setNFlag(value uint8) uint8 {
+func (cpu *CPU) setNFlag(value uint8) uint8 {
 	cpu.registers.P &= ^N
 	cpu.registers.P |= Status(value & (uint8(1) << 7))
 	return value
 }
 
-func (cpu *Cpu) setZNFlags(value uint8) uint8 {
+func (cpu *CPU) setZNFlags(value uint8) uint8 {
 	cpu.setZFlag(value)
 	cpu.setNFlag(value)
 	return value
 }
 
-func (cpu *Cpu) setCFlagAddition(value uint16) uint16 {
+func (cpu *CPU) setCFlagAddition(value uint16) uint16 {
 	cpu.registers.P &= ^C
 	cpu.registers.P |= Status(value >> 8 & 0x1)
 	return value
 }
 
-func (cpu *Cpu) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
+func (cpu *CPU) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
 	cpu.registers.P &= ^V
 	cpu.registers.P |= Status((^(term1 ^ term2) & (term1 ^ result) & 0x80) >> 1)
 	return result
 }
 
-func (cpu *Cpu) load(address uint16, register *uint8) {
+func (cpu *CPU) load(address uint16, register *uint8) {
 	*register = cpu.setZNFlags(cpu.memory.fetch(address))
 }
 
-func (cpu *Cpu) immediateAddress() (result uint16) {
+func (cpu *CPU) immediateAddress() (result uint16) {
 	result = cpu.registers.PC
 	cpu.registers.PC++
 	return
 }
 
-func (cpu *Cpu) zeroPageAddress() (result uint16) {
+func (cpu *CPU) zeroPageAddress() (result uint16) {
 	result = uint16(cpu.memory.fetch(cpu.registers.PC))
 	cpu.registers.PC++
 	return
 }
 
-func (cpu *Cpu) zeroPageIndexedAddress(index uint8) (result uint16) {
+func (cpu *CPU) zeroPageIndexedAddress(index uint8) (result uint16) {
 	result = uint16(cpu.memory.fetch(cpu.registers.PC) + index)
 	cpu.registers.PC++
 	return
 }
 
-func (cpu *Cpu) relativeAddress() (result uint16) {
+func (cpu *CPU) relativeAddress() (result uint16) {
 	value := uint16(cpu.memory.fetch(cpu.registers.PC))
 	cpu.registers.PC++
 
@@ -194,7 +194,7 @@ func (cpu *Cpu) relativeAddress() (result uint16) {
 	return
 }
 
-func (cpu *Cpu) absoluteAddress() (result uint16) {
+func (cpu *CPU) absoluteAddress() (result uint16) {
 	low := cpu.memory.fetch(cpu.registers.PC)
 	high := cpu.memory.fetch(cpu.registers.PC + 1)
 	cpu.registers.PC += 2
@@ -203,7 +203,7 @@ func (cpu *Cpu) absoluteAddress() (result uint16) {
 	return
 }
 
-func (cpu *Cpu) indirectAddress() (result uint16) {
+func (cpu *CPU) indirectAddress() (result uint16) {
 	low := cpu.memory.fetch(cpu.registers.PC)
 	high := cpu.memory.fetch(cpu.registers.PC + 1)
 	cpu.registers.PC += 2
@@ -215,17 +215,17 @@ func (cpu *Cpu) indirectAddress() (result uint16) {
 	// See http://www.obelisk.demon.co.uk/6502/reference.html#JMP
 	// and http://www.6502.org/tutorials/6502opcodes.html#JMP for
 	// details
-	a_high := (uint16(high) << 8) | uint16(low+1)
-	a_low := (uint16(high) << 8) | uint16(low)
+	aHigh := (uint16(high) << 8) | uint16(low+1)
+	aLow := (uint16(high) << 8) | uint16(low)
 
-	low = cpu.memory.fetch(a_low)
-	high = cpu.memory.fetch(a_high)
+	low = cpu.memory.fetch(aLow)
+	high = cpu.memory.fetch(aHigh)
 
 	result = (uint16(high) << 8) | uint16(low)
 	return
 }
 
-func (cpu *Cpu) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
+func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
 	low := cpu.memory.fetch(cpu.registers.PC)
 	high := cpu.memory.fetch(cpu.registers.PC + 1)
 	cpu.registers.PC += 2
@@ -240,7 +240,7 @@ func (cpu *Cpu) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint
 	return
 }
 
-func (cpu *Cpu) indexedIndirectAddress() (result uint16) {
+func (cpu *CPU) indexedIndirectAddress() (result uint16) {
 	address := uint16(cpu.memory.fetch(cpu.registers.PC) + cpu.registers.X)
 	cpu.registers.PC++
 
@@ -251,7 +251,7 @@ func (cpu *Cpu) indexedIndirectAddress() (result uint16) {
 	return
 }
 
-func (cpu *Cpu) indirectIndexedAddress(cycles *uint16) (result uint16) {
+func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
 	address := uint16(cpu.memory.fetch(cpu.registers.PC))
 	cpu.registers.PC++
 
@@ -269,7 +269,7 @@ func (cpu *Cpu) indirectIndexedAddress(cycles *uint16) (result uint16) {
 	return
 }
 
-func (cpu *Cpu) Lda(address uint16) {
+func (cpu *CPU) Lda(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDA $%04x\n", cpu.registers.PC, address)
 	}
@@ -277,7 +277,7 @@ func (cpu *Cpu) Lda(address uint16) {
 	cpu.load(address, &cpu.registers.A)
 }
 
-func (cpu *Cpu) Ldx(address uint16) {
+func (cpu *CPU) Ldx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDX $%04x\n", cpu.registers.PC, address)
 	}
@@ -285,7 +285,7 @@ func (cpu *Cpu) Ldx(address uint16) {
 	cpu.load(address, &cpu.registers.X)
 }
 
-func (cpu *Cpu) Ldy(address uint16) {
+func (cpu *CPU) Ldy(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDY $%04x\n", cpu.registers.PC, address)
 	}
@@ -293,11 +293,11 @@ func (cpu *Cpu) Ldy(address uint16) {
 	cpu.load(address, &cpu.registers.Y)
 }
 
-func (cpu *Cpu) store(address uint16, value uint8) {
+func (cpu *CPU) store(address uint16, value uint8) {
 	cpu.memory.store(address, value)
 }
 
-func (cpu *Cpu) Sta(address uint16) {
+func (cpu *CPU) Sta(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STA $%04x\n", cpu.registers.PC, address)
 	}
@@ -305,7 +305,7 @@ func (cpu *Cpu) Sta(address uint16) {
 	cpu.store(address, cpu.registers.A)
 }
 
-func (cpu *Cpu) Stx(address uint16) {
+func (cpu *CPU) Stx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STX $%04x\n", cpu.registers.PC, address)
 	}
@@ -313,7 +313,7 @@ func (cpu *Cpu) Stx(address uint16) {
 	cpu.store(address, cpu.registers.X)
 }
 
-func (cpu *Cpu) Sty(address uint16) {
+func (cpu *CPU) Sty(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STY $%04x\n", cpu.registers.PC, address)
 	}
@@ -321,11 +321,11 @@ func (cpu *Cpu) Sty(address uint16) {
 	cpu.store(address, cpu.registers.Y)
 }
 
-func (cpu *Cpu) transfer(from uint8, to *uint8) {
+func (cpu *CPU) transfer(from uint8, to *uint8) {
 	*to = cpu.setZNFlags(from)
 }
 
-func (cpu *Cpu) Tax() {
+func (cpu *CPU) Tax() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TAX\n", cpu.registers.PC)
 	}
@@ -333,7 +333,7 @@ func (cpu *Cpu) Tax() {
 	cpu.transfer(cpu.registers.A, &cpu.registers.X)
 }
 
-func (cpu *Cpu) Tay() {
+func (cpu *CPU) Tay() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TAY\n", cpu.registers.PC)
 	}
@@ -341,7 +341,7 @@ func (cpu *Cpu) Tay() {
 	cpu.transfer(cpu.registers.A, &cpu.registers.Y)
 }
 
-func (cpu *Cpu) Txa() {
+func (cpu *CPU) Txa() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TXA\n", cpu.registers.PC)
 	}
@@ -349,7 +349,7 @@ func (cpu *Cpu) Txa() {
 	cpu.transfer(cpu.registers.X, &cpu.registers.A)
 }
 
-func (cpu *Cpu) Tya() {
+func (cpu *CPU) Tya() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TYA\n", cpu.registers.PC)
 	}
@@ -357,7 +357,7 @@ func (cpu *Cpu) Tya() {
 	cpu.transfer(cpu.registers.Y, &cpu.registers.A)
 }
 
-func (cpu *Cpu) Tsx() {
+func (cpu *CPU) Tsx() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TSX\n", cpu.registers.PC)
 	}
@@ -365,7 +365,7 @@ func (cpu *Cpu) Tsx() {
 	cpu.transfer(cpu.registers.SP, &cpu.registers.X)
 }
 
-func (cpu *Cpu) Txs() {
+func (cpu *CPU) Txs() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TXS\n", cpu.registers.PC)
 	}
@@ -373,18 +373,18 @@ func (cpu *Cpu) Txs() {
 	cpu.transfer(cpu.registers.X, &cpu.registers.SP)
 }
 
-func (cpu *Cpu) push(value uint8) {
+func (cpu *CPU) push(value uint8) {
 	cpu.memory.store(0x0100|uint16(cpu.registers.SP), value)
 	cpu.registers.SP--
 }
 
-func (cpu *Cpu) pull() (value uint8) {
+func (cpu *CPU) pull() (value uint8) {
 	cpu.registers.SP++
 	value = cpu.memory.fetch(0x0100 | uint16(cpu.registers.SP))
 	return
 }
 
-func (cpu *Cpu) Pha() {
+func (cpu *CPU) Pha() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PHA\n", cpu.registers.PC)
 	}
@@ -392,7 +392,7 @@ func (cpu *Cpu) Pha() {
 	cpu.push(cpu.registers.A)
 }
 
-func (cpu *Cpu) Php() {
+func (cpu *CPU) Php() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PHP\n", cpu.registers.PC)
 	}
@@ -400,7 +400,7 @@ func (cpu *Cpu) Php() {
 	cpu.push(uint8(cpu.registers.P | B))
 }
 
-func (cpu *Cpu) Pla() {
+func (cpu *CPU) Pla() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PLA\n", cpu.registers.PC)
 	}
@@ -408,7 +408,7 @@ func (cpu *Cpu) Pla() {
 	cpu.registers.A = cpu.setZNFlags(cpu.pull())
 }
 
-func (cpu *Cpu) Plp() {
+func (cpu *CPU) Plp() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PLP\n", cpu.registers.PC)
 	}
@@ -416,7 +416,7 @@ func (cpu *Cpu) Plp() {
 	cpu.registers.P = Status(cpu.pull())
 }
 
-func (cpu *Cpu) And(address uint16) {
+func (cpu *CPU) And(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: AND $%04x\n", cpu.registers.PC, address)
 	}
@@ -424,7 +424,7 @@ func (cpu *Cpu) And(address uint16) {
 	cpu.registers.A = cpu.setZNFlags(cpu.registers.A & cpu.memory.fetch(address))
 }
 
-func (cpu *Cpu) Eor(address uint16) {
+func (cpu *CPU) Eor(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: EOR $%04x\n", cpu.registers.PC, address)
 	}
@@ -432,7 +432,7 @@ func (cpu *Cpu) Eor(address uint16) {
 	cpu.registers.A = cpu.setZNFlags(cpu.registers.A ^ cpu.memory.fetch(address))
 }
 
-func (cpu *Cpu) Ora(address uint16) {
+func (cpu *CPU) Ora(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ORA $%04x\n", cpu.registers.PC, address)
 	}
@@ -440,7 +440,7 @@ func (cpu *Cpu) Ora(address uint16) {
 	cpu.registers.A = cpu.setZNFlags(cpu.registers.A | cpu.memory.fetch(address))
 }
 
-func (cpu *Cpu) Bit(address uint16) {
+func (cpu *CPU) Bit(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BIT $%04x\n", cpu.registers.PC, address)
 	}
@@ -450,13 +450,13 @@ func (cpu *Cpu) Bit(address uint16) {
 	cpu.registers.P = Status(uint8(cpu.registers.P) | (value & 0xc0))
 }
 
-func (cpu *Cpu) addition(value uint16) {
+func (cpu *CPU) addition(value uint16) {
 	orig := uint16(cpu.registers.A)
 	result := cpu.setCFlagAddition(orig + value + uint16(cpu.registers.P&C))
 	cpu.registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
 }
 
-func (cpu *Cpu) Adc(address uint16) {
+func (cpu *CPU) Adc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ADC $%04x\n", cpu.registers.PC, address)
 	}
@@ -465,7 +465,7 @@ func (cpu *Cpu) Adc(address uint16) {
 	cpu.addition(value)
 }
 
-func (cpu *Cpu) Sbc(address uint16) {
+func (cpu *CPU) Sbc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: SBC $%04x\n", cpu.registers.PC, address)
 	}
@@ -474,12 +474,12 @@ func (cpu *Cpu) Sbc(address uint16) {
 	cpu.addition(value)
 }
 
-func (cpu *Cpu) compare(address uint16, register uint8) {
+func (cpu *CPU) compare(address uint16, register uint8) {
 	value := uint16(cpu.memory.fetch(address)) ^ 0xff + 1
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
 
-func (cpu *Cpu) Cmp(address uint16) {
+func (cpu *CPU) Cmp(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CMP $%04x\n", cpu.registers.PC, address)
 	}
@@ -487,7 +487,7 @@ func (cpu *Cpu) Cmp(address uint16) {
 	cpu.compare(address, cpu.registers.A)
 }
 
-func (cpu *Cpu) Cpx(address uint16) {
+func (cpu *CPU) Cpx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CPX $%04x\n", cpu.registers.PC, address)
 	}
@@ -495,7 +495,7 @@ func (cpu *Cpu) Cpx(address uint16) {
 	cpu.compare(address, cpu.registers.X)
 }
 
-func (cpu *Cpu) Cpy(address uint16) {
+func (cpu *CPU) Cpy(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CPY $%04x\n", cpu.registers.PC, address)
 	}
@@ -503,7 +503,7 @@ func (cpu *Cpu) Cpy(address uint16) {
 	cpu.compare(address, cpu.registers.Y)
 }
 
-func (cpu *Cpu) Inc(address uint16) {
+func (cpu *CPU) Inc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: INC $%04x\n", cpu.registers.PC, address)
 	}
@@ -511,11 +511,11 @@ func (cpu *Cpu) Inc(address uint16) {
 	cpu.memory.store(address, cpu.setZNFlags(cpu.memory.fetch(address)+1))
 }
 
-func (cpu *Cpu) increment(register *uint8) {
+func (cpu *CPU) increment(register *uint8) {
 	*register = cpu.setZNFlags(*register + 1)
 }
 
-func (cpu *Cpu) Inx() {
+func (cpu *CPU) Inx() {
 	if cpu.decode {
 		fmt.Printf("  %04x: INX\n", cpu.registers.PC)
 	}
@@ -523,7 +523,7 @@ func (cpu *Cpu) Inx() {
 	cpu.increment(&cpu.registers.X)
 }
 
-func (cpu *Cpu) Iny() {
+func (cpu *CPU) Iny() {
 	if cpu.decode {
 		fmt.Printf("  %04x: INY\n", cpu.registers.PC)
 	}
@@ -531,7 +531,7 @@ func (cpu *Cpu) Iny() {
 	cpu.increment(&cpu.registers.Y)
 }
 
-func (cpu *Cpu) Dec(address uint16) {
+func (cpu *CPU) Dec(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEC $%04x\n", cpu.registers.PC, address)
 	}
@@ -539,11 +539,11 @@ func (cpu *Cpu) Dec(address uint16) {
 	cpu.memory.store(address, cpu.setZNFlags(cpu.memory.fetch(address)-1))
 }
 
-func (cpu *Cpu) decrement(register *uint8) {
+func (cpu *CPU) decrement(register *uint8) {
 	*register = cpu.setZNFlags(*register - 1)
 }
 
-func (cpu *Cpu) Dex() {
+func (cpu *CPU) Dex() {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEX\n", cpu.registers.PC)
 	}
@@ -551,7 +551,7 @@ func (cpu *Cpu) Dex() {
 	cpu.decrement(&cpu.registers.X)
 }
 
-func (cpu *Cpu) Dey() {
+func (cpu *CPU) Dey() {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEY\n", cpu.registers.PC)
 	}
@@ -566,7 +566,7 @@ const (
 	right
 )
 
-func (cpu *Cpu) shift(direction Direction, value uint8, store func(uint8)) {
+func (cpu *CPU) shift(direction Direction, value uint8, store func(uint8)) {
 	c := Status(0)
 
 	switch direction {
@@ -584,7 +584,7 @@ func (cpu *Cpu) shift(direction Direction, value uint8, store func(uint8)) {
 	store(cpu.setZNFlags(value))
 }
 
-func (cpu *Cpu) AslA() {
+func (cpu *CPU) AslA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ASL A\n", cpu.registers.PC)
 	}
@@ -592,7 +592,7 @@ func (cpu *Cpu) AslA() {
 	cpu.shift(left, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
 }
 
-func (cpu *Cpu) Asl(address uint16) {
+func (cpu *CPU) Asl(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ASL $%04x\n", cpu.registers.PC, address)
 	}
@@ -600,7 +600,7 @@ func (cpu *Cpu) Asl(address uint16) {
 	cpu.shift(left, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
 }
 
-func (cpu *Cpu) LsrA() {
+func (cpu *CPU) LsrA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: LSR A\n", cpu.registers.PC)
 	}
@@ -608,7 +608,7 @@ func (cpu *Cpu) LsrA() {
 	cpu.shift(right, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
 }
 
-func (cpu *Cpu) Lsr(address uint16) {
+func (cpu *CPU) Lsr(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LSR $%04x\n", cpu.registers.PC, address)
 	}
@@ -616,7 +616,7 @@ func (cpu *Cpu) Lsr(address uint16) {
 	cpu.shift(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
 }
 
-func (cpu *Cpu) rotate(direction Direction, value uint8, store func(uint8)) {
+func (cpu *CPU) rotate(direction Direction, value uint8, store func(uint8)) {
 	c := Status(0)
 
 	switch direction {
@@ -634,7 +634,7 @@ func (cpu *Cpu) rotate(direction Direction, value uint8, store func(uint8)) {
 	store(cpu.setZNFlags(value))
 }
 
-func (cpu *Cpu) RolA() {
+func (cpu *CPU) RolA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROL A\n", cpu.registers.PC)
 	}
@@ -642,7 +642,7 @@ func (cpu *Cpu) RolA() {
 	cpu.rotate(left, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
 }
 
-func (cpu *Cpu) Rol(address uint16) {
+func (cpu *CPU) Rol(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROL $%04x\n", cpu.registers.PC, address)
 	}
@@ -650,7 +650,7 @@ func (cpu *Cpu) Rol(address uint16) {
 	cpu.rotate(left, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
 }
 
-func (cpu *Cpu) RorA() {
+func (cpu *CPU) RorA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROR A\n", cpu.registers.PC)
 	}
@@ -658,7 +658,7 @@ func (cpu *Cpu) RorA() {
 	cpu.rotate(right, cpu.registers.A, func(value uint8) { cpu.registers.A = value })
 }
 
-func (cpu *Cpu) Ror(address uint16) {
+func (cpu *CPU) Ror(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROR $%04x\n", cpu.registers.PC, address)
 	}
@@ -666,7 +666,7 @@ func (cpu *Cpu) Ror(address uint16) {
 	cpu.rotate(right, cpu.memory.fetch(address), func(value uint8) { cpu.memory.store(address, value) })
 }
 
-func (cpu *Cpu) Jmp(address uint16) {
+func (cpu *CPU) Jmp(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: JMP $%04x\n", cpu.registers.PC, address)
 	}
@@ -674,7 +674,7 @@ func (cpu *Cpu) Jmp(address uint16) {
 	cpu.registers.PC = address
 }
 
-func (cpu *Cpu) Jsr(address uint16) {
+func (cpu *CPU) Jsr(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: JSR $%04x\n", cpu.registers.PC, address)
 	}
@@ -687,7 +687,7 @@ func (cpu *Cpu) Jsr(address uint16) {
 	cpu.registers.PC = address
 }
 
-func (cpu *Cpu) Rts() {
+func (cpu *CPU) Rts() {
 	if cpu.decode {
 		fmt.Printf("  %04x: RTS\n", cpu.registers.PC)
 	}
@@ -698,7 +698,7 @@ func (cpu *Cpu) Rts() {
 	cpu.registers.PC = (uint16(high) << 8) | uint16(low) + 1
 }
 
-func (cpu *Cpu) branch(address uint16, condition func() bool, cycles *uint16) {
+func (cpu *CPU) branch(address uint16, condition func() bool, cycles *uint16) {
 	if condition() {
 		*cycles++
 
@@ -710,7 +710,7 @@ func (cpu *Cpu) branch(address uint16, condition func() bool, cycles *uint16) {
 	}
 }
 
-func (cpu *Cpu) Bcc(address uint16, cycles *uint16) {
+func (cpu *CPU) Bcc(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BCC $%04x\n", cpu.registers.PC, address)
 	}
@@ -718,7 +718,7 @@ func (cpu *Cpu) Bcc(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&C == 0 }, cycles)
 }
 
-func (cpu *Cpu) Bcs(address uint16, cycles *uint16) {
+func (cpu *CPU) Bcs(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BCS $%04x\n", cpu.registers.PC, address)
 	}
@@ -726,7 +726,7 @@ func (cpu *Cpu) Bcs(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&C != 0 }, cycles)
 }
 
-func (cpu *Cpu) Beq(address uint16, cycles *uint16) {
+func (cpu *CPU) Beq(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BEQ $%04x\n", cpu.registers.PC, address)
 	}
@@ -734,7 +734,7 @@ func (cpu *Cpu) Beq(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&Z != 0 }, cycles)
 }
 
-func (cpu *Cpu) Bmi(address uint16, cycles *uint16) {
+func (cpu *CPU) Bmi(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BMI $%04x\n", cpu.registers.PC, address)
 	}
@@ -742,7 +742,7 @@ func (cpu *Cpu) Bmi(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&N != 0 }, cycles)
 }
 
-func (cpu *Cpu) Bne(address uint16, cycles *uint16) {
+func (cpu *CPU) Bne(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BNE $%04x\n", cpu.registers.PC, address)
 	}
@@ -750,7 +750,7 @@ func (cpu *Cpu) Bne(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&Z == 0 }, cycles)
 }
 
-func (cpu *Cpu) Bpl(address uint16, cycles *uint16) {
+func (cpu *CPU) Bpl(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BPL $%04x\n", cpu.registers.PC, address)
 	}
@@ -758,7 +758,7 @@ func (cpu *Cpu) Bpl(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&N == 0 }, cycles)
 }
 
-func (cpu *Cpu) Bvc(address uint16, cycles *uint16) {
+func (cpu *CPU) Bvc(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BVC $%04x\n", cpu.registers.PC, address)
 	}
@@ -766,7 +766,7 @@ func (cpu *Cpu) Bvc(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&V == 0 }, cycles)
 }
 
-func (cpu *Cpu) Bvs(address uint16, cycles *uint16) {
+func (cpu *CPU) Bvs(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BVS $%04x\n", cpu.registers.PC, address)
 	}
@@ -774,7 +774,7 @@ func (cpu *Cpu) Bvs(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.registers.P&V != 0 }, cycles)
 }
 
-func (cpu *Cpu) Clc() {
+func (cpu *CPU) Clc() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLC\n", cpu.registers.PC)
 	}
@@ -782,7 +782,7 @@ func (cpu *Cpu) Clc() {
 	cpu.registers.P &^= C
 }
 
-func (cpu *Cpu) Cld() {
+func (cpu *CPU) Cld() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLD\n", cpu.registers.PC)
 	}
@@ -790,7 +790,7 @@ func (cpu *Cpu) Cld() {
 	cpu.registers.P &^= D
 }
 
-func (cpu *Cpu) Cli() {
+func (cpu *CPU) Cli() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLI\n", cpu.registers.PC)
 	}
@@ -798,7 +798,7 @@ func (cpu *Cpu) Cli() {
 	cpu.registers.P &^= I
 }
 
-func (cpu *Cpu) Clv() {
+func (cpu *CPU) Clv() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLV\n", cpu.registers.PC)
 	}
@@ -806,7 +806,7 @@ func (cpu *Cpu) Clv() {
 	cpu.registers.P &^= V
 }
 
-func (cpu *Cpu) Sec() {
+func (cpu *CPU) Sec() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SEC\n", cpu.registers.PC)
 	}
@@ -814,7 +814,7 @@ func (cpu *Cpu) Sec() {
 	cpu.registers.P |= C
 }
 
-func (cpu *Cpu) Sed() {
+func (cpu *CPU) Sed() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SED\n", cpu.registers.PC)
 	}
@@ -822,7 +822,7 @@ func (cpu *Cpu) Sed() {
 	cpu.registers.P |= D
 }
 
-func (cpu *Cpu) Sei() {
+func (cpu *CPU) Sei() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SEI\n", cpu.registers.PC)
 	}
@@ -830,7 +830,7 @@ func (cpu *Cpu) Sei() {
 	cpu.registers.P |= I
 }
 
-func (cpu *Cpu) Brk() {
+func (cpu *CPU) Brk() {
 	if cpu.decode {
 		fmt.Printf("  %04x: BRK\n", cpu.registers.PC)
 	}
@@ -849,7 +849,7 @@ func (cpu *Cpu) Brk() {
 	cpu.registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
-func (cpu *Cpu) Rti() {
+func (cpu *CPU) Rti() {
 	if cpu.decode {
 		fmt.Printf("  %04x: RTI\n", cpu.registers.PC)
 	}

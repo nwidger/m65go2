@@ -1,4 +1,4 @@
-package _65go2
+package go6502
 
 import (
 	"testing"

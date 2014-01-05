@@ -1,4 +1,4 @@
-package _65go2
+package go6502
 
 import (
 	"testing"
@@ -8,11 +8,11 @@ import (
 const rate time.Duration = 46 * time.Nanosecond // 21.477272Mhz
 const divisor = 12
 
-var cpu *Cpu
+var cpu *CPU
 
 func Setup() {
 	clock := NewClock(rate)
-	cpu = NewCpu(NewBasicMemory(), divisor, clock)
+	cpu = NewCPU(NewBasicMemory(), divisor, clock)
 	cpu.Reset()
 	// cpu.decode = true
 	go clock.start()
