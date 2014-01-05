@@ -1,4 +1,6 @@
 65go2
 =====
 
+[![GoDoc](https://godoc.org/github.com/nwidger/65go2?status.png)](https://godoc.org/github.com/nwidger/65go2)
+
 A 6502 simulator written in Go
