@@ -1,3 +1,4 @@
+// Package go6502 simulates the 6502 CPU
 package go6502
 
 import (
@@ -5,6 +6,7 @@ import (
 	"os"
 )
 
+// Flags used by P (Status) register
 type Status uint8
 
 const (
@@ -18,6 +20,8 @@ const (
 	N                    // negative flag
 )
 
+// The 6502's registers, all registers are 8-bit values except for PC
+// which is 16-bits.
 type Registers struct {
 	A  uint8  // accumulator
 	X  uint8  // index register X
@@ -27,10 +31,15 @@ type Registers struct {
 	PC uint16 // program counter
 }
 
+// Creates a new set of Registers.  All registers are initialized to
+// 0.
 func NewRegisters() Registers {
 	return Registers{}
 }
 
+// Resets all registers.  Register P is initialized with only the I
+// bit set, SP is initialized to 0xfd, PC is initialized to 0xfffc
+// (the RESET vector) and all other registers are initialized to 0.
 func (reg *Registers) Reset() {
 	reg.A = 0
 	reg.X = 0
@@ -40,7 +49,8 @@ func (reg *Registers) Reset() {
 	reg.PC = 0xfffc
 }
 
-func (reg *Registers) print() {
+// Prints the values of each register to os.Stderr.
+func (reg *Registers) String() {
 	fmt.Fprintf(os.Stderr, "A:  %#02x (%03dd) (%08bb)\n", reg.A, reg.A, reg.A)
 	fmt.Fprintf(os.Stderr, "X:  %#02x (%03dd) (%08bb)\n", reg.X, reg.X, reg.X)
 	fmt.Fprintf(os.Stderr, "Y:  %#02x (%03dd) (%08bb)\n", reg.Y, reg.Y, reg.Y)
@@ -69,6 +79,7 @@ func (reg *Registers) print() {
 	fmt.Fprintf(os.Stderr, "PC: %#04x (%05dd) (%016bb)\n", reg.PC, reg.PC, reg.PC)
 }
 
+// Represents the 6502 CPU.
 type CPU struct {
 	decode       bool
 	divisor      uint16
@@ -78,21 +89,30 @@ type CPU struct {
 	instructions InstructionTable
 }
 
+// Returns a pointer to a new CPU with the given Memory, clock divisor
+// and clock.
 func NewCPU(mem Memory, divisor uint16, clock *Clock) *CPU {
 	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
 }
 
+// Resets the CPU by resetting both the registers and memory.
 func (cpu *CPU) Reset() {
 	cpu.Registers.Reset()
 	cpu.memory.Reset()
 }
 
+// Error type used to indicate that the CPU attempted to execute an
+// invalid opcode
 type BadOpCodeError OpCode
 
 func (b BadOpCodeError) Error() string {
 	return fmt.Sprintf("No such opcode %#02x", b)
 }
 
+// Executes the instruction pointed to by the PC register in the
+// number of clock cycles as returned by the instruction's Exec
+// function.  Returns the number of cycles executed and any error
+// (such as BadOpCodeError).
 func (cpu *CPU) Execute() (cycles uint16, error error) {
 	ticks := cpu.clock.ticks
 
@@ -114,6 +134,7 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 	return cycles, nil
 }
 
+// Executes instruction until Execute() returns an error.
 func (cpu *CPU) Run() (error error) {
 	for {
 		if _, error := cpu.Execute(); error != nil {
@@ -268,6 +289,16 @@ func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
 	return
 }
 
+// Loads a byte of memory into the accumulator setting the zero and
+// negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of A is set
 func (cpu *CPU) Lda(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDA $%04x\n", cpu.Registers.PC, address)
@@ -276,6 +307,16 @@ func (cpu *CPU) Lda(address uint16) {
 	cpu.load(address, &cpu.Registers.A)
 }
 
+// Loads a byte of memory into the X register setting the zero and
+// negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if X = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of X is set
 func (cpu *CPU) Ldx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDX $%04x\n", cpu.Registers.PC, address)
@@ -284,6 +325,16 @@ func (cpu *CPU) Ldx(address uint16) {
 	cpu.load(address, &cpu.Registers.X)
 }
 
+// Loads a byte of memory into the Y register setting the zero and
+// negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if Y = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of Y is set
 func (cpu *CPU) Ldy(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDY $%04x\n", cpu.Registers.PC, address)
@@ -296,6 +347,15 @@ func (cpu *CPU) store(address uint16, value uint8) {
 	cpu.memory.Store(address, value)
 }
 
+// Stores the contents of the accumulator into memory.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Sta(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STA $%04x\n", cpu.Registers.PC, address)
@@ -304,6 +364,15 @@ func (cpu *CPU) Sta(address uint16) {
 	cpu.store(address, cpu.Registers.A)
 }
 
+// Stores the contents of the X register into memory.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Stx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STX $%04x\n", cpu.Registers.PC, address)
@@ -312,6 +381,15 @@ func (cpu *CPU) Stx(address uint16) {
 	cpu.store(address, cpu.Registers.X)
 }
 
+// Stores the contents of the Y register into memory.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Sty(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STY $%04x\n", cpu.Registers.PC, address)
@@ -324,6 +402,16 @@ func (cpu *CPU) transfer(from uint8, to *uint8) {
 	*to = cpu.setZNFlags(from)
 }
 
+// Copies the current contents of the accumulator into the X register
+// and sets the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if X = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of X is set
 func (cpu *CPU) Tax() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TAX\n", cpu.Registers.PC)
@@ -332,6 +420,16 @@ func (cpu *CPU) Tax() {
 	cpu.transfer(cpu.Registers.A, &cpu.Registers.X)
 }
 
+// Copies the current contents of the accumulator into the Y register
+// and sets the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if Y = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of Y is set
 func (cpu *CPU) Tay() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TAY\n", cpu.Registers.PC)
@@ -340,6 +438,16 @@ func (cpu *CPU) Tay() {
 	cpu.transfer(cpu.Registers.A, &cpu.Registers.Y)
 }
 
+// Copies the current contents of the X register into the accumulator
+// and sets the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of A is set
 func (cpu *CPU) Txa() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TXA\n", cpu.Registers.PC)
@@ -348,6 +456,16 @@ func (cpu *CPU) Txa() {
 	cpu.transfer(cpu.Registers.X, &cpu.Registers.A)
 }
 
+// Copies the current contents of the Y register into the accumulator
+// and sets the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of A is set
 func (cpu *CPU) Tya() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TYA\n", cpu.Registers.PC)
@@ -356,6 +474,16 @@ func (cpu *CPU) Tya() {
 	cpu.transfer(cpu.Registers.Y, &cpu.Registers.A)
 }
 
+// Copies the current contents of the stack register into the X
+// register and sets the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if X = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of X is set
 func (cpu *CPU) Tsx() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TSX\n", cpu.Registers.PC)
@@ -364,6 +492,16 @@ func (cpu *CPU) Tsx() {
 	cpu.transfer(cpu.Registers.SP, &cpu.Registers.X)
 }
 
+// Copies the current contents of the X register into the stack
+// register.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Txs() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TXS\n", cpu.Registers.PC)
@@ -396,6 +534,15 @@ func (cpu *CPU) pull16() (value uint16) {
 	return
 }
 
+// Pushes a copy of the accumulator on to the stack.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Pha() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PHA\n", cpu.Registers.PC)
@@ -404,6 +551,15 @@ func (cpu *CPU) Pha() {
 	cpu.push(cpu.Registers.A)
 }
 
+// Pushes a copy of the status flags on to the stack.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Php() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PHP\n", cpu.Registers.PC)
@@ -412,6 +568,16 @@ func (cpu *CPU) Php() {
 	cpu.push(uint8(cpu.Registers.P | B))
 }
 
+// Pulls an 8 bit value from the stack and into the accumulator. The
+// zero and negative flags are set as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of A is set
 func (cpu *CPU) Pla() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PLA\n", cpu.Registers.PC)
@@ -420,6 +586,17 @@ func (cpu *CPU) Pla() {
 	cpu.Registers.A = cpu.setZNFlags(cpu.pull())
 }
 
+// Pulls an 8 bit value from the stack and into the processor
+// flags. The flags will take on new states as determined by the value
+// pulled.
+//
+// C 	Carry Flag 	  Set from stack
+// Z 	Zero Flag 	  Set from stack
+// I 	Interrupt Disable Set from stack
+// D 	Decimal Mode Flag Set from stack
+// B 	Break Command 	  Set from stack
+// V 	Overflow Flag 	  Set from stack
+// N 	Negative Flag 	  Set from stack
 func (cpu *CPU) Plp() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PLP\n", cpu.Registers.PC)
@@ -428,6 +605,16 @@ func (cpu *CPU) Plp() {
 	cpu.Registers.P = Status(cpu.pull())
 }
 
+// A logical AND is performed, bit by bit, on the accumulator contents
+// using the contents of a byte of memory.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 set
 func (cpu *CPU) And(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: AND $%04x\n", cpu.Registers.PC, address)
@@ -436,6 +623,16 @@ func (cpu *CPU) And(address uint16) {
 	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A & cpu.memory.Fetch(address))
 }
 
+// An exclusive OR is performed, bit by bit, on the accumulator
+// contents using the contents of a byte of memory.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 set
 func (cpu *CPU) Eor(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: EOR $%04x\n", cpu.Registers.PC, address)
@@ -444,6 +641,16 @@ func (cpu *CPU) Eor(address uint16) {
 	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A ^ cpu.memory.Fetch(address))
 }
 
+// An inclusive OR is performed, bit by bit, on the accumulator
+// contents using the contents of a byte of memory.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 set
 func (cpu *CPU) Ora(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ORA $%04x\n", cpu.Registers.PC, address)
@@ -452,6 +659,19 @@ func (cpu *CPU) Ora(address uint16) {
 	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A | cpu.memory.Fetch(address))
 }
 
+// This instructions is used to test if one or more bits are set in a
+// target memory location. The mask pattern in A is ANDed with the
+// value in memory to set or clear the zero flag, but the result is
+// not kept. Bits 7 and 6 of the value from memory are copied into the
+// N and V flags.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if the result if the AND is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Set to bit 6 of the memory value
+// N 	Negative Flag 	  Set to bit 7 of the memory value
 func (cpu *CPU) Bit(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BIT $%04x\n", cpu.Registers.PC, address)
@@ -468,6 +688,18 @@ func (cpu *CPU) addition(value uint16) {
 	cpu.Registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
 }
 
+// This instruction adds the contents of a memory location to the
+// accumulator together with the carry bit. If overflow occurs the
+// carry bit is set, this enables multiple byte addition to be
+// performed.
+//
+// C 	Carry Flag 	  Set if overflow in bit 7
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Set if sign bit is incorrect
+// N 	Negative Flag 	  Set if bit 7 set
 func (cpu *CPU) Adc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ADC $%04x\n", cpu.Registers.PC, address)
@@ -477,6 +709,18 @@ func (cpu *CPU) Adc(address uint16) {
 	cpu.addition(value)
 }
 
+// This instruction subtracts the contents of a memory location to the
+// accumulator together with the not of the carry bit. If overflow
+// occurs the carry bit is clear, this enables multiple byte
+// subtraction to be performed.
+//
+// C 	Carry Flag 	  Clear if overflow in bit 7
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Set if sign bit is incorrect
+// N 	Negative Flag 	  Set if bit 7 set
 func (cpu *CPU) Sbc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: SBC $%04x\n", cpu.Registers.PC, address)
@@ -491,6 +735,17 @@ func (cpu *CPU) compare(address uint16, register uint8) {
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
 
+// This instruction compares the contents of the accumulator with
+// another memory held value and sets the zero and carry flags as
+// appropriate.
+//
+// C 	Carry Flag 	  Set if A >= M
+// Z 	Zero Flag 	  Set if A = M
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Cmp(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CMP $%04x\n", cpu.Registers.PC, address)
@@ -499,6 +754,17 @@ func (cpu *CPU) Cmp(address uint16) {
 	cpu.compare(address, cpu.Registers.A)
 }
 
+// This instruction compares the contents of the X register with
+// another memory held value and sets the zero and carry flags as
+// appropriate.
+//
+// C 	Carry Flag 	  Set if X >= M
+// Z 	Zero Flag 	  Set if X = M
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Cpx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CPX $%04x\n", cpu.Registers.PC, address)
@@ -507,6 +773,17 @@ func (cpu *CPU) Cpx(address uint16) {
 	cpu.compare(address, cpu.Registers.X)
 }
 
+// This instruction compares the contents of the Y register with
+// another memory held value and sets the zero and carry flags as
+// appropriate.
+//
+// C 	Carry Flag 	  Set if Y >= M
+// Z 	Zero Flag 	  Set if Y = M
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Cpy(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CPY $%04x\n", cpu.Registers.PC, address)
@@ -515,6 +792,16 @@ func (cpu *CPU) Cpy(address uint16) {
 	cpu.compare(address, cpu.Registers.Y)
 }
 
+// Adds one to the value held at a specified memory location setting
+// the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if result is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Inc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: INC $%04x\n", cpu.Registers.PC, address)
@@ -527,6 +814,16 @@ func (cpu *CPU) increment(register *uint8) {
 	*register = cpu.setZNFlags(*register + 1)
 }
 
+// Adds one to the X register setting the zero and negative flags as
+// appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if X is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of X is set
 func (cpu *CPU) Inx() {
 	if cpu.decode {
 		fmt.Printf("  %04x: INX\n", cpu.Registers.PC)
@@ -535,6 +832,16 @@ func (cpu *CPU) Inx() {
 	cpu.increment(&cpu.Registers.X)
 }
 
+// Adds one to the Y register setting the zero and negative flags as
+// appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if Y is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of Y is set
 func (cpu *CPU) Iny() {
 	if cpu.decode {
 		fmt.Printf("  %04x: INY\n", cpu.Registers.PC)
@@ -543,6 +850,16 @@ func (cpu *CPU) Iny() {
 	cpu.increment(&cpu.Registers.Y)
 }
 
+// Subtracts one from the value held at a specified memory location
+// setting the zero and negative flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if result is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Dec(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEC $%04x\n", cpu.Registers.PC, address)
@@ -555,6 +872,16 @@ func (cpu *CPU) decrement(register *uint8) {
 	*register = cpu.setZNFlags(*register - 1)
 }
 
+// Subtracts one from the X register setting the zero and negative
+// flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if X is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of X is set
 func (cpu *CPU) Dex() {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEX\n", cpu.Registers.PC)
@@ -563,6 +890,16 @@ func (cpu *CPU) Dex() {
 	cpu.decrement(&cpu.Registers.X)
 }
 
+// Subtracts one from the Y register setting the zero and negative
+// flags as appropriate.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Set if Y is zero
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of Y is set
 func (cpu *CPU) Dey() {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEY\n", cpu.Registers.PC)
@@ -596,6 +933,19 @@ func (cpu *CPU) shift(direction direction, value uint8, store func(uint8)) {
 	store(cpu.setZNFlags(value))
 }
 
+// This operation shifts all the bits of the accumulator one bit
+// left. Bit 0 is set to 0 and bit 7 is placed in the carry flag. The
+// effect of this operation is to multiply the memory contents by 2
+// (ignoring 2's complement considerations), setting the carry if the
+// result will not fit in 8 bits.
+//
+// C 	Carry Flag 	  Set to contents of old bit 7
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) AslA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ASL A\n", cpu.Registers.PC)
@@ -604,6 +954,19 @@ func (cpu *CPU) AslA() {
 	cpu.shift(left, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
+// This operation shifts all the bits of the memory contents one bit
+// left. Bit 0 is set to 0 and bit 7 is placed in the carry flag. The
+// effect of this operation is to multiply the memory contents by 2
+// (ignoring 2's complement considerations), setting the carry if the
+// result will not fit in 8 bits.
+//
+// C 	Carry Flag 	  Set to contents of old bit 7
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Asl(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ASL $%04x\n", cpu.Registers.PC, address)
@@ -612,6 +975,16 @@ func (cpu *CPU) Asl(address uint16) {
 	cpu.shift(left, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
+// Each of the bits in A is shift one place to the right. The bit that
+// was in bit 0 is shifted into the carry flag. Bit 7 is set to zero.
+//
+// C 	Carry Flag 	  Set to contents of old bit 0
+// Z 	Zero Flag 	  Set if result = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) LsrA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: LSR A\n", cpu.Registers.PC)
@@ -620,6 +993,16 @@ func (cpu *CPU) LsrA() {
 	cpu.shift(right, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
+// Each of the bits in M is shift one place to the right. The bit that
+// was in bit 0 is shifted into the carry flag. Bit 7 is set to zero.
+//
+// C 	Carry Flag 	  Set to contents of old bit 0
+// Z 	Zero Flag 	  Set if result = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Lsr(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LSR $%04x\n", cpu.Registers.PC, address)
@@ -646,6 +1029,17 @@ func (cpu *CPU) rotate(direction direction, value uint8, store func(uint8)) {
 	store(cpu.setZNFlags(value))
 }
 
+// Move each of the bits in A one place to the left. Bit 0 is filled
+// with the current value of the carry flag whilst the old bit 7
+// becomes the new carry flag value.
+//
+// C 	Carry Flag 	  Set to contents of old bit 7
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) RolA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROL A\n", cpu.Registers.PC)
@@ -654,6 +1048,17 @@ func (cpu *CPU) RolA() {
 	cpu.rotate(left, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
+// Move each of the bits in A one place to the left. Bit 0 is filled
+// with the current value of the carry flag whilst the old bit 7
+// becomes the new carry flag value.
+//
+// C 	Carry Flag 	  Set to contents of old bit 7
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Rol(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROL $%04x\n", cpu.Registers.PC, address)
@@ -662,6 +1067,17 @@ func (cpu *CPU) Rol(address uint16) {
 	cpu.rotate(left, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
+// Move each of the bits in A one place to the right. Bit 7 is filled
+// with the current value of the carry flag whilst the old bit 0
+// becomes the new carry flag value.
+//
+// C 	Carry Flag 	  Set to contents of old bit 0
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) RorA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROR A\n", cpu.Registers.PC)
@@ -670,6 +1086,17 @@ func (cpu *CPU) RorA() {
 	cpu.rotate(right, cpu.Registers.A, func(value uint8) { cpu.Registers.A = value })
 }
 
+// Move each of the bits in M one place to the right. Bit 7 is filled
+// with the current value of the carry flag whilst the old bit 0
+// becomes the new carry flag value.
+//
+// C 	Carry Flag 	  Set to contents of old bit 0
+// Z 	Zero Flag 	  Set if A = 0
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *CPU) Ror(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROR $%04x\n", cpu.Registers.PC, address)
@@ -678,6 +1105,15 @@ func (cpu *CPU) Ror(address uint16) {
 	cpu.rotate(right, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
 }
 
+// Sets the program counter to the address specified by the operand.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Jmp(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: JMP $%04x\n", cpu.Registers.PC, address)
@@ -686,6 +1122,17 @@ func (cpu *CPU) Jmp(address uint16) {
 	cpu.Registers.PC = address
 }
 
+// The JSR instruction pushes the address (minus one) of the return
+// point on to the stack and then sets the program counter to the
+// target memory address.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Jsr(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: JSR $%04x\n", cpu.Registers.PC, address)
@@ -698,6 +1145,17 @@ func (cpu *CPU) Jsr(address uint16) {
 	cpu.Registers.PC = address
 }
 
+// The RTS instruction is used at the end of a subroutine to return to
+// the calling routine. It pulls the program counter (minus one) from
+// the stack.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Rts() {
 	if cpu.decode {
 		fmt.Printf("  %04x: RTS\n", cpu.Registers.PC)
@@ -718,6 +1176,16 @@ func (cpu *CPU) branch(address uint16, condition func() bool, cycles *uint16) {
 	}
 }
 
+// If the carry flag is clear then add the relative displacement to
+// the program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bcc(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BCC $%04x\n", cpu.Registers.PC, address)
@@ -726,6 +1194,16 @@ func (cpu *CPU) Bcc(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&C == 0 }, cycles)
 }
 
+// If the carry flag is set then add the relative displacement to the
+// program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bcs(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BCS $%04x\n", cpu.Registers.PC, address)
@@ -734,6 +1212,16 @@ func (cpu *CPU) Bcs(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&C != 0 }, cycles)
 }
 
+// If the zero flag is set then add the relative displacement to the
+// program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Beq(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BEQ $%04x\n", cpu.Registers.PC, address)
@@ -742,6 +1230,16 @@ func (cpu *CPU) Beq(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&Z != 0 }, cycles)
 }
 
+// If the negative flag is set then add the relative displacement to
+// the program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bmi(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BMI $%04x\n", cpu.Registers.PC, address)
@@ -750,6 +1248,16 @@ func (cpu *CPU) Bmi(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&N != 0 }, cycles)
 }
 
+// If the zero flag is clear then add the relative displacement to the
+// program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bne(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BNE $%04x\n", cpu.Registers.PC, address)
@@ -758,6 +1266,16 @@ func (cpu *CPU) Bne(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&Z == 0 }, cycles)
 }
 
+// If the negative flag is clear then add the relative displacement to
+// the program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bpl(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BPL $%04x\n", cpu.Registers.PC, address)
@@ -766,6 +1284,16 @@ func (cpu *CPU) Bpl(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&N == 0 }, cycles)
 }
 
+// If the overflow flag is clear then add the relative displacement to
+// the program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bvc(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BVC $%04x\n", cpu.Registers.PC, address)
@@ -774,6 +1302,16 @@ func (cpu *CPU) Bvc(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&V == 0 }, cycles)
 }
 
+// If the overflow flag is set then add the relative displacement to
+// the program counter to cause a branch to a new location.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Bvs(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BVS $%04x\n", cpu.Registers.PC, address)
@@ -782,6 +1320,15 @@ func (cpu *CPU) Bvs(address uint16, cycles *uint16) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&V != 0 }, cycles)
 }
 
+// Set the carry flag to zero.
+//
+// C 	Carry Flag 	  Set to 0
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Clc() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLC\n", cpu.Registers.PC)
@@ -790,6 +1337,15 @@ func (cpu *CPU) Clc() {
 	cpu.Registers.P &^= C
 }
 
+// Set the decimal mode flag to zero.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Set to 0
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Cld() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLD\n", cpu.Registers.PC)
@@ -798,6 +1354,16 @@ func (cpu *CPU) Cld() {
 	cpu.Registers.P &^= D
 }
 
+// Clears the interrupt disable flag allowing normal interrupt
+// requests to be serviced.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Set to 0
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Cli() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLI\n", cpu.Registers.PC)
@@ -806,6 +1372,16 @@ func (cpu *CPU) Cli() {
 	cpu.Registers.P &^= I
 }
 
+// Clears the interrupt disable flag allowing normal interrupt
+// requests to be serviced.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Set to 0
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Clv() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLV\n", cpu.Registers.PC)
@@ -814,6 +1390,15 @@ func (cpu *CPU) Clv() {
 	cpu.Registers.P &^= V
 }
 
+// Set the carry flag to one.
+//
+// C 	Carry Flag 	  Set to 1
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Sec() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SEC\n", cpu.Registers.PC)
@@ -822,6 +1407,15 @@ func (cpu *CPU) Sec() {
 	cpu.Registers.P |= C
 }
 
+// Set the decimal mode flag to one.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Set to 1
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Sed() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SED\n", cpu.Registers.PC)
@@ -830,6 +1424,15 @@ func (cpu *CPU) Sed() {
 	cpu.Registers.P |= D
 }
 
+// Set the interrupt disable flag to one.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Set to 1
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Not affected
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Sei() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SEI\n", cpu.Registers.PC)
@@ -838,6 +1441,18 @@ func (cpu *CPU) Sei() {
 	cpu.Registers.P |= I
 }
 
+// The BRK instruction forces the generation of an interrupt
+// request. The program counter and processor status are pushed on the
+// stack then the IRQ interrupt vector at $FFFE/F is loaded into the
+// PC and the break flag in the status set to one.
+//
+// C 	Carry Flag 	  Not affected
+// Z 	Zero Flag 	  Not affected
+// I 	Interrupt Disable Not affected
+// D 	Decimal Mode Flag Not affected
+// B 	Break Command 	  Set to 1
+// V 	Overflow Flag 	  Not affected
+// N 	Negative Flag 	  Not affected
 func (cpu *CPU) Brk() {
 	if cpu.decode {
 		fmt.Printf("  %04x: BRK\n", cpu.Registers.PC)
@@ -856,6 +1471,17 @@ func (cpu *CPU) Brk() {
 	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
+// The RTI instruction is used at the end of an interrupt processing
+// routine. It pulls the processor flags from the stack followed by
+// the program counter.
+//
+// C 	Carry Flag 	  Set from stack
+// Z 	Zero Flag 	  Set from stack
+// I 	Interrupt Disable Set from stack
+// D 	Decimal Mode Flag Set from stack
+// B 	Break Command 	  Set from stack
+// V 	Overflow Flag 	  Set from stack
+// N 	Negative Flag 	  Set from stack
 func (cpu *CPU) Rti() {
 	if cpu.decode {
 		fmt.Printf("  %04x: RTI\n", cpu.Registers.PC)
