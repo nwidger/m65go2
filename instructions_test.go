@@ -29,7 +29,7 @@ func TestBadOpCodeError(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x02)
+	cpu.Memory.Store(0x0100, 0x02)
 
 	_, error := cpu.Execute()
 
@@ -51,8 +51,8 @@ func TestLdaImmediate(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa9)
-	cpu.memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0100, 0xa9)
+	cpu.Memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
@@ -68,9 +68,9 @@ func TestLdaZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa5)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xa5)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -87,9 +87,9 @@ func TestLdaZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb5)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xb5)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -105,10 +105,10 @@ func TestLdaAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xad)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xad)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -125,10 +125,10 @@ func TestLdaAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xbd)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xbd)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cycles, _ := cpu.Execute()
 
@@ -143,10 +143,10 @@ func TestLdaAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xbd)
-	cpu.memory.Store(0x0101, 0xff)
-	cpu.memory.Store(0x0102, 0x02)
-	cpu.memory.Store(0x0300, 0xff)
+	cpu.Memory.Store(0x0100, 0xbd)
+	cpu.Memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0102, 0x02)
+	cpu.Memory.Store(0x0300, 0xff)
 
 	cycles, _ = cpu.Execute()
 
@@ -163,10 +163,10 @@ func TestLdaAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb9)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xb9)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cycles, _ := cpu.Execute()
 
@@ -181,10 +181,10 @@ func TestLdaAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb9)
-	cpu.memory.Store(0x0101, 0xff)
-	cpu.memory.Store(0x0102, 0x02)
-	cpu.memory.Store(0x0300, 0xff)
+	cpu.Memory.Store(0x0100, 0xb9)
+	cpu.Memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0102, 0x02)
+	cpu.Memory.Store(0x0300, 0xff)
 
 	cycles, _ = cpu.Execute()
 
@@ -201,11 +201,11 @@ func TestLdaIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0xff)
+	cpu.Memory.Store(0x0100, 0xa1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0xff)
 
 	cpu.Execute()
 
@@ -222,11 +222,11 @@ func TestLdaIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0xff)
+	cpu.Memory.Store(0x0100, 0xb1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0xff)
 
 	cycles, _ := cpu.Execute()
 
@@ -241,11 +241,11 @@ func TestLdaIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
-	cpu.memory.Store(0x0085, 0x02)
-	cpu.memory.Store(0x0300, 0xff)
+	cpu.Memory.Store(0x0100, 0xb1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0300, 0xff)
 
 	cycles, _ = cpu.Execute()
 
@@ -261,8 +261,8 @@ func TestLdaZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa9)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0xa9)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -278,8 +278,8 @@ func TestLdaZFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xa9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -295,8 +295,8 @@ func TestLdaNFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa9)
-	cpu.memory.Store(0x0101, 0x81)
+	cpu.Memory.Store(0x0100, 0xa9)
+	cpu.Memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
@@ -312,8 +312,8 @@ func TestLdaNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xa9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -331,8 +331,8 @@ func TestLdxImmediate(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa2)
-	cpu.memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0100, 0xa2)
+	cpu.Memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
@@ -348,9 +348,9 @@ func TestLdxZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xa6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -367,9 +367,9 @@ func TestLdxZeroPageY(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xb6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -385,10 +385,10 @@ func TestLdxAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xae)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xae)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -405,10 +405,10 @@ func TestLdxAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xbe)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xbe)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -424,8 +424,8 @@ func TestLdxZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa2)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0xa2)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -441,8 +441,8 @@ func TestLdxZFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa2)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xa2)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -458,8 +458,8 @@ func TestLdxNFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa2)
-	cpu.memory.Store(0x0101, 0x81)
+	cpu.Memory.Store(0x0100, 0xa2)
+	cpu.Memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
@@ -475,8 +475,8 @@ func TestLdxNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa2)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xa2)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -494,8 +494,8 @@ func TestLdyImmediate(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa0)
-	cpu.memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0100, 0xa0)
+	cpu.Memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
@@ -511,9 +511,9 @@ func TestLdyZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa4)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xa4)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -530,9 +530,9 @@ func TestLdyZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb4)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xb4)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -548,10 +548,10 @@ func TestLdyAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xac)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xac)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -568,10 +568,10 @@ func TestLdyAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xbc)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xbc)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -587,8 +587,8 @@ func TestLdyZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa0)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0xa0)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -604,8 +604,8 @@ func TestLdyZFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xa0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -621,8 +621,8 @@ func TestLdyNFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa0)
-	cpu.memory.Store(0x0101, 0x81)
+	cpu.Memory.Store(0x0100, 0xa0)
+	cpu.Memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
@@ -638,8 +638,8 @@ func TestLdyNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xa0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -658,12 +658,12 @@ func TestStaZeroPage(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x85)
-	cpu.memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0100, 0x85)
+	cpu.Memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -677,12 +677,12 @@ func TestStaZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x95)
-	cpu.memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0100, 0x95)
+	cpu.Memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -695,13 +695,13 @@ func TestStaAbsolute(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x8d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0100, 0x8d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -715,13 +715,13 @@ func TestStaAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x9d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0100, 0x9d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -735,13 +735,13 @@ func TestStaAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x99)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0100, 0x99)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -755,14 +755,14 @@ func TestStaIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x81)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0100, 0x81)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0087) != 0xff {
+	if cpu.Memory.Fetch(0x0087) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -776,14 +776,14 @@ func TestStaIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x91)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0100, 0x91)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0087) != 0xff {
+	if cpu.Memory.Fetch(0x0087) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -798,12 +798,12 @@ func TestStxZeroPage(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x86)
-	cpu.memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0100, 0x86)
+	cpu.Memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -817,12 +817,12 @@ func TestStxZeroPageY(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x96)
-	cpu.memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0100, 0x96)
+	cpu.Memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -835,13 +835,13 @@ func TestStxAbsolute(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x8e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0100, 0x8e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -856,12 +856,12 @@ func TestStyZeroPage(t *testing.T) {
 	cpu.Registers.Y = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x84)
-	cpu.memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0100, 0x84)
+	cpu.Memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -875,12 +875,12 @@ func TestStyZeroPageY(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x94)
-	cpu.memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0100, 0x94)
+	cpu.Memory.Store(0x0101, 0x84)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -893,13 +893,13 @@ func TestStyAbsolute(t *testing.T) {
 	cpu.Registers.Y = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x8c)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0100, 0x8c)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -914,7 +914,7 @@ func TestTax(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xaa)
+	cpu.Memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
@@ -931,7 +931,7 @@ func TestTaxZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xaa)
+	cpu.Memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
@@ -948,7 +948,7 @@ func TestTaxZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xaa)
+	cpu.Memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
@@ -965,7 +965,7 @@ func TestTaxNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x81
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xaa)
+	cpu.Memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
@@ -982,7 +982,7 @@ func TestTaxNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xaa)
+	cpu.Memory.Store(0x0100, 0xaa)
 
 	cpu.Execute()
 
@@ -1001,7 +1001,7 @@ func TestTay(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xa8)
+	cpu.Memory.Store(0x0100, 0xa8)
 
 	cpu.Execute()
 
@@ -1020,7 +1020,7 @@ func TestTxa(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x8a)
+	cpu.Memory.Store(0x0100, 0x8a)
 
 	cpu.Execute()
 
@@ -1039,7 +1039,7 @@ func TestTya(t *testing.T) {
 	cpu.Registers.Y = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x98)
+	cpu.Memory.Store(0x0100, 0x98)
 
 	cpu.Execute()
 
@@ -1058,7 +1058,7 @@ func TestTsx(t *testing.T) {
 	cpu.Registers.SP = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xba)
+	cpu.Memory.Store(0x0100, 0xba)
 
 	cpu.Execute()
 
@@ -1077,7 +1077,7 @@ func TestTxs(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x9a)
+	cpu.Memory.Store(0x0100, 0x9a)
 
 	cpu.Execute()
 
@@ -1096,7 +1096,7 @@ func TestPha(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x48)
+	cpu.Memory.Store(0x0100, 0x48)
 
 	cpu.Execute()
 
@@ -1115,7 +1115,7 @@ func TestPhp(t *testing.T) {
 	cpu.Registers.P = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x08)
+	cpu.Memory.Store(0x0100, 0x08)
 
 	cpu.Execute()
 
@@ -1134,7 +1134,7 @@ func TestPla(t *testing.T) {
 	cpu.Registers.PC = 0x0100
 	cpu.push(0xff)
 
-	cpu.memory.Store(0x0100, 0x68)
+	cpu.Memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
@@ -1151,7 +1151,7 @@ func TestPlaZFlagSet(t *testing.T) {
 	cpu.push(0x00)
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x68)
+	cpu.Memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
@@ -1168,7 +1168,7 @@ func TestPlaZFlagUnset(t *testing.T) {
 	cpu.push(0x01)
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x68)
+	cpu.Memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
@@ -1185,7 +1185,7 @@ func TestPlaNFlagSet(t *testing.T) {
 	cpu.push(0x81)
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x68)
+	cpu.Memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
@@ -1202,7 +1202,7 @@ func TestPlaNFlagUnset(t *testing.T) {
 	cpu.push(0x01)
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x68)
+	cpu.Memory.Store(0x0100, 0x68)
 
 	cpu.Execute()
 
@@ -1221,7 +1221,7 @@ func TestPlp(t *testing.T) {
 	cpu.Registers.PC = 0x0100
 	cpu.push(0xff)
 
-	cpu.memory.Store(0x0100, 0x28)
+	cpu.Memory.Store(0x0100, 0x28)
 
 	cpu.Execute()
 
@@ -1240,8 +1240,8 @@ func TestAndImmediate(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x29)
-	cpu.memory.Store(0x0101, 0x0f)
+	cpu.Memory.Store(0x0100, 0x29)
+	cpu.Memory.Store(0x0101, 0x0f)
 
 	cpu.Execute()
 
@@ -1258,9 +1258,9 @@ func TestAndZeroPage(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x25)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x0f)
+	cpu.Memory.Store(0x0100, 0x25)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
@@ -1278,9 +1278,9 @@ func TestAndZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x35)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x35)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1297,10 +1297,10 @@ func TestAndAbsolute(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x0f)
+	cpu.Memory.Store(0x0100, 0x2d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
@@ -1318,10 +1318,10 @@ func TestAndAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x3d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x3d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1339,10 +1339,10 @@ func TestAndAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x39)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x39)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1360,11 +1360,11 @@ func TestAndIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x21)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0x0f)
+	cpu.Memory.Store(0x0100, 0x21)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
@@ -1382,11 +1382,11 @@ func TestAndIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x31)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0x0f)
+	cpu.Memory.Store(0x0100, 0x31)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
@@ -1402,8 +1402,8 @@ func TestAndZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x29)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0x29)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -1420,8 +1420,8 @@ func TestAndZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x29)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0x29)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -1438,8 +1438,8 @@ func TestAndNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x81
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x29)
-	cpu.memory.Store(0x0101, 0x81)
+	cpu.Memory.Store(0x0100, 0x29)
+	cpu.Memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
@@ -1455,8 +1455,8 @@ func TestAndNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x29)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0x29)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -1475,8 +1475,8 @@ func TestEorImmediate(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x49)
-	cpu.memory.Store(0x0101, 0x0f)
+	cpu.Memory.Store(0x0100, 0x49)
+	cpu.Memory.Store(0x0101, 0x0f)
 
 	cpu.Execute()
 
@@ -1493,9 +1493,9 @@ func TestEorZeroPage(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x45)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x0f)
+	cpu.Memory.Store(0x0100, 0x45)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
@@ -1513,9 +1513,9 @@ func TestEorZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x55)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x55)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1532,10 +1532,10 @@ func TestEorAbsolute(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x0f)
+	cpu.Memory.Store(0x0100, 0x4d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
@@ -1553,10 +1553,10 @@ func TestEorAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x5d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x5d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1574,10 +1574,10 @@ func TestEorAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x59)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x59)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1595,11 +1595,11 @@ func TestEorIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x41)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0x0f)
+	cpu.Memory.Store(0x0100, 0x41)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
@@ -1617,11 +1617,11 @@ func TestEorIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x51)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0x0f)
+	cpu.Memory.Store(0x0100, 0x51)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
@@ -1637,8 +1637,8 @@ func TestEorZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x49)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0x49)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -1655,8 +1655,8 @@ func TestEorZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x49)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0x49)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -1673,8 +1673,8 @@ func TestEorNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x49)
-	cpu.memory.Store(0x0101, 0x81)
+	cpu.Memory.Store(0x0100, 0x49)
+	cpu.Memory.Store(0x0101, 0x81)
 
 	cpu.Execute()
 
@@ -1690,8 +1690,8 @@ func TestEorNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x49)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0x49)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -1710,8 +1710,8 @@ func TestOraImmediate(t *testing.T) {
 	cpu.Registers.A = 0xf0
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x09)
-	cpu.memory.Store(0x0101, 0x0f)
+	cpu.Memory.Store(0x0100, 0x09)
+	cpu.Memory.Store(0x0101, 0x0f)
 
 	cpu.Execute()
 
@@ -1728,9 +1728,9 @@ func TestOraZeroPage(t *testing.T) {
 	cpu.Registers.A = 0xf0
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x05)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x0f)
+	cpu.Memory.Store(0x0100, 0x05)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
@@ -1748,9 +1748,9 @@ func TestOraZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x15)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x15)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1767,10 +1767,10 @@ func TestOraAbsolute(t *testing.T) {
 	cpu.Registers.A = 0xf0
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x0f)
+	cpu.Memory.Store(0x0100, 0x0d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x0f)
 
 	cpu.Execute()
 
@@ -1788,10 +1788,10 @@ func TestOraAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x1d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x1d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1809,10 +1809,10 @@ func TestOraAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x19)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x0f)
+	cpu.Memory.Store(0x0100, 0x19)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x0f)
 
 	cpu.Execute()
 
@@ -1830,11 +1830,11 @@ func TestOraIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x01)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0x0f)
+	cpu.Memory.Store(0x0100, 0x01)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
@@ -1852,11 +1852,11 @@ func TestOraIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x11)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0x0f)
+	cpu.Memory.Store(0x0100, 0x11)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0x0f)
 
 	cpu.Execute()
 
@@ -1872,8 +1872,8 @@ func TestOraZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x09)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0x09)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -1890,8 +1890,8 @@ func TestOraZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x09)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0x09)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -1908,8 +1908,8 @@ func TestOraNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x81
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x09)
-	cpu.memory.Store(0x0101, 0x00)
+	cpu.Memory.Store(0x0100, 0x09)
+	cpu.Memory.Store(0x0101, 0x00)
 
 	cpu.Execute()
 
@@ -1925,8 +1925,8 @@ func TestOraNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x09)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0x09)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -1945,9 +1945,9 @@ func TestBitZeroPage(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x7f)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x7f)
 
 	cpu.Execute()
 
@@ -1964,10 +1964,10 @@ func TestBitAbsolute(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2c)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x7f)
+	cpu.Memory.Store(0x0100, 0x2c)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x7f)
 
 	cpu.Execute()
 
@@ -1984,9 +1984,9 @@ func TestBitNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -2003,9 +2003,9 @@ func TestBitNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x7f)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x7f)
 
 	cpu.Execute()
 
@@ -2022,9 +2022,9 @@ func TestBitVFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -2041,9 +2041,9 @@ func TestBitVFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x3f)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x3f)
 
 	cpu.Execute()
 
@@ -2060,9 +2060,9 @@ func TestBitZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -2079,9 +2079,9 @@ func TestBitZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x24)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x3f)
+	cpu.Memory.Store(0x0100, 0x24)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x3f)
 
 	cpu.Execute()
 
@@ -2100,8 +2100,8 @@ func TestAdcImmediate(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -2118,9 +2118,9 @@ func TestAdcZeroPage(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x65)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x65)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
@@ -2138,9 +2138,9 @@ func TestAdcZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x75)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x75)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
@@ -2157,10 +2157,10 @@ func TestAdcAbsolute(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x6d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
@@ -2178,10 +2178,10 @@ func TestAdcAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x7d)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x7d)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
@@ -2199,10 +2199,10 @@ func TestAdcAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x79)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x79)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
@@ -2220,11 +2220,11 @@ func TestAdcIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x61)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0x02)
+	cpu.Memory.Store(0x0100, 0x61)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0x02)
 
 	cpu.Execute()
 
@@ -2242,11 +2242,11 @@ func TestAdcIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x71)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0x02)
+	cpu.Memory.Store(0x0100, 0x71)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0x02)
 
 	cpu.Execute()
 
@@ -2263,8 +2263,8 @@ func TestAdcCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xff // -1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2276,8 +2276,8 @@ func TestAdcCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xff // -1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x00) // +0
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x00) // +0
 
 	cpu.Execute()
 
@@ -2294,8 +2294,8 @@ func TestAdcCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x00 // +0
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2307,8 +2307,8 @@ func TestAdcCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xff // -1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x00) // +0
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x00) // +0
 
 	cpu.Execute()
 
@@ -2325,8 +2325,8 @@ func TestAdcZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00 // +0
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x00) // +0
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x00) // +0
 
 	cpu.Execute()
 
@@ -2338,8 +2338,8 @@ func TestAdcZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2356,8 +2356,8 @@ func TestAdcZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x00 // +0
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0xff) // -1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0xff) // -1
 
 	cpu.Execute()
 
@@ -2368,8 +2368,8 @@ func TestAdcZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2386,8 +2386,8 @@ func TestAdcVFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x7f // +127
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2404,8 +2404,8 @@ func TestAdcVFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01 // +1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2422,8 +2422,8 @@ func TestAdcNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x01 // +1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -2440,8 +2440,8 @@ func TestAdcNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01 // +1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x69)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2461,8 +2461,8 @@ func TestSbcImmediate(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -2480,9 +2480,9 @@ func TestSbcZeroPage(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe5)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x01)
+	cpu.Memory.Store(0x0100, 0xe5)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
@@ -2501,9 +2501,9 @@ func TestSbcZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf5)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x01)
+	cpu.Memory.Store(0x0100, 0xf5)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x01)
 
 	cpu.Execute()
 
@@ -2521,10 +2521,10 @@ func TestSbcAbsolute(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xed)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x01)
+	cpu.Memory.Store(0x0100, 0xed)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
@@ -2543,10 +2543,10 @@ func TestSbcAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xfd)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x01)
+	cpu.Memory.Store(0x0100, 0xfd)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x01)
 
 	cpu.Execute()
 
@@ -2565,10 +2565,10 @@ func TestSbcAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf9)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x01)
+	cpu.Memory.Store(0x0100, 0xf9)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x01)
 
 	cpu.Execute()
 
@@ -2587,11 +2587,11 @@ func TestSbcIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0x01)
+	cpu.Memory.Store(0x0100, 0xe1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0x01)
 
 	cpu.Execute()
 
@@ -2610,11 +2610,11 @@ func TestSbcIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0x01)
+	cpu.Memory.Store(0x0100, 0xf1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0x01)
 
 	cpu.Execute()
 
@@ -2631,8 +2631,8 @@ func TestSbcCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xc4 // -60
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x3c) // +60
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x3c) // +60
 
 	cpu.Execute()
 
@@ -2649,8 +2649,8 @@ func TestSbcCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02 // +2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x04) // +4
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x04) // +4
 
 	cpu.Execute()
 
@@ -2667,8 +2667,8 @@ func TestSbcZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x02 // +2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2685,8 +2685,8 @@ func TestSbcZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02 // +2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -2703,8 +2703,8 @@ func TestSbcVFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x80 // -128
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2721,8 +2721,8 @@ func TestSbcVFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01 // +1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2739,8 +2739,8 @@ func TestSbcNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfd // -3
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2757,8 +2757,8 @@ func TestSbcNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02 // +2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe9)
-	cpu.memory.Store(0x0101, 0x01) // +1
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x01) // +1
 
 	cpu.Execute()
 
@@ -2777,8 +2777,8 @@ func TestCmpImmediate(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
@@ -2795,9 +2795,9 @@ func TestCmpZeroPage(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc5)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xc5)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -2815,9 +2815,9 @@ func TestCmpZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd5)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xd5)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -2834,10 +2834,10 @@ func TestCmpAbsolute(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xcd)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xcd)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -2855,10 +2855,10 @@ func TestCmpAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xdd)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xdd)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -2876,10 +2876,10 @@ func TestCmpAbsoluteY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd9)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xff)
+	cpu.Memory.Store(0x0100, 0xd9)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xff)
 
 	cpu.Execute()
 
@@ -2897,11 +2897,11 @@ func TestCmpIndirectX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x87)
-	cpu.memory.Store(0x0086, 0x00)
-	cpu.memory.Store(0x0087, 0xff)
+	cpu.Memory.Store(0x0100, 0xc1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x87)
+	cpu.Memory.Store(0x0086, 0x00)
+	cpu.Memory.Store(0x0087, 0xff)
 
 	cpu.Execute()
 
@@ -2919,11 +2919,11 @@ func TestCmpIndirectY(t *testing.T) {
 	cpu.Registers.Y = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd1)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x86)
-	cpu.memory.Store(0x0085, 0x00)
-	cpu.memory.Store(0x0087, 0xff)
+	cpu.Memory.Store(0x0100, 0xd1)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x86)
+	cpu.Memory.Store(0x0085, 0x00)
+	cpu.Memory.Store(0x0087, 0xff)
 
 	cpu.Execute()
 
@@ -2940,8 +2940,8 @@ func TestCmpNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -2958,8 +2958,8 @@ func TestCmpNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -2976,8 +2976,8 @@ func TestCmpZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -2988,8 +2988,8 @@ func TestCmpZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -3006,8 +3006,8 @@ func TestCmpZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3018,8 +3018,8 @@ func TestCmpZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0xff) // -1
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0xff) // -1
 
 	cpu.Execute()
 
@@ -3036,8 +3036,8 @@ func TestCmpCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3048,8 +3048,8 @@ func TestCmpCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3060,8 +3060,8 @@ func TestCmpCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0xfd) // -3
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0xfd) // -3
 
 	cpu.Execute()
 
@@ -3078,8 +3078,8 @@ func TestCmpCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3090,8 +3090,8 @@ func TestCmpCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0xfd // -3
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc9)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0xc9)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -3110,8 +3110,8 @@ func TestCpxImmediate(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
@@ -3128,9 +3128,9 @@ func TestCpxZeroPage(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe4)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xe4)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -3147,10 +3147,10 @@ func TestCpxAbsolute(t *testing.T) {
 	cpu.Registers.X = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xec)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xec)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -3167,8 +3167,8 @@ func TestCpxNFlagSet(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3185,8 +3185,8 @@ func TestCpxNFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3203,8 +3203,8 @@ func TestCpxZFlagSet(t *testing.T) {
 	cpu.Registers.X = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3221,8 +3221,8 @@ func TestCpxZFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3239,8 +3239,8 @@ func TestCpxCFlagSet(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3257,8 +3257,8 @@ func TestCpxCFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe0)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xe0)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3277,8 +3277,8 @@ func TestCpyImmediate(t *testing.T) {
 	cpu.Registers.Y = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0xff)
 
 	cpu.Execute()
 
@@ -3295,9 +3295,9 @@ func TestCpyZeroPage(t *testing.T) {
 	cpu.Registers.Y = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc4)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xc4)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -3314,10 +3314,10 @@ func TestCpyAbsolute(t *testing.T) {
 	cpu.Registers.Y = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xcc)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xff)
+	cpu.Memory.Store(0x0100, 0xcc)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xff)
 
 	cpu.Execute()
 
@@ -3334,8 +3334,8 @@ func TestCpyNFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3352,8 +3352,8 @@ func TestCpyNFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3370,8 +3370,8 @@ func TestCpyZFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3388,8 +3388,8 @@ func TestCpyZFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3406,8 +3406,8 @@ func TestCpyCFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0x01)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0x01)
 
 	cpu.Execute()
 
@@ -3424,8 +3424,8 @@ func TestCpyCFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc0)
-	cpu.memory.Store(0x0101, 0x02)
+	cpu.Memory.Store(0x0100, 0xc0)
+	cpu.Memory.Store(0x0101, 0x02)
 
 	cpu.Execute()
 
@@ -3443,13 +3443,13 @@ func TestIncZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xfe)
+	cpu.Memory.Store(0x0100, 0xe6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3462,13 +3462,13 @@ func TestIncZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0xfe)
+	cpu.Memory.Store(0x0100, 0xf6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3480,14 +3480,14 @@ func TestIncAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xee)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0xfe)
+	cpu.Memory.Store(0x0100, 0xee)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0xff {
+	if cpu.Memory.Fetch(0x0084) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3500,14 +3500,14 @@ func TestIncAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xfe)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0xfe)
+	cpu.Memory.Store(0x0100, 0xfe)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0xfe)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0xff {
+	if cpu.Memory.Fetch(0x0085) != 0xff {
 		t.Error("Memory is not 0xff")
 	}
 
@@ -3519,9 +3519,9 @@ func TestIncZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xff) // -1
+	cpu.Memory.Store(0x0100, 0xe6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xff) // -1
 
 	cpu.Execute()
 
@@ -3537,9 +3537,9 @@ func TestIncZFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x00)
+	cpu.Memory.Store(0x0100, 0xe6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x00)
 
 	cpu.Execute()
 
@@ -3555,9 +3555,9 @@ func TestIncNFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0xe6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -3573,9 +3573,9 @@ func TestIncNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x00)
+	cpu.Memory.Store(0x0100, 0xe6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x00)
 
 	cpu.Execute()
 
@@ -3594,7 +3594,7 @@ func TestInx(t *testing.T) {
 	cpu.Registers.X = 0xfe
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe8)
+	cpu.Memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
@@ -3611,7 +3611,7 @@ func TestInxZFlagSet(t *testing.T) {
 	cpu.Registers.X = 0xff // -1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe8)
+	cpu.Memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
@@ -3628,7 +3628,7 @@ func TestInxZFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe8)
+	cpu.Memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
@@ -3645,7 +3645,7 @@ func TestInxNFlagSet(t *testing.T) {
 	cpu.Registers.X = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe8)
+	cpu.Memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
@@ -3662,7 +3662,7 @@ func TestInxNFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xe8)
+	cpu.Memory.Store(0x0100, 0xe8)
 
 	cpu.Execute()
 
@@ -3681,7 +3681,7 @@ func TestIny(t *testing.T) {
 	cpu.Registers.Y = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc8)
+	cpu.Memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
@@ -3698,7 +3698,7 @@ func TestInyZFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0xff // -1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc8)
+	cpu.Memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
@@ -3715,7 +3715,7 @@ func TestInyZFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc8)
+	cpu.Memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
@@ -3732,7 +3732,7 @@ func TestInyNFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0xfe // -2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc8)
+	cpu.Memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
@@ -3749,7 +3749,7 @@ func TestInyNFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc8)
+	cpu.Memory.Store(0x0100, 0xc8)
 
 	cpu.Execute()
 
@@ -3767,13 +3767,13 @@ func TestDecZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0xc6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x01 {
+	if cpu.Memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3786,13 +3786,13 @@ func TestDecZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0xd6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x01 {
+	if cpu.Memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3804,14 +3804,14 @@ func TestDecAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xce)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0xce)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x01 {
+	if cpu.Memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3824,14 +3824,14 @@ func TestDecAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xde)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0xde)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x01 {
+	if cpu.Memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -3843,9 +3843,9 @@ func TestDecZFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x01)
+	cpu.Memory.Store(0x0100, 0xc6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
@@ -3861,9 +3861,9 @@ func TestDecZFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0xc6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
@@ -3879,9 +3879,9 @@ func TestDecNFlagSet(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x00)
+	cpu.Memory.Store(0x0100, 0xc6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x00)
 
 	cpu.Execute()
 
@@ -3897,9 +3897,9 @@ func TestDecNFlagUnset(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xc6)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x01)
+	cpu.Memory.Store(0x0100, 0xc6)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x01)
 
 	cpu.Execute()
 
@@ -3918,7 +3918,7 @@ func TestDex(t *testing.T) {
 	cpu.Registers.X = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xca)
+	cpu.Memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
@@ -3935,7 +3935,7 @@ func TestDexZFlagSet(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xca)
+	cpu.Memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
@@ -3952,7 +3952,7 @@ func TestDexZFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xca)
+	cpu.Memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
@@ -3969,7 +3969,7 @@ func TestDexNFlagSet(t *testing.T) {
 	cpu.Registers.X = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xca)
+	cpu.Memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
@@ -3986,7 +3986,7 @@ func TestDexNFlagUnset(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xca)
+	cpu.Memory.Store(0x0100, 0xca)
 
 	cpu.Execute()
 
@@ -4005,7 +4005,7 @@ func TestDey(t *testing.T) {
 	cpu.Registers.Y = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x88)
+	cpu.Memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
@@ -4022,7 +4022,7 @@ func TestDeyZFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x88)
+	cpu.Memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
@@ -4039,7 +4039,7 @@ func TestDeyZFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x88)
+	cpu.Memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
@@ -4056,7 +4056,7 @@ func TestDeyNFlagSet(t *testing.T) {
 	cpu.Registers.Y = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x88)
+	cpu.Memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
@@ -4073,7 +4073,7 @@ func TestDeyNFlagUnset(t *testing.T) {
 	cpu.Registers.Y = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x88)
+	cpu.Memory.Store(0x0100, 0x88)
 
 	cpu.Execute()
 
@@ -4092,7 +4092,7 @@ func TestAslAccumulator(t *testing.T) {
 	cpu.Registers.A = 0x2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4108,13 +4108,13 @@ func TestAslZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x06)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x06)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x04 {
+	if cpu.Memory.Fetch(0x0084) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4127,13 +4127,13 @@ func TestAslZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x16)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x16)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x04 {
+	if cpu.Memory.Fetch(0x0085) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4145,14 +4145,14 @@ func TestAslAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x0e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x04 {
+	if cpu.Memory.Fetch(0x0084) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4165,14 +4165,14 @@ func TestAslAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x1e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x1e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x04 {
+	if cpu.Memory.Fetch(0x0085) != 0x04 {
 		t.Error("Memory is not 0x04")
 	}
 
@@ -4185,7 +4185,7 @@ func TestAslCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4202,7 +4202,7 @@ func TestAslCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4219,7 +4219,7 @@ func TestAslZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4236,7 +4236,7 @@ func TestAslZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4253,7 +4253,7 @@ func TestAslNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfe
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4270,7 +4270,7 @@ func TestAslNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x0a)
+	cpu.Memory.Store(0x0100, 0x0a)
 
 	cpu.Execute()
 
@@ -4289,7 +4289,7 @@ func TestLsrAccumulator(t *testing.T) {
 	cpu.Registers.A = 0x2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4a)
+	cpu.Memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
@@ -4305,13 +4305,13 @@ func TestLsrZeroPage(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x46)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x46)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x01 {
+	if cpu.Memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4324,13 +4324,13 @@ func TestLsrZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x56)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x56)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x01 {
+	if cpu.Memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4342,14 +4342,14 @@ func TestLsrAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x4e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x01 {
+	if cpu.Memory.Fetch(0x0084) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4362,14 +4362,14 @@ func TestLsrAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x5e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x5e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x01 {
+	if cpu.Memory.Fetch(0x0085) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
@@ -4382,7 +4382,7 @@ func TestLsrCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xff
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4a)
+	cpu.Memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
@@ -4399,7 +4399,7 @@ func TestLsrCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x10
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4a)
+	cpu.Memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
@@ -4416,7 +4416,7 @@ func TestLsrZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4a)
+	cpu.Memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
@@ -4433,7 +4433,7 @@ func TestLsrZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4a)
+	cpu.Memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
@@ -4453,7 +4453,7 @@ func TestLsrNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4a)
+	cpu.Memory.Store(0x0100, 0x4a)
 
 	cpu.Execute()
 
@@ -4473,7 +4473,7 @@ func TestRolAccumulator(t *testing.T) {
 	cpu.Registers.A = 0x2
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4490,13 +4490,13 @@ func TestRolZeroPage(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x26)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x26)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x05 {
+	if cpu.Memory.Fetch(0x0084) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4510,13 +4510,13 @@ func TestRolZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x36)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x36)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x05 {
+	if cpu.Memory.Fetch(0x0085) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4529,14 +4529,14 @@ func TestRolAbsolute(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x02)
+	cpu.Memory.Store(0x0100, 0x2e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x05 {
+	if cpu.Memory.Fetch(0x0084) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4550,14 +4550,14 @@ func TestRolAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x3e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x02)
+	cpu.Memory.Store(0x0100, 0x3e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x02)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x05 {
+	if cpu.Memory.Fetch(0x0085) != 0x05 {
 		t.Error("Memory is not 0x05")
 	}
 
@@ -4570,7 +4570,7 @@ func TestRolCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x80
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4587,7 +4587,7 @@ func TestRolCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4604,7 +4604,7 @@ func TestRolZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4621,7 +4621,7 @@ func TestRolZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4638,7 +4638,7 @@ func TestRolNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfe
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4655,7 +4655,7 @@ func TestRolNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x2a)
+	cpu.Memory.Store(0x0100, 0x2a)
 
 	cpu.Execute()
 
@@ -4675,7 +4675,7 @@ func TestRorAccumulator(t *testing.T) {
 	cpu.Registers.A = 0x08
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4692,13 +4692,13 @@ func TestRorZeroPage(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x66)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0084, 0x08)
+	cpu.Memory.Store(0x0100, 0x66)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0084, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x84 {
+	if cpu.Memory.Fetch(0x0084) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4712,13 +4712,13 @@ func TestRorZeroPageX(t *testing.T) {
 	cpu.Registers.X = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x76)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0085, 0x08)
+	cpu.Memory.Store(0x0100, 0x76)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0085, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x84 {
+	if cpu.Memory.Fetch(0x0085) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4731,14 +4731,14 @@ func TestRorAbsolute(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x08)
+	cpu.Memory.Store(0x0100, 0x6e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0084) != 0x84 {
+	if cpu.Memory.Fetch(0x0084) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4752,14 +4752,14 @@ func TestRorAbsoluteX(t *testing.T) {
 	cpu.Registers.X = 1
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x7e)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0085, 0x08)
+	cpu.Memory.Store(0x0100, 0x7e)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0085, 0x08)
 
 	cpu.Execute()
 
-	if cpu.memory.Fetch(0x0085) != 0x84 {
+	if cpu.Memory.Fetch(0x0085) != 0x84 {
 		t.Error("Memory is not 0x84")
 	}
 
@@ -4772,7 +4772,7 @@ func TestRorCFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4789,7 +4789,7 @@ func TestRorCFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x10
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4806,7 +4806,7 @@ func TestRorZFlagSet(t *testing.T) {
 	cpu.Registers.A = 0x00
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4823,7 +4823,7 @@ func TestRorZFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x02
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4841,7 +4841,7 @@ func TestRorNFlagSet(t *testing.T) {
 	cpu.Registers.A = 0xfe
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4859,7 +4859,7 @@ func TestRorNFlagUnset(t *testing.T) {
 	cpu.Registers.A = 0x01
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6a)
+	cpu.Memory.Store(0x0100, 0x6a)
 
 	cpu.Execute()
 
@@ -4877,9 +4877,9 @@ func TestJmpAbsolute(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x4c)
-	cpu.memory.Store(0x0101, 0xff)
-	cpu.memory.Store(0x0102, 0x01)
+	cpu.Memory.Store(0x0100, 0x4c)
+	cpu.Memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0102, 0x01)
 
 	cpu.Execute()
 
@@ -4895,11 +4895,11 @@ func TestJmpIndirect(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x6c)
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x01)
-	cpu.memory.Store(0x0184, 0xff)
-	cpu.memory.Store(0x0185, 0xff)
+	cpu.Memory.Store(0x0100, 0x6c)
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x01)
+	cpu.Memory.Store(0x0184, 0xff)
+	cpu.Memory.Store(0x0185, 0xff)
 
 	cpu.Execute()
 
@@ -4917,9 +4917,9 @@ func TestJsr(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x20)
-	cpu.memory.Store(0x0101, 0xff)
-	cpu.memory.Store(0x0102, 0x01)
+	cpu.Memory.Store(0x0100, 0x20)
+	cpu.Memory.Store(0x0101, 0xff)
+	cpu.Memory.Store(0x0102, 0x01)
 
 	cpu.Execute()
 
@@ -4927,11 +4927,11 @@ func TestJsr(t *testing.T) {
 		t.Error("Register PC is not 0x01ff")
 	}
 
-	if cpu.memory.Fetch(0x01fd) != 0x01 {
+	if cpu.Memory.Fetch(0x01fd) != 0x01 {
 		t.Error("Memory is not 0x01")
 	}
 
-	if cpu.memory.Fetch(0x01fc) != 0x02 {
+	if cpu.Memory.Fetch(0x01fc) != 0x02 {
 		t.Error("Memory is not 0x02")
 	}
 
@@ -4941,10 +4941,10 @@ func TestJsr(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x20) // JSR
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0084, 0x60) // RTS
+	cpu.Memory.Store(0x0100, 0x20) // JSR
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0084, 0x60) // RTS
 
 	cpu.Execute()
 	cpu.Execute()
@@ -4963,13 +4963,13 @@ func TestJsr(t *testing.T) {
 
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x20) // JSR $0084
-	cpu.memory.Store(0x0101, 0x84)
-	cpu.memory.Store(0x0102, 0x00)
-	cpu.memory.Store(0x0103, 0xa9) // LDA #$ff
-	cpu.memory.Store(0x0104, 0xff)
-	cpu.memory.Store(0x0105, 0x02) // illegal opcode
-	cpu.memory.Store(0x0084, 0x60) // RTS
+	cpu.Memory.Store(0x0100, 0x20) // JSR $0084
+	cpu.Memory.Store(0x0101, 0x84)
+	cpu.Memory.Store(0x0102, 0x00)
+	cpu.Memory.Store(0x0103, 0xa9) // LDA #$ff
+	cpu.Memory.Store(0x0104, 0xff)
+	cpu.Memory.Store(0x0105, 0x02) // illegal opcode
+	cpu.Memory.Store(0x0084, 0x60) // RTS
 
 	cpu.Run()
 
@@ -4989,7 +4989,7 @@ func TestRts(t *testing.T) {
 	cpu.Registers.PC = 0x0100
 	cpu.push16(0x0102)
 
-	cpu.memory.Store(0x0100, 0x60)
+	cpu.Memory.Store(0x0100, 0x60)
 
 	cpu.Execute()
 
@@ -5008,7 +5008,7 @@ func TestBcc(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x90)
+	cpu.Memory.Store(0x0100, 0x90)
 
 	cycles, _ := cpu.Execute()
 
@@ -5023,8 +5023,8 @@ func TestBcc(t *testing.T) {
 	cpu.Registers.P &^= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x90)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0x90)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cycles, _ = cpu.Execute()
 
@@ -5039,8 +5039,8 @@ func TestBcc(t *testing.T) {
 	cpu.Registers.P &^= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x90)
-	cpu.memory.Store(0x0101, 0xfd) // -3
+	cpu.Memory.Store(0x0100, 0x90)
+	cpu.Memory.Store(0x0101, 0xfd) // -3
 
 	cycles, _ = cpu.Execute()
 
@@ -5063,8 +5063,8 @@ func TestBcs(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb0)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0xb0)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5075,8 +5075,8 @@ func TestBcs(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb0)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0xb0)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5095,8 +5095,8 @@ func TestBeq(t *testing.T) {
 	cpu.Registers.P |= Z
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf0)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0xf0)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5107,8 +5107,8 @@ func TestBeq(t *testing.T) {
 	cpu.Registers.P |= Z
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf0)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0xf0)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5127,8 +5127,8 @@ func TestBmi(t *testing.T) {
 	cpu.Registers.P |= N
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x30)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0x30)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5139,8 +5139,8 @@ func TestBmi(t *testing.T) {
 	cpu.Registers.P |= N
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x30)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0x30)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5159,8 +5159,8 @@ func TestBne(t *testing.T) {
 	cpu.Registers.P &^= Z
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd0)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0xd0)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5171,8 +5171,8 @@ func TestBne(t *testing.T) {
 	cpu.Registers.P &^= Z
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd0)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0xd0)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5191,8 +5191,8 @@ func TestBpl(t *testing.T) {
 	cpu.Registers.P &^= N
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x10)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0x10)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5203,8 +5203,8 @@ func TestBpl(t *testing.T) {
 	cpu.Registers.P &^= N
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x10)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0x10)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5223,8 +5223,8 @@ func TestBvc(t *testing.T) {
 	cpu.Registers.P &^= V
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x50)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0x50)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5235,8 +5235,8 @@ func TestBvc(t *testing.T) {
 	cpu.Registers.P &^= V
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x50)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0x50)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5255,8 +5255,8 @@ func TestBvs(t *testing.T) {
 	cpu.Registers.P |= V
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x70)
-	cpu.memory.Store(0x0101, 0x02) // +2
+	cpu.Memory.Store(0x0100, 0x70)
+	cpu.Memory.Store(0x0101, 0x02) // +2
 
 	cpu.Execute()
 
@@ -5267,8 +5267,8 @@ func TestBvs(t *testing.T) {
 	cpu.Registers.P |= V
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x70)
-	cpu.memory.Store(0x0101, 0xfe) // -2
+	cpu.Memory.Store(0x0100, 0x70)
+	cpu.Memory.Store(0x0101, 0xfe) // -2
 
 	cpu.Execute()
 
@@ -5287,7 +5287,7 @@ func TestClc(t *testing.T) {
 	cpu.Registers.P &^= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x18)
+	cpu.Memory.Store(0x0100, 0x18)
 
 	cpu.Execute()
 
@@ -5298,7 +5298,7 @@ func TestClc(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x18)
+	cpu.Memory.Store(0x0100, 0x18)
 
 	cpu.Execute()
 
@@ -5317,7 +5317,7 @@ func TestCld(t *testing.T) {
 	cpu.Registers.P &^= D
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd8)
+	cpu.Memory.Store(0x0100, 0xd8)
 
 	cpu.Execute()
 
@@ -5328,7 +5328,7 @@ func TestCld(t *testing.T) {
 	cpu.Registers.P |= D
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xd8)
+	cpu.Memory.Store(0x0100, 0xd8)
 
 	cpu.Execute()
 
@@ -5347,7 +5347,7 @@ func TestCli(t *testing.T) {
 	cpu.Registers.P &^= I
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x58)
+	cpu.Memory.Store(0x0100, 0x58)
 
 	cpu.Execute()
 
@@ -5358,7 +5358,7 @@ func TestCli(t *testing.T) {
 	cpu.Registers.P |= I
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x58)
+	cpu.Memory.Store(0x0100, 0x58)
 
 	cpu.Execute()
 
@@ -5377,7 +5377,7 @@ func TestClv(t *testing.T) {
 	cpu.Registers.P &^= V
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb8)
+	cpu.Memory.Store(0x0100, 0xb8)
 
 	cpu.Execute()
 
@@ -5388,7 +5388,7 @@ func TestClv(t *testing.T) {
 	cpu.Registers.P |= V
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xb8)
+	cpu.Memory.Store(0x0100, 0xb8)
 
 	cpu.Execute()
 
@@ -5407,7 +5407,7 @@ func TestSec(t *testing.T) {
 	cpu.Registers.P &^= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x38)
+	cpu.Memory.Store(0x0100, 0x38)
 
 	cpu.Execute()
 
@@ -5418,7 +5418,7 @@ func TestSec(t *testing.T) {
 	cpu.Registers.P |= C
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x38)
+	cpu.Memory.Store(0x0100, 0x38)
 
 	cpu.Execute()
 
@@ -5437,7 +5437,7 @@ func TestSed(t *testing.T) {
 	cpu.Registers.P &^= D
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf8)
+	cpu.Memory.Store(0x0100, 0xf8)
 
 	cpu.Execute()
 
@@ -5448,7 +5448,7 @@ func TestSed(t *testing.T) {
 	cpu.Registers.P |= D
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0xf8)
+	cpu.Memory.Store(0x0100, 0xf8)
 
 	cpu.Execute()
 
@@ -5467,7 +5467,7 @@ func TestSei(t *testing.T) {
 	cpu.Registers.P &^= I
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x78)
+	cpu.Memory.Store(0x0100, 0x78)
 
 	cpu.Execute()
 
@@ -5478,7 +5478,7 @@ func TestSei(t *testing.T) {
 	cpu.Registers.P |= I
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x78)
+	cpu.Memory.Store(0x0100, 0x78)
 
 	cpu.Execute()
 
@@ -5497,9 +5497,9 @@ func TestBrk(t *testing.T) {
 	cpu.Registers.P = 0xff & (^B)
 	cpu.Registers.PC = 0x0100
 
-	cpu.memory.Store(0x0100, 0x00)
-	cpu.memory.Store(0xfffe, 0xff)
-	cpu.memory.Store(0xffff, 0x01)
+	cpu.Memory.Store(0x0100, 0x00)
+	cpu.Memory.Store(0xfffe, 0xff)
+	cpu.Memory.Store(0xffff, 0x01)
 
 	cpu.Execute()
 
@@ -5527,7 +5527,7 @@ func TestRti(t *testing.T) {
 	cpu.push16(0x0102)
 	cpu.push(0x03)
 
-	cpu.memory.Store(0x0100, 0x40)
+	cpu.Memory.Store(0x0100, 0x40)
 
 	cpu.Execute()
 

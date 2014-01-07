@@ -4,7 +4,8 @@ package go6502
 type OpCode uint8
 
 // Represents an instruction for the 6502 CPU.  The Exec field
-// implements the instruction.
+// implements the instruction and returns the total clock cycles to be
+// consumed by the instruction.
 type Instruction struct {
 	OpCode OpCode
 	Exec   func(*CPU) (cycles uint16)

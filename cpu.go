@@ -85,8 +85,8 @@ type CPU struct {
 	divisor      uint16
 	clock        *Clock
 	Registers    Registers
-	memory       Memory
-	instructions InstructionTable
+	Memory       Memory
+	Instructions InstructionTable
 }
 
 // Returns a pointer to a new CPU with the given Memory, clock divisor
@@ -95,13 +95,13 @@ func NewCPU(mem Memory, divisor uint16, clock *Clock) *CPU {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
 
-	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), memory: mem, instructions: instructions}
+	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), Memory: mem, Instructions: instructions}
 }
 
 // Resets the CPU by resetting both the registers and memory.
 func (cpu *CPU) Reset() {
 	cpu.Registers.Reset()
-	cpu.memory.Reset()
+	cpu.Memory.Reset()
 }
 
 // Error type used to indicate that the CPU attempted to execute an
@@ -120,8 +120,8 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 	ticks := cpu.clock.ticks
 
 	// fetch
-	opcode := OpCode(cpu.memory.Fetch(cpu.Registers.PC))
-	inst, ok := cpu.instructions[opcode]
+	opcode := OpCode(cpu.Memory.Fetch(cpu.Registers.PC))
+	inst, ok := cpu.Instructions[opcode]
 
 	if !ok {
 		return 0, BadOpCodeError(opcode)
@@ -183,7 +183,7 @@ func (cpu *CPU) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint
 }
 
 func (cpu *CPU) load(address uint16, register *uint8) {
-	*register = cpu.setZNFlags(cpu.memory.Fetch(address))
+	*register = cpu.setZNFlags(cpu.Memory.Fetch(address))
 }
 
 func (cpu *CPU) immediateAddress() (result uint16) {
@@ -193,19 +193,19 @@ func (cpu *CPU) immediateAddress() (result uint16) {
 }
 
 func (cpu *CPU) zeroPageAddress() (result uint16) {
-	result = uint16(cpu.memory.Fetch(cpu.Registers.PC))
+	result = uint16(cpu.Memory.Fetch(cpu.Registers.PC))
 	cpu.Registers.PC++
 	return
 }
 
 func (cpu *CPU) zeroPageIndexedAddress(index uint8) (result uint16) {
-	result = uint16(cpu.memory.Fetch(cpu.Registers.PC) + index)
+	result = uint16(cpu.Memory.Fetch(cpu.Registers.PC) + index)
 	cpu.Registers.PC++
 	return
 }
 
 func (cpu *CPU) relativeAddress() (result uint16) {
-	value := uint16(cpu.memory.Fetch(cpu.Registers.PC))
+	value := uint16(cpu.Memory.Fetch(cpu.Registers.PC))
 	cpu.Registers.PC++
 
 	if value > 0x7f {
@@ -218,8 +218,8 @@ func (cpu *CPU) relativeAddress() (result uint16) {
 }
 
 func (cpu *CPU) absoluteAddress() (result uint16) {
-	low := cpu.memory.Fetch(cpu.Registers.PC)
-	high := cpu.memory.Fetch(cpu.Registers.PC + 1)
+	low := cpu.Memory.Fetch(cpu.Registers.PC)
+	high := cpu.Memory.Fetch(cpu.Registers.PC + 1)
 	cpu.Registers.PC += 2
 
 	result = (uint16(high) << 8) | uint16(low)
@@ -227,8 +227,8 @@ func (cpu *CPU) absoluteAddress() (result uint16) {
 }
 
 func (cpu *CPU) indirectAddress() (result uint16) {
-	low := cpu.memory.Fetch(cpu.Registers.PC)
-	high := cpu.memory.Fetch(cpu.Registers.PC + 1)
+	low := cpu.Memory.Fetch(cpu.Registers.PC)
+	high := cpu.Memory.Fetch(cpu.Registers.PC + 1)
 	cpu.Registers.PC += 2
 
 	// XXX: The 6502 had a bug in which it incremented only the
@@ -241,16 +241,16 @@ func (cpu *CPU) indirectAddress() (result uint16) {
 	aHigh := (uint16(high) << 8) | uint16(low+1)
 	aLow := (uint16(high) << 8) | uint16(low)
 
-	low = cpu.memory.Fetch(aLow)
-	high = cpu.memory.Fetch(aHigh)
+	low = cpu.Memory.Fetch(aLow)
+	high = cpu.Memory.Fetch(aHigh)
 
 	result = (uint16(high) << 8) | uint16(low)
 	return
 }
 
 func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
-	low := cpu.memory.Fetch(cpu.Registers.PC)
-	high := cpu.memory.Fetch(cpu.Registers.PC + 1)
+	low := cpu.Memory.Fetch(cpu.Registers.PC)
+	high := cpu.Memory.Fetch(cpu.Registers.PC + 1)
 	cpu.Registers.PC += 2
 
 	address := (uint16(high) << 8) | uint16(low)
@@ -264,22 +264,22 @@ func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint
 }
 
 func (cpu *CPU) indexedIndirectAddress() (result uint16) {
-	address := uint16(cpu.memory.Fetch(cpu.Registers.PC) + cpu.Registers.X)
+	address := uint16(cpu.Memory.Fetch(cpu.Registers.PC) + cpu.Registers.X)
 	cpu.Registers.PC++
 
-	low := cpu.memory.Fetch(address)
-	high := cpu.memory.Fetch(address + 1)
+	low := cpu.Memory.Fetch(address)
+	high := cpu.Memory.Fetch(address + 1)
 
 	result = (uint16(high) << 8) | uint16(low)
 	return
 }
 
 func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
-	address := uint16(cpu.memory.Fetch(cpu.Registers.PC))
+	address := uint16(cpu.Memory.Fetch(cpu.Registers.PC))
 	cpu.Registers.PC++
 
-	low := cpu.memory.Fetch(address)
-	high := cpu.memory.Fetch(address + 1)
+	low := cpu.Memory.Fetch(address)
+	high := cpu.Memory.Fetch(address + 1)
 
 	address = (uint16(high) << 8) | uint16(low)
 
@@ -347,7 +347,7 @@ func (cpu *CPU) Ldy(address uint16) {
 }
 
 func (cpu *CPU) store(address uint16, value uint8) {
-	cpu.memory.Store(address, value)
+	cpu.Memory.Store(address, value)
 }
 
 // Stores the contents of the accumulator into memory.
@@ -514,7 +514,7 @@ func (cpu *CPU) Txs() {
 }
 
 func (cpu *CPU) push(value uint8) {
-	cpu.memory.Store(0x0100|uint16(cpu.Registers.SP), value)
+	cpu.Memory.Store(0x0100|uint16(cpu.Registers.SP), value)
 	cpu.Registers.SP--
 }
 
@@ -525,7 +525,7 @@ func (cpu *CPU) push16(value uint16) {
 
 func (cpu *CPU) pull() (value uint8) {
 	cpu.Registers.SP++
-	value = cpu.memory.Fetch(0x0100 | uint16(cpu.Registers.SP))
+	value = cpu.Memory.Fetch(0x0100 | uint16(cpu.Registers.SP))
 	return
 }
 
@@ -623,7 +623,7 @@ func (cpu *CPU) And(address uint16) {
 		fmt.Printf("  %04x: AND $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A & cpu.memory.Fetch(address))
+	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A & cpu.Memory.Fetch(address))
 }
 
 // An exclusive OR is performed, bit by bit, on the accumulator
@@ -641,7 +641,7 @@ func (cpu *CPU) Eor(address uint16) {
 		fmt.Printf("  %04x: EOR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A ^ cpu.memory.Fetch(address))
+	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A ^ cpu.Memory.Fetch(address))
 }
 
 // An inclusive OR is performed, bit by bit, on the accumulator
@@ -659,7 +659,7 @@ func (cpu *CPU) Ora(address uint16) {
 		fmt.Printf("  %04x: ORA $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A | cpu.memory.Fetch(address))
+	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A | cpu.Memory.Fetch(address))
 }
 
 // This instructions is used to test if one or more bits are set in a
@@ -680,7 +680,7 @@ func (cpu *CPU) Bit(address uint16) {
 		fmt.Printf("  %04x: BIT $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := cpu.memory.Fetch(address)
+	value := cpu.Memory.Fetch(address)
 	cpu.setZFlag(value & cpu.Registers.A)
 	cpu.Registers.P = Status(uint8(cpu.Registers.P) | (value & 0xc0))
 }
@@ -708,7 +708,7 @@ func (cpu *CPU) Adc(address uint16) {
 		fmt.Printf("  %04x: ADC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := uint16(cpu.memory.Fetch(address))
+	value := uint16(cpu.Memory.Fetch(address))
 	cpu.addition(value)
 }
 
@@ -729,12 +729,12 @@ func (cpu *CPU) Sbc(address uint16) {
 		fmt.Printf("  %04x: SBC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := uint16(cpu.memory.Fetch(address)) ^ 0xff
+	value := uint16(cpu.Memory.Fetch(address)) ^ 0xff
 	cpu.addition(value)
 }
 
 func (cpu *CPU) compare(address uint16, register uint8) {
-	value := uint16(cpu.memory.Fetch(address)) ^ 0xff + 1
+	value := uint16(cpu.Memory.Fetch(address)) ^ 0xff + 1
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
 
@@ -810,7 +810,7 @@ func (cpu *CPU) Inc(address uint16) {
 		fmt.Printf("  %04x: INC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.memory.Store(address, cpu.setZNFlags(cpu.memory.Fetch(address)+1))
+	cpu.Memory.Store(address, cpu.setZNFlags(cpu.Memory.Fetch(address)+1))
 }
 
 func (cpu *CPU) increment(register *uint8) {
@@ -868,7 +868,7 @@ func (cpu *CPU) Dec(address uint16) {
 		fmt.Printf("  %04x: DEC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.memory.Store(address, cpu.setZNFlags(cpu.memory.Fetch(address)-1))
+	cpu.Memory.Store(address, cpu.setZNFlags(cpu.Memory.Fetch(address)-1))
 }
 
 func (cpu *CPU) decrement(register *uint8) {
@@ -975,7 +975,7 @@ func (cpu *CPU) Asl(address uint16) {
 		fmt.Printf("  %04x: ASL $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.shift(left, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
+	cpu.shift(left, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
 // Each of the bits in A is shift one place to the right. The bit that
@@ -1011,7 +1011,7 @@ func (cpu *CPU) Lsr(address uint16) {
 		fmt.Printf("  %04x: LSR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.shift(right, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
+	cpu.shift(right, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
 func (cpu *CPU) rotate(direction direction, value uint8, store func(uint8)) {
@@ -1067,7 +1067,7 @@ func (cpu *CPU) Rol(address uint16) {
 		fmt.Printf("  %04x: ROL $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.rotate(left, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
+	cpu.rotate(left, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
 // Move each of the bits in A one place to the right. Bit 7 is filled
@@ -1105,7 +1105,7 @@ func (cpu *CPU) Ror(address uint16) {
 		fmt.Printf("  %04x: ROR $%04x\n", cpu.Registers.PC, address)
 	}
 
-	cpu.rotate(right, cpu.memory.Fetch(address), func(value uint8) { cpu.memory.Store(address, value) })
+	cpu.rotate(right, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
 // Sets the program counter to the address specified by the operand.
@@ -1468,8 +1468,8 @@ func (cpu *CPU) Brk() {
 
 	cpu.Registers.P |= I
 
-	low := cpu.memory.Fetch(0xfffe)
-	high := cpu.memory.Fetch(0xffff)
+	low := cpu.Memory.Fetch(0xfffe)
+	high := cpu.Memory.Fetch(0xffff)
 
 	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
