@@ -1,28 +1,35 @@
 package go6502
 
+// Represents opcodes for the 6502 CPU
 type OpCode uint8
 
+// Represents an instruction for the 6502 CPU.  The Exec field
+// implements the instruction.
 type Instruction struct {
 	OpCode OpCode
 	Exec   func(*CPU) (cycles uint16)
 }
 
+// Stores instructions understood by the 6502 CPU, indexed by opcode.
 type InstructionTable map[OpCode]Instruction
 
+// Returns a new, empty InstructionTable
 func NewInstructionTable() InstructionTable {
 	instructions := make(map[OpCode]Instruction)
-	InstructionTable(instructions).InitInstructions()
 	return instructions
 }
 
+// Adds an instruction to the InstructionTable
 func (instructions InstructionTable) AddInstruction(inst Instruction) {
 	instructions[inst.OpCode] = inst
 }
 
+// Removes any instruction with the given opcode
 func (instructions InstructionTable) RemoveInstruction(opcode OpCode) {
 	delete(instructions, opcode)
 }
 
+// Adds the 6502 CPU's instruction set to the InstructionTable.
 func (instructions InstructionTable) InitInstructions() {
 	// LDA
 

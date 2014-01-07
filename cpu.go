@@ -92,7 +92,10 @@ type CPU struct {
 // Returns a pointer to a new CPU with the given Memory, clock divisor
 // and clock.
 func NewCPU(mem Memory, divisor uint16, clock *Clock) *CPU {
-	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), memory: mem, instructions: NewInstructionTable()}
+	instructions := NewInstructionTable()
+	instructions.InitInstructions()
+
+	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), memory: mem, instructions: instructions}
 }
 
 // Resets the CPU by resetting both the registers and memory.
