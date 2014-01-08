@@ -159,8 +159,7 @@ func (cpu *CPU) setZFlag(value uint8) uint8 {
 }
 
 func (cpu *CPU) setNFlag(value uint8) uint8 {
-	cpu.Registers.P &= ^N
-	cpu.Registers.P |= Status(value & (uint8(1) << 7))
+	cpu.Registers.P = (cpu.Registers.P & ^N) | Status(value&uint8(N))
 	return value
 }
 
@@ -171,14 +170,12 @@ func (cpu *CPU) setZNFlags(value uint8) uint8 {
 }
 
 func (cpu *CPU) setCFlagAddition(value uint16) uint16 {
-	cpu.Registers.P &= ^C
-	cpu.Registers.P |= Status(value >> 8 & 0x1)
+	cpu.Registers.P = (cpu.Registers.P & ^C) | Status(value>>8&uint16(C))
 	return value
 }
 
 func (cpu *CPU) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
-	cpu.Registers.P &= ^V
-	cpu.Registers.P |= Status((^(term1 ^ term2) & (term1 ^ result) & 0x80) >> 1)
+	cpu.Registers.P = (cpu.Registers.P & ^V) | Status((^(term1^term2)&(term1^result)&uint16(N))>>1)
 	return result
 }
 
@@ -687,8 +684,26 @@ func (cpu *CPU) Bit(address uint16) {
 
 func (cpu *CPU) addition(value uint16) {
 	orig := uint16(cpu.Registers.A)
-	result := cpu.setCFlagAddition(orig + value + uint16(cpu.Registers.P&C))
-	cpu.Registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
+
+	if cpu.Registers.P&D == 0 {
+		result := cpu.setCFlagAddition(orig + value + uint16(cpu.Registers.P&C))
+		cpu.Registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
+	} else {
+		low := uint16(orig&0x000f) + uint16(value&0x000f) + uint16(cpu.Registers.P&C)
+		high := uint16(orig&0x00f0) + uint16(value&0x00f0)
+
+		if low >= 0x000a {
+			low -= 0x000a
+			high += 0x0010
+		}
+
+		if high >= 0x00a0 {
+			high -= 0x00a0
+		}
+
+		result := cpu.setCFlagAddition(high | (low & 0x000f))
+		cpu.Registers.A = cpu.setZNFlags(uint8(cpu.setVFlagAddition(orig, value, result)))
+	}
 }
 
 // This instruction adds the contents of a memory location to the

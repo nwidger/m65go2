@@ -2109,6 +2109,18 @@ func TestAdcImmediate(t *testing.T) {
 		t.Error("Register A is not 0x03")
 	}
 
+	cpu.Registers.A = 0x23 // 23 BCD
+	cpu.Registers.PC = 0x0100
+
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x23) // 23 BCD
+
+	cpu.Execute()
+
+	if cpu.Registers.A != 0x46 { // 46 BCD
+		t.Error("Register A is not 0x46")
+	}
+
 	Teardown()
 }
 
