@@ -1,4 +1,4 @@
-// package m65go2 simulates the 6502 CPU
+// Package m65go2 simulates the MOS 6502 CPU
 package m65go2
 
 import (
