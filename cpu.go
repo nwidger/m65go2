@@ -744,7 +744,14 @@ func (cpu *CPU) Sbc(address uint16) {
 		fmt.Printf("  %04x: SBC $%04x\n", cpu.Registers.PC, address)
 	}
 
-	value := uint16(cpu.Memory.Fetch(address)) ^ 0xff
+	value := uint16(cpu.Memory.Fetch(address))
+
+	if cpu.Registers.P&D == 0 {
+		value ^= 0xff
+	} else {
+		value = 0x99 - value
+	}
+
 	cpu.addition(value)
 }
 

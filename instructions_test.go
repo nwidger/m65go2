@@ -2110,16 +2110,43 @@ func TestAdcImmediate(t *testing.T) {
 	}
 
 	cpu.Registers.P |= D
-	cpu.Registers.A = 0x29 // 29 BCD
+	cpu.Registers.A = 0x29 // BCD
 	cpu.Registers.PC = 0x0100
 
 	cpu.Memory.Store(0x0100, 0x69)
-	cpu.Memory.Store(0x0101, 0x11) // 11 BCD
+	cpu.Memory.Store(0x0101, 0x11) // BCD
 
 	cpu.Execute()
 
-	if cpu.Registers.A != 0x40 { // 40 BCD
-		t.Errorf("Register A is %#02x not 0x40", cpu.Registers.A)
+	if cpu.Registers.A != 0x40 { // BCD
+		t.Error("Register A is not 0x40")
+	}
+
+	cpu.Registers.P |= D
+	cpu.Registers.A = 0x29 | uint8(N) // BCD
+	cpu.Registers.PC = 0x0100
+
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x29) // BCD
+
+	cpu.Execute()
+
+	if cpu.Registers.A != 0x38 { // BCD
+		t.Error("Register A is not 0x38")
+	}
+
+	cpu.Registers.P |= D
+	cpu.Registers.P |= C
+	cpu.Registers.A = 0x58 // BCD
+	cpu.Registers.PC = 0x0100
+
+	cpu.Memory.Store(0x0100, 0x69)
+	cpu.Memory.Store(0x0101, 0x46) // BCD
+
+	cpu.Execute()
+
+	if cpu.Registers.A != 0x05 { // BCD
+		t.Errorf("Register A is not 0x05")
 	}
 
 	Teardown()
@@ -2480,7 +2507,20 @@ func TestSbcImmediate(t *testing.T) {
 	cpu.Execute()
 
 	if cpu.Registers.A != 0x01 {
-		t.Errorf("Register A is not 0x01")
+		t.Error("Register A is not 0x01")
+	}
+
+	cpu.Registers.P |= D
+	cpu.Registers.A = 0x29 // BCD
+	cpu.Registers.PC = 0x0100
+
+	cpu.Memory.Store(0x0100, 0xe9)
+	cpu.Memory.Store(0x0101, 0x11) // BCD
+
+	cpu.Execute()
+
+	if cpu.Registers.A != 0x18 { // BCD
+		t.Error("Register A is not 0x18")
 	}
 
 	Teardown()
