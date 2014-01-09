@@ -1,5 +1,5 @@
-// Package go6502 simulates the 6502 CPU
-package go6502
+// package m65go2 simulates the 6502 CPU
+package m65go2
 
 import (
 	"fmt"

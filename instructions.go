@@ -1,4 +1,4 @@
-package go6502
+package m65go2
 
 // Represents opcodes for the 6502 CPU
 type OpCode uint8
