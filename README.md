@@ -1,5 +1,5 @@
-65go2
-=====
+m65go2
+======
 
 [![GoDoc](https://godoc.org/github.com/nwidger/m65go2?status.png)](https://godoc.org/github.com/nwidger/m65go2)
 
