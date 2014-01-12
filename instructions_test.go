@@ -2,24 +2,23 @@ package m65go2
 
 import (
 	"testing"
-	"time"
 )
 
-const rate time.Duration = 46 * time.Nanosecond // 21.477272Mhz
-const divisor = 12
-
-var cpu *CPU
+var cpu *M6502
+var master *Clock
+var divider *Divider
 
 func Setup() {
-	clock := NewClock(rate)
-	cpu = NewCPU(NewBasicMemory(), divisor, clock)
+	master = NewClock(DEFAULT_MASTER_RATE)
+	divider = NewDivider(master, DEFAULT_CLOCK_DIVISOR)
+	cpu = NewM6502(NewBasicMemory(), divider)
 	cpu.Reset()
 	// cpu.decode = true
-	go clock.Start()
+	go divider.Start()
 }
 
 func Teardown() {
-	cpu.clock.Stop()
+	divider.Stop()
 }
 
 // BadOpCodeError

@@ -4,6 +4,7 @@ package m65go2
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 // Flags used by P (Status) register
@@ -79,27 +80,111 @@ func (reg *Registers) String() {
 	fmt.Fprintf(os.Stderr, "PC: %#04x (%05dd) (%016bb)\n", reg.PC, reg.PC, reg.PC)
 }
 
+type Index uint8
+
+const (
+	X Index = iota
+	Y
+)
+
+type CPUer interface {
+	Reset()
+	Execute() (cycles uint16, error error)
+	Run() (error error)
+
+	immediateAddress() (result uint16)
+	zeroPageAddress() (result uint16)
+	zeroPageIndexedAddress(index Index) (result uint16)
+	relativeAddress() (result uint16)
+	absoluteAddress() (result uint16)
+	indirectAddress() (result uint16)
+	absoluteIndexedAddress(index Index, cycles *uint16) (result uint16)
+	indexedIndirectAddress() (result uint16)
+	indirectIndexedAddress(cycles *uint16) (result uint16)
+
+	Lda(address uint16)
+	Ldx(address uint16)
+	Ldy(address uint16)
+	Sta(address uint16)
+	Stx(address uint16)
+	Sty(address uint16)
+	Tax()
+	Tay()
+	Txa()
+	Tya()
+	Tsx()
+	Txs()
+	Pha()
+	Php()
+	Pla()
+	Plp()
+	And(address uint16)
+	Eor(address uint16)
+	Ora(address uint16)
+	Bit(address uint16)
+	Adc(address uint16)
+	Sbc(address uint16)
+	Cmp(address uint16)
+	Cpx(address uint16)
+	Cpy(address uint16)
+	Inc(address uint16)
+	Inx()
+	Iny()
+	Dec(address uint16)
+	Dex()
+	Dey()
+	AslA()
+	Asl(address uint16)
+	LsrA()
+	Lsr(address uint16)
+	RolA()
+	Rol(address uint16)
+	RorA()
+	Ror(address uint16)
+	Jmp(address uint16)
+	Jsr(address uint16)
+	Rts()
+	Bcc(address uint16, cycles *uint16)
+	Bcs(address uint16, cycles *uint16)
+	Beq(address uint16, cycles *uint16)
+	Bmi(address uint16, cycles *uint16)
+	Bne(address uint16, cycles *uint16)
+	Bpl(address uint16, cycles *uint16)
+	Bvc(address uint16, cycles *uint16)
+	Bvs(address uint16, cycles *uint16)
+	Clc()
+	Cld()
+	Cli()
+	Clv()
+	Sec()
+	Sed()
+	Sei()
+	Brk()
+	Rti()
+}
+
 // Represents the 6502 CPU.
-type CPU struct {
+type M6502 struct {
 	decode       bool
-	divisor      uint16
-	clock        *Clock
+	clock        Clocker
 	Registers    Registers
 	Memory       Memory
 	Instructions InstructionTable
 }
 
-// Returns a pointer to a new CPU with the given Memory, clock divisor
-// and clock.
-func NewCPU(mem Memory, divisor uint16, clock *Clock) *CPU {
+const DEFAULT_MASTER_RATE time.Duration = 46 * time.Nanosecond // 21.477272Mhz
+const DEFAULT_CLOCK_DIVISOR uint64 = 12                        // 1.789733Mhz
+
+// Returns a pointer to a new CPU with the given Memory and clock.
+func NewM6502(mem Memory, clock Clocker) *M6502 {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
 
-	return &CPU{decode: false, divisor: divisor, clock: clock, Registers: NewRegisters(), Memory: mem, Instructions: instructions}
+	return &M6502{decode: false, clock: clock, Registers: NewRegisters(), Memory: mem, Instructions: instructions}
 }
 
 // Resets the CPU by resetting both the registers and memory.
-func (cpu *CPU) Reset() {
+func (cpu *M6502) Reset() {
 	cpu.Registers.Reset()
 	cpu.Memory.Reset()
 }
@@ -116,8 +201,8 @@ func (b BadOpCodeError) Error() string {
 // number of clock cycles as returned by the instruction's Exec
 // function.  Returns the number of cycles executed and any error
 // (such as BadOpCodeError).
-func (cpu *CPU) Execute() (cycles uint16, error error) {
-	ticks := cpu.clock.ticks
+func (cpu *M6502) Execute() (cycles uint16, error error) {
+	ticks := cpu.clock.Ticks()
 
 	// fetch
 	opcode := OpCode(cpu.Memory.Fetch(cpu.Registers.PC))
@@ -132,13 +217,13 @@ func (cpu *CPU) Execute() (cycles uint16, error error) {
 	cycles = inst.Exec(cpu)
 
 	// count cycles
-	cpu.clock.Await(ticks + uint64(cycles*cpu.divisor))
+	cpu.clock.Await(ticks + uint64(cycles))
 
 	return cycles, nil
 }
 
 // Executes instruction until Execute() returns an error.
-func (cpu *CPU) Run() (error error) {
+func (cpu *M6502) Run() (error error) {
 	for {
 		if _, error := cpu.Execute(); error != nil {
 			return error
@@ -148,7 +233,7 @@ func (cpu *CPU) Run() (error error) {
 	return nil
 }
 
-func (cpu *CPU) setZFlag(value uint8) uint8 {
+func (cpu *M6502) setZFlag(value uint8) uint8 {
 	if value == 0 {
 		cpu.Registers.P |= Z
 	} else {
@@ -158,50 +243,63 @@ func (cpu *CPU) setZFlag(value uint8) uint8 {
 	return value
 }
 
-func (cpu *CPU) setNFlag(value uint8) uint8 {
+func (cpu *M6502) setNFlag(value uint8) uint8 {
 	cpu.Registers.P = (cpu.Registers.P & ^N) | Status(value&uint8(N))
 	return value
 }
 
-func (cpu *CPU) setZNFlags(value uint8) uint8 {
+func (cpu *M6502) setZNFlags(value uint8) uint8 {
 	cpu.setZFlag(value)
 	cpu.setNFlag(value)
 	return value
 }
 
-func (cpu *CPU) setCFlagAddition(value uint16) uint16 {
+func (cpu *M6502) setCFlagAddition(value uint16) uint16 {
 	cpu.Registers.P = (cpu.Registers.P & ^C) | Status(value>>8&uint16(C))
 	return value
 }
 
-func (cpu *CPU) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
+func (cpu *M6502) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
 	cpu.Registers.P = (cpu.Registers.P & ^V) | Status((^(term1^term2)&(term1^result)&uint16(N))>>1)
 	return result
 }
 
-func (cpu *CPU) load(address uint16, register *uint8) {
+func (cpu *M6502) load(address uint16, register *uint8) {
 	*register = cpu.setZNFlags(cpu.Memory.Fetch(address))
 }
 
-func (cpu *CPU) immediateAddress() (result uint16) {
+func (cpu *M6502) immediateAddress() (result uint16) {
 	result = cpu.Registers.PC
 	cpu.Registers.PC++
 	return
 }
 
-func (cpu *CPU) zeroPageAddress() (result uint16) {
+func (cpu *M6502) zeroPageAddress() (result uint16) {
 	result = uint16(cpu.Memory.Fetch(cpu.Registers.PC))
 	cpu.Registers.PC++
 	return
 }
 
-func (cpu *CPU) zeroPageIndexedAddress(index uint8) (result uint16) {
-	result = uint16(cpu.Memory.Fetch(cpu.Registers.PC) + index)
+func (cpu *M6502) IndexToRegister(which Index) uint8 {
+	var index uint8
+
+	switch which {
+	case X:
+		index = cpu.Registers.X
+	case Y:
+		index = cpu.Registers.Y
+	}
+
+	return index
+}
+
+func (cpu *M6502) zeroPageIndexedAddress(index Index) (result uint16) {
+	result = uint16(cpu.Memory.Fetch(cpu.Registers.PC) + cpu.IndexToRegister(index))
 	cpu.Registers.PC++
 	return
 }
 
-func (cpu *CPU) relativeAddress() (result uint16) {
+func (cpu *M6502) relativeAddress() (result uint16) {
 	value := uint16(cpu.Memory.Fetch(cpu.Registers.PC))
 	cpu.Registers.PC++
 
@@ -214,7 +312,7 @@ func (cpu *CPU) relativeAddress() (result uint16) {
 	return
 }
 
-func (cpu *CPU) absoluteAddress() (result uint16) {
+func (cpu *M6502) absoluteAddress() (result uint16) {
 	low := cpu.Memory.Fetch(cpu.Registers.PC)
 	high := cpu.Memory.Fetch(cpu.Registers.PC + 1)
 	cpu.Registers.PC += 2
@@ -223,7 +321,7 @@ func (cpu *CPU) absoluteAddress() (result uint16) {
 	return
 }
 
-func (cpu *CPU) indirectAddress() (result uint16) {
+func (cpu *M6502) indirectAddress() (result uint16) {
 	low := cpu.Memory.Fetch(cpu.Registers.PC)
 	high := cpu.Memory.Fetch(cpu.Registers.PC + 1)
 	cpu.Registers.PC += 2
@@ -245,13 +343,13 @@ func (cpu *CPU) indirectAddress() (result uint16) {
 	return
 }
 
-func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint16) {
+func (cpu *M6502) absoluteIndexedAddress(index Index, cycles *uint16) (result uint16) {
 	low := cpu.Memory.Fetch(cpu.Registers.PC)
 	high := cpu.Memory.Fetch(cpu.Registers.PC + 1)
 	cpu.Registers.PC += 2
 
 	address := (uint16(high) << 8) | uint16(low)
-	result = address + uint16(index)
+	result = address + uint16(cpu.IndexToRegister(index))
 
 	if cycles != nil && !SamePage(address, result) {
 		*cycles++
@@ -260,7 +358,7 @@ func (cpu *CPU) absoluteIndexedAddress(index uint8, cycles *uint16) (result uint
 	return
 }
 
-func (cpu *CPU) indexedIndirectAddress() (result uint16) {
+func (cpu *M6502) indexedIndirectAddress() (result uint16) {
 	address := uint16(cpu.Memory.Fetch(cpu.Registers.PC) + cpu.Registers.X)
 	cpu.Registers.PC++
 
@@ -271,7 +369,7 @@ func (cpu *CPU) indexedIndirectAddress() (result uint16) {
 	return
 }
 
-func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
+func (cpu *M6502) indirectIndexedAddress(cycles *uint16) (result uint16) {
 	address := uint16(cpu.Memory.Fetch(cpu.Registers.PC))
 	cpu.Registers.PC++
 
@@ -299,7 +397,7 @@ func (cpu *CPU) indirectIndexedAddress(cycles *uint16) (result uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of A is set
-func (cpu *CPU) Lda(address uint16) {
+func (cpu *M6502) Lda(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDA $%04x\n", cpu.Registers.PC, address)
 	}
@@ -317,7 +415,7 @@ func (cpu *CPU) Lda(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of X is set
-func (cpu *CPU) Ldx(address uint16) {
+func (cpu *M6502) Ldx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDX $%04x\n", cpu.Registers.PC, address)
 	}
@@ -335,7 +433,7 @@ func (cpu *CPU) Ldx(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of Y is set
-func (cpu *CPU) Ldy(address uint16) {
+func (cpu *M6502) Ldy(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LDY $%04x\n", cpu.Registers.PC, address)
 	}
@@ -343,7 +441,7 @@ func (cpu *CPU) Ldy(address uint16) {
 	cpu.load(address, &cpu.Registers.Y)
 }
 
-func (cpu *CPU) store(address uint16, value uint8) {
+func (cpu *M6502) store(address uint16, value uint8) {
 	cpu.Memory.Store(address, value)
 }
 
@@ -356,7 +454,7 @@ func (cpu *CPU) store(address uint16, value uint8) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Sta(address uint16) {
+func (cpu *M6502) Sta(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STA $%04x\n", cpu.Registers.PC, address)
 	}
@@ -373,7 +471,7 @@ func (cpu *CPU) Sta(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Stx(address uint16) {
+func (cpu *M6502) Stx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STX $%04x\n", cpu.Registers.PC, address)
 	}
@@ -390,7 +488,7 @@ func (cpu *CPU) Stx(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Sty(address uint16) {
+func (cpu *M6502) Sty(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: STY $%04x\n", cpu.Registers.PC, address)
 	}
@@ -398,7 +496,7 @@ func (cpu *CPU) Sty(address uint16) {
 	cpu.store(address, cpu.Registers.Y)
 }
 
-func (cpu *CPU) transfer(from uint8, to *uint8) {
+func (cpu *M6502) transfer(from uint8, to *uint8) {
 	*to = cpu.setZNFlags(from)
 }
 
@@ -412,7 +510,7 @@ func (cpu *CPU) transfer(from uint8, to *uint8) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of X is set
-func (cpu *CPU) Tax() {
+func (cpu *M6502) Tax() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TAX\n", cpu.Registers.PC)
 	}
@@ -430,7 +528,7 @@ func (cpu *CPU) Tax() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of Y is set
-func (cpu *CPU) Tay() {
+func (cpu *M6502) Tay() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TAY\n", cpu.Registers.PC)
 	}
@@ -448,7 +546,7 @@ func (cpu *CPU) Tay() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of A is set
-func (cpu *CPU) Txa() {
+func (cpu *M6502) Txa() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TXA\n", cpu.Registers.PC)
 	}
@@ -466,7 +564,7 @@ func (cpu *CPU) Txa() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of A is set
-func (cpu *CPU) Tya() {
+func (cpu *M6502) Tya() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TYA\n", cpu.Registers.PC)
 	}
@@ -484,7 +582,7 @@ func (cpu *CPU) Tya() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of X is set
-func (cpu *CPU) Tsx() {
+func (cpu *M6502) Tsx() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TSX\n", cpu.Registers.PC)
 	}
@@ -502,7 +600,7 @@ func (cpu *CPU) Tsx() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Txs() {
+func (cpu *M6502) Txs() {
 	if cpu.decode {
 		fmt.Printf("  %04x: TXS\n", cpu.Registers.PC)
 	}
@@ -510,23 +608,23 @@ func (cpu *CPU) Txs() {
 	cpu.transfer(cpu.Registers.X, &cpu.Registers.SP)
 }
 
-func (cpu *CPU) push(value uint8) {
+func (cpu *M6502) push(value uint8) {
 	cpu.Memory.Store(0x0100|uint16(cpu.Registers.SP), value)
 	cpu.Registers.SP--
 }
 
-func (cpu *CPU) push16(value uint16) {
+func (cpu *M6502) push16(value uint16) {
 	cpu.push(uint8(value >> 8))
 	cpu.push(uint8(value))
 }
 
-func (cpu *CPU) pull() (value uint8) {
+func (cpu *M6502) pull() (value uint8) {
 	cpu.Registers.SP++
 	value = cpu.Memory.Fetch(0x0100 | uint16(cpu.Registers.SP))
 	return
 }
 
-func (cpu *CPU) pull16() (value uint16) {
+func (cpu *M6502) pull16() (value uint16) {
 	low := cpu.pull()
 	high := cpu.pull()
 
@@ -543,7 +641,7 @@ func (cpu *CPU) pull16() (value uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Pha() {
+func (cpu *M6502) Pha() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PHA\n", cpu.Registers.PC)
 	}
@@ -560,7 +658,7 @@ func (cpu *CPU) Pha() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Php() {
+func (cpu *M6502) Php() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PHP\n", cpu.Registers.PC)
 	}
@@ -578,7 +676,7 @@ func (cpu *CPU) Php() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of A is set
-func (cpu *CPU) Pla() {
+func (cpu *M6502) Pla() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PLA\n", cpu.Registers.PC)
 	}
@@ -597,7 +695,7 @@ func (cpu *CPU) Pla() {
 //         B 	Break Command 	  Set from stack
 //         V 	Overflow Flag 	  Set from stack
 //         N 	Negative Flag 	  Set from stack
-func (cpu *CPU) Plp() {
+func (cpu *M6502) Plp() {
 	if cpu.decode {
 		fmt.Printf("  %04x: PLP\n", cpu.Registers.PC)
 	}
@@ -615,7 +713,7 @@ func (cpu *CPU) Plp() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 set
-func (cpu *CPU) And(address uint16) {
+func (cpu *M6502) And(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: AND $%04x\n", cpu.Registers.PC, address)
 	}
@@ -633,7 +731,7 @@ func (cpu *CPU) And(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 set
-func (cpu *CPU) Eor(address uint16) {
+func (cpu *M6502) Eor(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: EOR $%04x\n", cpu.Registers.PC, address)
 	}
@@ -651,7 +749,7 @@ func (cpu *CPU) Eor(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 set
-func (cpu *CPU) Ora(address uint16) {
+func (cpu *M6502) Ora(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ORA $%04x\n", cpu.Registers.PC, address)
 	}
@@ -672,7 +770,7 @@ func (cpu *CPU) Ora(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Set to bit 6 of the memory value
 //         N 	Negative Flag 	  Set to bit 7 of the memory value
-func (cpu *CPU) Bit(address uint16) {
+func (cpu *M6502) Bit(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BIT $%04x\n", cpu.Registers.PC, address)
 	}
@@ -682,7 +780,7 @@ func (cpu *CPU) Bit(address uint16) {
 	cpu.Registers.P = Status(uint8(cpu.Registers.P) | (value & 0xc0))
 }
 
-func (cpu *CPU) addition(value uint16) {
+func (cpu *M6502) addition(value uint16) {
 	orig := uint16(cpu.Registers.A)
 
 	if cpu.Registers.P&D == 0 {
@@ -718,7 +816,7 @@ func (cpu *CPU) addition(value uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Set if sign bit is incorrect
 //         N 	Negative Flag 	  Set if bit 7 set
-func (cpu *CPU) Adc(address uint16) {
+func (cpu *M6502) Adc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ADC $%04x\n", cpu.Registers.PC, address)
 	}
@@ -739,7 +837,7 @@ func (cpu *CPU) Adc(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Set if sign bit is incorrect
 //         N 	Negative Flag 	  Set if bit 7 set
-func (cpu *CPU) Sbc(address uint16) {
+func (cpu *M6502) Sbc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: SBC $%04x\n", cpu.Registers.PC, address)
 	}
@@ -755,7 +853,7 @@ func (cpu *CPU) Sbc(address uint16) {
 	cpu.addition(value)
 }
 
-func (cpu *CPU) compare(address uint16, register uint8) {
+func (cpu *M6502) compare(address uint16, register uint8) {
 	value := uint16(cpu.Memory.Fetch(address)) ^ 0xff + 1
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
@@ -771,7 +869,7 @@ func (cpu *CPU) compare(address uint16, register uint8) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Cmp(address uint16) {
+func (cpu *M6502) Cmp(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CMP $%04x\n", cpu.Registers.PC, address)
 	}
@@ -790,7 +888,7 @@ func (cpu *CPU) Cmp(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Cpx(address uint16) {
+func (cpu *M6502) Cpx(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CPX $%04x\n", cpu.Registers.PC, address)
 	}
@@ -809,7 +907,7 @@ func (cpu *CPU) Cpx(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Cpy(address uint16) {
+func (cpu *M6502) Cpy(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: CPY $%04x\n", cpu.Registers.PC, address)
 	}
@@ -827,7 +925,7 @@ func (cpu *CPU) Cpy(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Inc(address uint16) {
+func (cpu *M6502) Inc(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: INC $%04x\n", cpu.Registers.PC, address)
 	}
@@ -835,7 +933,7 @@ func (cpu *CPU) Inc(address uint16) {
 	cpu.Memory.Store(address, cpu.setZNFlags(cpu.Memory.Fetch(address)+1))
 }
 
-func (cpu *CPU) increment(register *uint8) {
+func (cpu *M6502) increment(register *uint8) {
 	*register = cpu.setZNFlags(*register + 1)
 }
 
@@ -849,7 +947,7 @@ func (cpu *CPU) increment(register *uint8) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of X is set
-func (cpu *CPU) Inx() {
+func (cpu *M6502) Inx() {
 	if cpu.decode {
 		fmt.Printf("  %04x: INX\n", cpu.Registers.PC)
 	}
@@ -867,7 +965,7 @@ func (cpu *CPU) Inx() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of Y is set
-func (cpu *CPU) Iny() {
+func (cpu *M6502) Iny() {
 	if cpu.decode {
 		fmt.Printf("  %04x: INY\n", cpu.Registers.PC)
 	}
@@ -885,7 +983,7 @@ func (cpu *CPU) Iny() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Dec(address uint16) {
+func (cpu *M6502) Dec(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEC $%04x\n", cpu.Registers.PC, address)
 	}
@@ -893,7 +991,7 @@ func (cpu *CPU) Dec(address uint16) {
 	cpu.Memory.Store(address, cpu.setZNFlags(cpu.Memory.Fetch(address)-1))
 }
 
-func (cpu *CPU) decrement(register *uint8) {
+func (cpu *M6502) decrement(register *uint8) {
 	*register = cpu.setZNFlags(*register - 1)
 }
 
@@ -907,7 +1005,7 @@ func (cpu *CPU) decrement(register *uint8) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of X is set
-func (cpu *CPU) Dex() {
+func (cpu *M6502) Dex() {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEX\n", cpu.Registers.PC)
 	}
@@ -925,7 +1023,7 @@ func (cpu *CPU) Dex() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of Y is set
-func (cpu *CPU) Dey() {
+func (cpu *M6502) Dey() {
 	if cpu.decode {
 		fmt.Printf("  %04x: DEY\n", cpu.Registers.PC)
 	}
@@ -940,7 +1038,7 @@ const (
 	right
 )
 
-func (cpu *CPU) shift(direction direction, value uint8, store func(uint8)) {
+func (cpu *M6502) shift(direction direction, value uint8, store func(uint8)) {
 	c := Status(0)
 
 	switch direction {
@@ -971,7 +1069,7 @@ func (cpu *CPU) shift(direction direction, value uint8, store func(uint8)) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) AslA() {
+func (cpu *M6502) AslA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ASL A\n", cpu.Registers.PC)
 	}
@@ -992,7 +1090,7 @@ func (cpu *CPU) AslA() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Asl(address uint16) {
+func (cpu *M6502) Asl(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ASL $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1010,7 +1108,7 @@ func (cpu *CPU) Asl(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) LsrA() {
+func (cpu *M6502) LsrA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: LSR A\n", cpu.Registers.PC)
 	}
@@ -1028,7 +1126,7 @@ func (cpu *CPU) LsrA() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Lsr(address uint16) {
+func (cpu *M6502) Lsr(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: LSR $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1036,7 +1134,7 @@ func (cpu *CPU) Lsr(address uint16) {
 	cpu.shift(right, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
-func (cpu *CPU) rotate(direction direction, value uint8, store func(uint8)) {
+func (cpu *M6502) rotate(direction direction, value uint8, store func(uint8)) {
 	c := Status(0)
 
 	switch direction {
@@ -1065,7 +1163,7 @@ func (cpu *CPU) rotate(direction direction, value uint8, store func(uint8)) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) RolA() {
+func (cpu *M6502) RolA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROL A\n", cpu.Registers.PC)
 	}
@@ -1084,7 +1182,7 @@ func (cpu *CPU) RolA() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Rol(address uint16) {
+func (cpu *M6502) Rol(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROL $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1103,7 +1201,7 @@ func (cpu *CPU) Rol(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) RorA() {
+func (cpu *M6502) RorA() {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROR A\n", cpu.Registers.PC)
 	}
@@ -1122,7 +1220,7 @@ func (cpu *CPU) RorA() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
-func (cpu *CPU) Ror(address uint16) {
+func (cpu *M6502) Ror(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: ROR $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1139,7 +1237,7 @@ func (cpu *CPU) Ror(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Jmp(address uint16) {
+func (cpu *M6502) Jmp(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: JMP $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1158,7 +1256,7 @@ func (cpu *CPU) Jmp(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Jsr(address uint16) {
+func (cpu *M6502) Jsr(address uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: JSR $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1181,7 +1279,7 @@ func (cpu *CPU) Jsr(address uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Rts() {
+func (cpu *M6502) Rts() {
 	if cpu.decode {
 		fmt.Printf("  %04x: RTS\n", cpu.Registers.PC)
 	}
@@ -1189,7 +1287,7 @@ func (cpu *CPU) Rts() {
 	cpu.Registers.PC = cpu.pull16() + 1
 }
 
-func (cpu *CPU) branch(address uint16, condition func() bool, cycles *uint16) {
+func (cpu *M6502) branch(address uint16, condition func() bool, cycles *uint16) {
 	if condition() {
 		*cycles++
 
@@ -1211,7 +1309,7 @@ func (cpu *CPU) branch(address uint16, condition func() bool, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bcc(address uint16, cycles *uint16) {
+func (cpu *M6502) Bcc(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BCC $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1229,7 +1327,7 @@ func (cpu *CPU) Bcc(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bcs(address uint16, cycles *uint16) {
+func (cpu *M6502) Bcs(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BCS $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1247,7 +1345,7 @@ func (cpu *CPU) Bcs(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Beq(address uint16, cycles *uint16) {
+func (cpu *M6502) Beq(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BEQ $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1265,7 +1363,7 @@ func (cpu *CPU) Beq(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bmi(address uint16, cycles *uint16) {
+func (cpu *M6502) Bmi(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BMI $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1283,7 +1381,7 @@ func (cpu *CPU) Bmi(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bne(address uint16, cycles *uint16) {
+func (cpu *M6502) Bne(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BNE $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1301,7 +1399,7 @@ func (cpu *CPU) Bne(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bpl(address uint16, cycles *uint16) {
+func (cpu *M6502) Bpl(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BPL $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1319,7 +1417,7 @@ func (cpu *CPU) Bpl(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bvc(address uint16, cycles *uint16) {
+func (cpu *M6502) Bvc(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BVC $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1337,7 +1435,7 @@ func (cpu *CPU) Bvc(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Bvs(address uint16, cycles *uint16) {
+func (cpu *M6502) Bvs(address uint16, cycles *uint16) {
 	if cpu.decode {
 		fmt.Printf("  %04x: BVS $%04x\n", cpu.Registers.PC, address)
 	}
@@ -1354,7 +1452,7 @@ func (cpu *CPU) Bvs(address uint16, cycles *uint16) {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Clc() {
+func (cpu *M6502) Clc() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLC\n", cpu.Registers.PC)
 	}
@@ -1371,7 +1469,7 @@ func (cpu *CPU) Clc() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Cld() {
+func (cpu *M6502) Cld() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLD\n", cpu.Registers.PC)
 	}
@@ -1389,7 +1487,7 @@ func (cpu *CPU) Cld() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Cli() {
+func (cpu *M6502) Cli() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLI\n", cpu.Registers.PC)
 	}
@@ -1407,7 +1505,7 @@ func (cpu *CPU) Cli() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Set to 0
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Clv() {
+func (cpu *M6502) Clv() {
 	if cpu.decode {
 		fmt.Printf("  %04x: CLV\n", cpu.Registers.PC)
 	}
@@ -1424,7 +1522,7 @@ func (cpu *CPU) Clv() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Sec() {
+func (cpu *M6502) Sec() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SEC\n", cpu.Registers.PC)
 	}
@@ -1441,7 +1539,7 @@ func (cpu *CPU) Sec() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Sed() {
+func (cpu *M6502) Sed() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SED\n", cpu.Registers.PC)
 	}
@@ -1458,7 +1556,7 @@ func (cpu *CPU) Sed() {
 //         B 	Break Command 	  Not affected
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Sei() {
+func (cpu *M6502) Sei() {
 	if cpu.decode {
 		fmt.Printf("  %04x: SEI\n", cpu.Registers.PC)
 	}
@@ -1478,7 +1576,7 @@ func (cpu *CPU) Sei() {
 //         B 	Break Command 	  Set to 1
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Not affected
-func (cpu *CPU) Brk() {
+func (cpu *M6502) Brk() {
 	if cpu.decode {
 		fmt.Printf("  %04x: BRK\n", cpu.Registers.PC)
 	}
@@ -1507,7 +1605,7 @@ func (cpu *CPU) Brk() {
 //         B 	Break Command 	  Set from stack
 //         V 	Overflow Flag 	  Set from stack
 //         N 	Negative Flag 	  Set from stack
-func (cpu *CPU) Rti() {
+func (cpu *M6502) Rti() {
 	if cpu.decode {
 		fmt.Printf("  %04x: RTI\n", cpu.Registers.PC)
 	}
