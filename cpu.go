@@ -172,8 +172,8 @@ type M6502 struct {
 	Instructions InstructionTable
 }
 
-const DEFAULT_MASTER_RATE time.Duration = 46 * time.Nanosecond // 21.477272Mhz
-const DEFAULT_CLOCK_DIVISOR uint64 = 12                        // 1.789733Mhz
+const NTSC_CLOCK_RATE time.Duration = 46 * time.Nanosecond // 21.477272Mhz
+const PAL_CLOCK_RATE time.Duration = 37 * time.Nanosecond  // 26.601712MHz
 
 // Returns a pointer to a new CPU with the given Memory and clock.
 func NewM6502(mem Memory, clock Clocker) *M6502 {

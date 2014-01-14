@@ -6,19 +6,19 @@ import (
 
 var cpu *M6502
 var master *Clock
-var divider *Divider
+var clock *Divider
 
 func Setup() {
-	master = NewClock(DEFAULT_MASTER_RATE)
-	divider = NewDivider(master, DEFAULT_CLOCK_DIVISOR)
-	cpu = NewM6502(NewBasicMemory(), divider)
+	master = NewClock(NTSC_CLOCK_RATE)
+	clock = NewDivider(master, 12)
+	cpu = NewM6502(NewBasicMemory(), clock)
 	cpu.Reset()
 	// cpu.decode = true
-	go divider.Start()
+	go clock.Start()
 }
 
 func Teardown() {
-	divider.Stop()
+	clock.Stop()
 }
 
 // BadOpCodeError
