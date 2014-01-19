@@ -13,7 +13,7 @@ func Setup() {
 	clock = NewDivider(master, 12)
 	cpu = NewM6502(NewBasicMemory(), clock)
 	cpu.Reset()
-	// cpu.decode = true
+	cpu.decode.enabled = true
 	go clock.Start()
 }
 
@@ -1224,8 +1224,8 @@ func TestPlp(t *testing.T) {
 
 	cpu.Execute()
 
-	if cpu.Registers.P != 0xff {
-		t.Error("Status is not 0xff")
+	if cpu.Registers.P != 0xef {
+		t.Error("Status is not 0xef")
 	}
 
 	Teardown()
@@ -5583,13 +5583,37 @@ func TestRti(t *testing.T) {
 
 	cpu.Execute()
 
-	if cpu.Registers.P != 0x03 {
-		t.Error("Register P is not 0x03")
+	if cpu.Registers.P != 0x23 {
+		t.Error("Register P is not 0x23")
 	}
 
 	if cpu.Registers.PC != 0x0102 {
 		t.Error("Register PC is not 0x0102")
 	}
+
+	Teardown()
+}
+
+// Rom
+
+func TestRom(t *testing.T) {
+	Setup()
+
+	cpu.DisableDecimalMode()
+
+	cpu.Registers.P = 0x24
+	cpu.Registers.SP = 0xfd
+	cpu.Registers.PC = 0xc000
+
+	cpu.Memory.(*BasicMemory).load("test-roms/nestest.nes")
+	err := cpu.Run()
+
+	if err != nil {
+		t.Error("Error during Run\n")
+	}
+
+	t.Logf("$0002 is %02X\n", cpu.Memory.Fetch(0x0002))
+	t.Logf("$0003 is %02X\n", cpu.Memory.Fetch(0x0003))
 
 	Teardown()
 }

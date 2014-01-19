@@ -26,7 +26,7 @@ func NewBasicMemory() *BasicMemory {
 // Resets all memory locations to zero
 func (mem *BasicMemory) Reset() {
 	for i := range mem {
-		mem[i] = 0
+		mem[i] = 0x00
 	}
 }
 
@@ -73,12 +73,19 @@ func (mem *BasicMemory) load(path string) {
 		total++
 	}
 
+	j := 0xc000
+
 	for i, b := range buf {
-		if i+1 == total {
-			break
+		if i <= 15 {
+			continue
 		}
 
-		mem[i] = b
+		mem[j] = b
+		j++
+
+		if j == 0xffff {
+			break
+		}
 	}
 
 	return
