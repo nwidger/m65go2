@@ -35,325 +35,87 @@ func (instructions InstructionTable) RemoveInstruction(opcode OpCode) {
 func (instructions InstructionTable) InitInstructions() {
 	// LDA
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xa9,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Lda(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xa1, 0xa5, 0xa9, 0xad, 0xb1, 0xb5, 0xb9, 0xbd} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xa5,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Lda(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xb5,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Lda(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xad,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Lda(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xbd,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Lda(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xb9,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Lda(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xa1,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Lda(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDA",
-		OpCode:    0xb1,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Lda(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "LDA",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Lda(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// LDX
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDX",
-		OpCode:    0xa2,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Ldx(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xa2, 0xa6, 0xae, 0xb6, 0xbe} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDX",
-		OpCode:    0xa6,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Ldx(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDX",
-		OpCode:    0xb6,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ldx(cpu.zeroPageIndexedAddress(Y))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDX",
-		OpCode:    0xae,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ldx(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDX",
-		OpCode:    0xbe,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ldx(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "LDX",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Ldx(cpu.rmwAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// LDY
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDY",
-		OpCode:    0xa0,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Ldy(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xa0, 0xa4, 0xac, 0xb4, 0xbc} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDY",
-		OpCode:    0xa4,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Ldy(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDY",
-		OpCode:    0xb4,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ldy(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDY",
-		OpCode:    0xac,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ldy(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "LDY",
-		OpCode:    0xbc,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ldy(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "LDY",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Ldy(cpu.controlAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// STA
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x85,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Sta(cpu.zeroPageAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x81, 0x85, 0x8d, 0x91, 0x95, 0x99, 0x9d} {
+		opcode := o
 
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x95,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sta(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x8d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sta(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x9d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Sta(cpu.absoluteIndexedAddress(X, nil))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x99,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Sta(cpu.absoluteIndexedAddress(Y, nil))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x81,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Sta(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STA",
-		OpCode:    0x91,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cpu.Sta(cpu.indirectIndexedAddress(&cycles))
-			cycles = 6
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "STA",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Sta(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// STX
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STX",
-		OpCode:    0x86,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Stx(cpu.zeroPageAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x86, 0x8e, 0x96} {
+		opcode := o
 
-	//     Zero Page,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STX",
-		OpCode:    0x96,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Stx(cpu.zeroPageIndexedAddress(Y))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STX",
-		OpCode:    0x8e,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Stx(cpu.absoluteAddress())
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "STX",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Stx(cpu.rmwAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// STY
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STY",
-		OpCode:    0x84,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Sty(cpu.zeroPageAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x84, 0x8c, 0x94} {
+		opcode := o
 
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STY",
-		OpCode:    0x94,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sty(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "STY",
-		OpCode:    0x8c,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sty(cpu.absoluteAddress())
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "STY",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Sty(cpu.controlAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// TAX
 
@@ -477,581 +239,129 @@ func (instructions InstructionTable) InitInstructions() {
 
 	// AND
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x29,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.And(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x21, 0x25, 0x29, 0x2d, 0x31, 0x35, 0x39, 0x3d} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x25,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.And(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x35,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.And(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x2d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.And(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x3d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.And(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x39,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.And(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x21,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.And(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "AND",
-		OpCode:    0x31,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.And(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "AND",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.And(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// EOR
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x49,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Eor(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x41, 0x45, 0x49, 0x4d, 0x51, 0x55, 0x59, 0x5d} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x45,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Eor(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x55,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Eor(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x4d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Eor(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x5d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Eor(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x59,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Eor(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x41,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Eor(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "EOR",
-		OpCode:    0x51,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Eor(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "EOR",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Eor(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// ORA
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x09,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Ora(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x01, 0x05, 0x09, 0x0d, 0x11, 0x15, 0x19, 0x1d} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x05,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Ora(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x15,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ora(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x0d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ora(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x1d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ora(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x19,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Ora(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x01,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Ora(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ORA",
-		OpCode:    0x11,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Ora(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "ORA",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Ora(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// BIT
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "BIT",
-		OpCode:    0x24,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Bit(cpu.zeroPageAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x24, 0x2c} {
+		opcode := o
 
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "BIT",
-		OpCode:    0x2c,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Bit(cpu.absoluteAddress())
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "BIT",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Bit(cpu.controlAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// ADC
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x69,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Adc(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0x61, 0x65, 0x69, 0x6d, 0x71, 0x75, 0x79, 0x7d} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x65,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Adc(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x75,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Adc(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x6d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Adc(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x7d,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Adc(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x79,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Adc(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x61,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Adc(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "ADC",
-		OpCode:    0x71,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Adc(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "ADC",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Adc(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// SBC
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xe9,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Sbc(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xe1, 0xe5, 0xe9, 0xed, 0xf1, 0xf5, 0xf9, 0xfd} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xe5,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Sbc(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xf5,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sbc(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xed,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sbc(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xfd,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sbc(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xf9,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Sbc(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xe1,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Sbc(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "SBC",
-		OpCode:    0xf1,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Sbc(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "SBC",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Sbc(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// CMP
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xc9,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Cmp(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xc1, 0xc5, 0xc9, 0xcd, 0xd1, 0xd5, 0xd9, 0xdd} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xc5,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Cmp(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Zero Page,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xd5,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Cmp(cpu.zeroPageIndexedAddress(X))
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xcd,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Cmp(cpu.absoluteAddress())
-			return
-		}})
-
-	//     Absolute,X
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xdd,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Cmp(cpu.absoluteIndexedAddress(X, &cycles))
-			return
-		}})
-
-	//     Absolute,Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xd9,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Cmp(cpu.absoluteIndexedAddress(Y, &cycles))
-			return
-		}})
-
-	//     (Indirect,X)
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xc1,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 6
-			cpu.Cmp(cpu.indexedIndirectAddress())
-			return
-		}})
-
-	//     (Indirect),Y
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CMP",
-		OpCode:    0xd1,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 5
-			cpu.Cmp(cpu.indirectIndexedAddress(&cycles))
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "CMP",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Cmp(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// CPX
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CPX",
-		OpCode:    0xe0,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Cpx(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xe0, 0xe4, 0xec} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CPX",
-		OpCode:    0xe4,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Cpx(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CPX",
-		OpCode:    0xec,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Cpx(cpu.absoluteAddress())
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "CPX",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Cpx(cpu.controlAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// CPY
 
-	//     Immediate
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CPY",
-		OpCode:    0xc0,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Cpy(cpu.immediateAddress())
-			return
-		}})
+	for _, o := range []OpCode{0xc0, 0xc4, 0xcc} {
+		opcode := o
 
-	//     Zero Page
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CPY",
-		OpCode:    0xc4,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 3
-			cpu.Cpy(cpu.zeroPageAddress())
-			return
-		}})
-
-	//     Absolute
-	instructions.AddInstruction(Instruction{
-		Mneumonic: "CPY",
-		OpCode:    0xcc,
-		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 4
-			cpu.Cpy(cpu.absoluteAddress())
-			return
-		}})
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "CPY",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Cpy(cpu.controlAddress(opcode, &cycles))
+				return
+			}})
+	}
 
 	// INC
 
@@ -1446,8 +756,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BCC",
 		OpCode:    0x90,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bcc(cpu.relativeAddress(), &cycles)
+			cpu.Bcc(cpu.controlAddress(0x90, &cycles), &cycles)
 			return
 		}})
 
@@ -1458,8 +767,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BCS",
 		OpCode:    0xb0,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bcs(cpu.relativeAddress(), &cycles)
+			cpu.Bcs(cpu.controlAddress(0xb0, &cycles), &cycles)
 			return
 		}})
 
@@ -1470,8 +778,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BEQ",
 		OpCode:    0xf0,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Beq(cpu.relativeAddress(), &cycles)
+			cpu.Beq(cpu.controlAddress(0xf0, &cycles), &cycles)
 			return
 		}})
 
@@ -1482,8 +789,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BMI",
 		OpCode:    0x30,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bmi(cpu.relativeAddress(), &cycles)
+			cpu.Bmi(cpu.controlAddress(0x30, &cycles), &cycles)
 			return
 		}})
 
@@ -1494,8 +800,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BNE",
 		OpCode:    0xd0,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bne(cpu.relativeAddress(), &cycles)
+			cpu.Bne(cpu.controlAddress(0xd0, &cycles), &cycles)
 			return
 		}})
 
@@ -1506,8 +811,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BPL",
 		OpCode:    0x10,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bpl(cpu.relativeAddress(), &cycles)
+			cpu.Bpl(cpu.controlAddress(0x10, &cycles), &cycles)
 			return
 		}})
 
@@ -1518,8 +822,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BVC",
 		OpCode:    0x50,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bvc(cpu.relativeAddress(), &cycles)
+			cpu.Bvc(cpu.controlAddress(0x50, &cycles), &cycles)
 			return
 		}})
 
@@ -1530,8 +833,7 @@ func (instructions InstructionTable) InitInstructions() {
 		Mneumonic: "BVS",
 		OpCode:    0x70,
 		Exec: func(cpu CPUer) (cycles uint16) {
-			cycles = 2
-			cpu.Bvs(cpu.relativeAddress(), &cycles)
+			cpu.Bvs(cpu.controlAddress(0x70, &cycles), &cycles)
 			return
 		}})
 

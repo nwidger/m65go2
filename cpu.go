@@ -68,6 +68,10 @@ type CPUer interface {
 	Run() (error error)
 	DisableDecimalMode()
 
+	controlAddress(opcode OpCode, cycles *uint16) (address uint16)
+	aluAddress(opcode OpCode, cycles *uint16) (address uint16)
+	rmwAddress(opcode OpCode, cycles *uint16) (address uint16)
+
 	immediateAddress() (result uint16)
 	zeroPageAddress() (result uint16)
 	zeroPageIndexedAddress(index Index) (result uint16)
@@ -274,6 +278,120 @@ func (cpu *M6502) setCFlagAddition(value uint16) uint16 {
 func (cpu *M6502) setVFlagAddition(term1 uint16, term2 uint16, result uint16) uint16 {
 	cpu.Registers.P = (cpu.Registers.P & ^V) | Status((^(term1^term2)&(term1^result)&uint16(N))>>1)
 	return result
+}
+
+func (cpu *M6502) controlAddress(opcode OpCode, cycles *uint16) (address uint16) {
+	// control opcodes end with 00
+
+	if opcode&(1<<4) == 0 {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 2
+			address = cpu.immediateAddress()
+		case 0x01:
+			*cycles = 3
+			address = cpu.zeroPageAddress()
+		case 0x02:
+			*cycles = 4
+			address = 0 // not used
+		case 0x03:
+			*cycles = 4
+			address = cpu.absoluteAddress()
+		}
+	} else {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 2
+			address = cpu.relativeAddress()
+		case 0x01:
+			*cycles = 4
+			address = cpu.zeroPageIndexedAddress(X)
+		case 0x02:
+			*cycles = 2
+			address = 0 // not used
+		case 0x03:
+			*cycles = 4
+			address = cpu.absoluteIndexedAddress(X, cycles)
+		}
+	}
+
+	return
+}
+
+func (cpu *M6502) aluAddress(opcode OpCode, cycles *uint16) (address uint16) {
+	// alu opcodes end with 01
+
+	if opcode&(1<<4) == 0 {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 6
+			address = cpu.indexedIndirectAddress()
+		case 0x01:
+			*cycles = 3
+			address = cpu.zeroPageAddress()
+		case 0x02:
+			*cycles = 2
+			address = cpu.immediateAddress()
+		case 0x03:
+			*cycles = 4
+			address = cpu.absoluteAddress()
+		}
+	} else {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 5
+			address = cpu.indirectIndexedAddress(cycles)
+		case 0x01:
+			*cycles = 4
+			address = cpu.zeroPageIndexedAddress(X)
+		case 0x02:
+			*cycles = 4
+			address = cpu.absoluteIndexedAddress(Y, cycles)
+		case 0x03:
+			*cycles = 4
+			address = cpu.absoluteIndexedAddress(X, cycles)
+		}
+	}
+
+	return
+}
+
+func (cpu *M6502) rmwAddress(opcode OpCode, cycles *uint16) (address uint16) {
+	// rmw opcodes end with 10
+
+	if opcode&(1<<4) == 0 {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 2
+			address = cpu.immediateAddress()
+		case 0x01:
+			*cycles = 3
+			address = cpu.zeroPageAddress()
+		case 0x02:
+			*cycles = 2
+			address = 0 // not used
+		case 0x03:
+			*cycles = 4
+			address = cpu.absoluteAddress()
+		}
+	} else {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 2
+			address = 0 // not used
+		case 0x01:
+			*cycles = 4
+			address = cpu.zeroPageIndexedAddress(Y)
+		case 0x02:
+			*cycles = 2
+			address = 0 // not used
+		case 0x03:
+			*cycles = 4
+			address = cpu.absoluteIndexedAddress(Y, cycles)
+		}
+	}
+
+	return
 }
 
 func (cpu *M6502) immediateAddress() (result uint16) {
