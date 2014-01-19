@@ -74,7 +74,7 @@ func (clock *Clock) Start() (ticks uint64) {
 
 	if clock.ticker == nil {
 		clock.ticker = time.NewTicker(clock.rate)
-		clock.maintainTime()
+		go clock.maintainTime()
 	}
 
 	return

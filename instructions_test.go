@@ -13,8 +13,8 @@ func Setup() {
 	clock = NewDivider(master, 12)
 	cpu = NewM6502(NewBasicMemory(), clock)
 	cpu.Reset()
-	cpu.decode.enabled = true
-	go clock.Start()
+	// cpu.decode.enabled = true
+	clock.Start()
 }
 
 func Teardown() {
