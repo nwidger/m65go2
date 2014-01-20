@@ -71,6 +71,7 @@ type CPUer interface {
 	controlAddress(opcode OpCode, cycles *uint16) (address uint16)
 	aluAddress(opcode OpCode, cycles *uint16) (address uint16)
 	rmwAddress(opcode OpCode, cycles *uint16) (address uint16)
+	unofficialAddress(opcode OpCode, cycles *uint16) (address uint16)
 
 	immediateAddress() (result uint16)
 	zeroPageAddress() (result uint16)
@@ -83,9 +84,11 @@ type CPUer interface {
 	indirectIndexedAddress(cycles *uint16) (result uint16)
 
 	Lda(address uint16)
+	Lax(address uint16)
 	Ldx(address uint16)
 	Ldy(address uint16)
 	Sta(address uint16)
+	Sax(address uint16)
 	Stx(address uint16)
 	Sty(address uint16)
 	Tax()
@@ -104,6 +107,12 @@ type CPUer interface {
 	Bit(address uint16)
 	Adc(address uint16)
 	Sbc(address uint16)
+	Dcp(address uint16)
+	Isb(address uint16)
+	Slo(address uint16)
+	Rla(address uint16)
+	Sre(address uint16)
+	Rra(address uint16)
 	Cmp(address uint16)
 	Cpx(address uint16)
 	Cpy(address uint16)
@@ -200,6 +209,13 @@ func (b BadOpCodeError) Error() string {
 	return fmt.Sprintf("No such opcode %#02x", b)
 }
 
+// Error type used to indicate that the CPU executed a BRK instruction
+type BrkOpCodeError OpCode
+
+func (b BrkOpCodeError) Error() string {
+	return fmt.Sprintf("Executed BRK opcode")
+}
+
 // Executes the instruction pointed to by the PC register in the
 // number of clock cycles as returned by the instruction's Exec
 // function.  Returns the number of cycles executed and any error
@@ -234,6 +250,10 @@ func (cpu *M6502) Execute() (cycles uint16, error error) {
 
 	// count cycles
 	cpu.clock.Await(ticks + uint64(cycles))
+
+	if opcode == 0x00 {
+		return cycles, BrkOpCodeError(opcode)
+	}
 
 	return cycles, nil
 }
@@ -283,7 +303,7 @@ func (cpu *M6502) setVFlagAddition(term1 uint16, term2 uint16, result uint16) ui
 func (cpu *M6502) controlAddress(opcode OpCode, cycles *uint16) (address uint16) {
 	// control opcodes end with 00
 
-	if opcode&(1<<4) == 0 {
+	if opcode&0x10 == 0 {
 		switch (opcode >> 2) & 0x03 {
 		case 0x00:
 			*cycles = 2
@@ -321,7 +341,7 @@ func (cpu *M6502) controlAddress(opcode OpCode, cycles *uint16) (address uint16)
 func (cpu *M6502) aluAddress(opcode OpCode, cycles *uint16) (address uint16) {
 	// alu opcodes end with 01
 
-	if opcode&(1<<4) == 0 {
+	if opcode&0x10 == 0 {
 		switch (opcode >> 2) & 0x03 {
 		case 0x00:
 			*cycles = 6
@@ -358,8 +378,9 @@ func (cpu *M6502) aluAddress(opcode OpCode, cycles *uint16) (address uint16) {
 
 func (cpu *M6502) rmwAddress(opcode OpCode, cycles *uint16) (address uint16) {
 	// rmw opcodes end with 10
+	var index Index
 
-	if opcode&(1<<4) == 0 {
+	if opcode&0x10 == 0 {
 		switch (opcode >> 2) & 0x03 {
 		case 0x00:
 			*cycles = 2
@@ -381,13 +402,92 @@ func (cpu *M6502) rmwAddress(opcode OpCode, cycles *uint16) (address uint16) {
 			address = 0 // not used
 		case 0x01:
 			*cycles = 4
-			address = cpu.zeroPageIndexedAddress(Y)
+
+			switch opcode & 0xf0 {
+			case 0x90:
+				fallthrough
+			case 0xb0:
+				index = Y
+			default:
+				index = X
+			}
+
+			address = cpu.zeroPageIndexedAddress(index)
 		case 0x02:
 			*cycles = 2
 			address = 0 // not used
 		case 0x03:
 			*cycles = 4
+
+			switch opcode & 0xf0 {
+			case 0x90:
+				fallthrough
+			case 0xb0:
+				index = Y
+			default:
+				index = X
+			}
+
+			address = cpu.absoluteIndexedAddress(index, cycles)
+		}
+	}
+
+	return
+}
+
+func (cpu *M6502) unofficialAddress(opcode OpCode, cycles *uint16) (address uint16) {
+	// alu opcodes end with 11
+	var index Index
+
+	if opcode&0x10 == 0 {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 8
+			address = cpu.indexedIndirectAddress()
+		case 0x01:
+			*cycles = 5
+			address = cpu.zeroPageAddress()
+		case 0x02:
+			*cycles = 2
+			address = cpu.immediateAddress()
+		case 0x03:
+			*cycles = 6
+			address = cpu.absoluteAddress()
+		}
+	} else {
+		switch (opcode >> 2) & 0x03 {
+		case 0x00:
+			*cycles = 8
+			address = cpu.indirectIndexedAddress(cycles)
+		case 0x01:
+			*cycles = 6
+
+			switch opcode & 0xf0 {
+			case 0x90:
+				fallthrough
+			case 0xb0:
+				index = Y
+			default:
+				index = X
+			}
+
+			address = cpu.zeroPageIndexedAddress(index)
+		case 0x02:
+			*cycles = 7
 			address = cpu.absoluteIndexedAddress(Y, cycles)
+		case 0x03:
+			*cycles = 7
+
+			switch opcode & 0xf0 {
+			case 0x90:
+				fallthrough
+			case 0xb0:
+				index = Y
+			default:
+				index = X
+			}
+
+			address = cpu.absoluteIndexedAddress(index, cycles)
 		}
 	}
 
@@ -616,6 +716,23 @@ func (cpu *M6502) Lda(address uint16) {
 	cpu.load(address, &cpu.Registers.A)
 }
 
+// Unofficial
+//
+// Loads a byte of memory into the accumulator and X setting the zero
+// and negative flags as appropriate.
+//
+//         C 	Carry Flag 	  Not affected
+//         Z 	Zero Flag 	  Set if A = 0
+//         I 	Interrupt Disable Not affected
+//         D 	Decimal Mode Flag Not affected
+//         B 	Break Command 	  Not affected
+//         V 	Overflow Flag 	  Not affected
+//         N 	Negative Flag 	  Set if bit 7 of A is set
+func (cpu *M6502) Lax(address uint16) {
+	cpu.Registers.X = cpu.Memory.Fetch(address)
+	cpu.load(address, &cpu.Registers.A)
+}
+
 // Loads a byte of memory into the X register setting the zero and
 // negative flags as appropriate.
 //
@@ -655,6 +772,11 @@ func (cpu *M6502) store(address uint16, value uint8) {
 		cpu.decode.decodedArgs += fmt.Sprintf("%02X", oldValue)
 
 	}
+}
+
+// Unofficial
+func (cpu *M6502) Sax(address uint16) {
+	cpu.store(address, cpu.Registers.A&cpu.Registers.X)
 }
 
 // Stores the contents of the accumulator into memory.
@@ -1053,9 +1175,7 @@ func (cpu *M6502) Sbc(address uint16) {
 	cpu.addition(value)
 }
 
-func (cpu *M6502) compare(address uint16, register uint8) {
-	value := uint16(cpu.Memory.Fetch(address))
-
+func (cpu *M6502) compare(value uint16, register uint8) {
 	if cpu.decode.enabled {
 		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
 			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
@@ -1067,6 +1187,126 @@ func (cpu *M6502) compare(address uint16, register uint8) {
 
 	value = value ^ 0xff + 1
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
+}
+
+// Unofficial
+func (cpu *M6502) Dcp(address uint16) {
+	value := cpu.Memory.Fetch(address)
+
+	if cpu.decode.enabled {
+		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
+			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
+			cpu.decode.decodedArgs += fmt.Sprintf(" = ")
+		}
+
+		cpu.decode.decodedArgs += fmt.Sprintf("%02X", value)
+	}
+
+	enabled := cpu.decode.enabled
+	cpu.decode.enabled = false
+	cpu.Dec(address)
+	cpu.Cmp(address)
+	cpu.decode.enabled = enabled
+}
+
+// Unofficial
+func (cpu *M6502) Isb(address uint16) {
+	value := cpu.Memory.Fetch(address)
+
+	if cpu.decode.enabled {
+		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
+			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
+			cpu.decode.decodedArgs += fmt.Sprintf(" = ")
+		}
+
+		cpu.decode.decodedArgs += fmt.Sprintf("%02X", value)
+	}
+
+	enabled := cpu.decode.enabled
+	cpu.decode.enabled = false
+	cpu.Inc(address)
+	cpu.Sbc(address)
+	cpu.decode.enabled = enabled
+}
+
+// Unofficial
+func (cpu *M6502) Slo(address uint16) {
+	value := cpu.Memory.Fetch(address)
+
+	if cpu.decode.enabled {
+		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
+			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
+			cpu.decode.decodedArgs += fmt.Sprintf(" = ")
+		}
+
+		cpu.decode.decodedArgs += fmt.Sprintf("%02X", value)
+	}
+
+	enabled := cpu.decode.enabled
+	cpu.decode.enabled = false
+	cpu.Asl(address)
+	cpu.Ora(address)
+	cpu.decode.enabled = enabled
+}
+
+// Unofficial
+func (cpu *M6502) Rla(address uint16) {
+	value := cpu.Memory.Fetch(address)
+
+	if cpu.decode.enabled {
+		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
+			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
+			cpu.decode.decodedArgs += fmt.Sprintf(" = ")
+		}
+
+		cpu.decode.decodedArgs += fmt.Sprintf("%02X", value)
+	}
+
+	enabled := cpu.decode.enabled
+	cpu.decode.enabled = false
+	cpu.Rol(address)
+	cpu.And(address)
+	cpu.decode.enabled = enabled
+}
+
+// Unofficial
+func (cpu *M6502) Sre(address uint16) {
+	value := cpu.Memory.Fetch(address)
+
+	if cpu.decode.enabled {
+		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
+			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
+			cpu.decode.decodedArgs += fmt.Sprintf(" = ")
+		}
+
+		cpu.decode.decodedArgs += fmt.Sprintf("%02X", value)
+	}
+
+	enabled := cpu.decode.enabled
+	cpu.decode.enabled = false
+	cpu.Lsr(address)
+	cpu.Eor(address)
+	cpu.decode.enabled = enabled
+}
+
+// Unofficial
+func (cpu *M6502) Rra(address uint16) {
+	value := cpu.Memory.Fetch(address)
+
+	if cpu.decode.enabled {
+		if !strings.HasPrefix(cpu.decode.decodedArgs, "#") &&
+			!strings.HasSuffix(cpu.decode.decodedArgs, " = ") {
+			cpu.decode.decodedArgs += fmt.Sprintf(" = ")
+		}
+
+		cpu.decode.decodedArgs += fmt.Sprintf("%02X", value)
+	}
+
+	enabled := cpu.decode.enabled
+	cpu.decode.enabled = false
+	cpu.Ror(address)
+	cpu.Adc(address)
+	cpu.decode.enabled = enabled
 }
 
 // This instruction compares the contents of the accumulator with
@@ -1081,7 +1321,8 @@ func (cpu *M6502) compare(address uint16, register uint8) {
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *M6502) Cmp(address uint16) {
-	cpu.compare(address, cpu.Registers.A)
+	value := uint16(cpu.Memory.Fetch(address))
+	cpu.compare(value, cpu.Registers.A)
 }
 
 // This instruction compares the contents of the X register with
@@ -1096,7 +1337,8 @@ func (cpu *M6502) Cmp(address uint16) {
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *M6502) Cpx(address uint16) {
-	cpu.compare(address, cpu.Registers.X)
+	value := uint16(cpu.Memory.Fetch(address))
+	cpu.compare(value, cpu.Registers.X)
 }
 
 // This instruction compares the contents of the Y register with
@@ -1111,7 +1353,8 @@ func (cpu *M6502) Cpx(address uint16) {
 //         V 	Overflow Flag 	  Not affected
 //         N 	Negative Flag 	  Set if bit 7 of the result is set
 func (cpu *M6502) Cpy(address uint16) {
-	cpu.compare(address, cpu.Registers.Y)
+	value := uint16(cpu.Memory.Fetch(address))
+	cpu.compare(value, cpu.Registers.Y)
 }
 
 // Adds one to the value held at a specified memory location setting

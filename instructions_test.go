@@ -2,18 +2,17 @@ package m65go2
 
 import (
 	"testing"
+	"time"
 )
 
 var cpu *M6502
-var master *Clock
-var clock *Divider
+var clock *Clock
 
 func Setup() {
-	master = NewClock(NTSC_CLOCK_RATE)
-	clock = NewDivider(master, 12)
+	clock = NewClock(1 * time.Nanosecond)
 	cpu = NewM6502(NewBasicMemory(), clock)
 	cpu.Reset()
-	// cpu.decode.enabled = true
+	cpu.decode.enabled = true
 	clock.Start()
 }
 
@@ -5606,10 +5605,21 @@ func TestRom(t *testing.T) {
 	cpu.Registers.PC = 0xc000
 
 	cpu.Memory.(*BasicMemory).load("test-roms/nestest.nes")
+
+	cpu.Memory.Store(0x4004, 0xff)
+	cpu.Memory.Store(0x4005, 0xff)
+	cpu.Memory.Store(0x4006, 0xff)
+	cpu.Memory.Store(0x4007, 0xff)
+	cpu.Memory.Store(0x4015, 0xff)
+
 	err := cpu.Run()
 
 	if err != nil {
-		t.Error("Error during Run\n")
+		switch err.(type) {
+		case BrkOpCodeError:
+		default:
+			t.Error("Error during Run\n")
+		}
 	}
 
 	t.Logf("$0002 is %02X\n", cpu.Memory.Fetch(0x0002))

@@ -309,14 +309,105 @@ func (instructions InstructionTable) InitInstructions() {
 
 	// SBC
 
-	for _, o := range []OpCode{0xe1, 0xe5, 0xe9, 0xed, 0xf1, 0xf5, 0xf9, 0xfd} {
+	for _, o := range []OpCode{0xe1, 0xe5, 0xeb, 0xe9, 0xed, 0xf1, 0xf5, 0xf9, 0xfd} {
 		opcode := o
+		mneumonic := ""
+
+		if opcode == 0xeb {
+			mneumonic = "*"
+		}
+
+		mneumonic += "SBC"
 
 		instructions.AddInstruction(Instruction{
-			Mneumonic: "SBC",
+			Mneumonic: mneumonic,
 			OpCode:    opcode,
 			Exec: func(cpu CPUer) (cycles uint16) {
 				cpu.Sbc(cpu.aluAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// DCP
+
+	for _, o := range []OpCode{0xc3, 0xc7, 0xcf, 0xd3, 0xd7, 0xdb, 0xdf} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*DCP",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Dcp(cpu.unofficialAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// ISB
+
+	for _, o := range []OpCode{0xe3, 0xe7, 0xef, 0xf3, 0xf7, 0xfb, 0xff} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*ISB",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Isb(cpu.unofficialAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// SLO
+
+	for _, o := range []OpCode{0x03, 0x07, 0x0f, 0x13, 0x17, 0x1b, 0x1f} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*SLO",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Slo(cpu.unofficialAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// RLA
+
+	for _, o := range []OpCode{0x23, 0x27, 0x2f, 0x33, 0x37, 0x3b, 0x3f} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*RLA",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Rla(cpu.unofficialAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// SRE
+
+	for _, o := range []OpCode{0x43, 0x47, 0x4f, 0x53, 0x57, 0x5b, 0x5f} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*SRE",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Sre(cpu.unofficialAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// RRA
+
+	for _, o := range []OpCode{0x63, 0x67, 0x6f, 0x73, 0x77, 0x7b, 0x7f} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*RRA",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Rra(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
 	}
@@ -1004,6 +1095,38 @@ func (instructions InstructionTable) InitInstructions() {
 				}
 
 				cpu.NopAddress(address)
+				return
+			}})
+	}
+
+	// LAX
+
+	//     Unofficial
+
+	for _, o := range []OpCode{0xa3, 0xa7, 0xaf, 0xb3, 0xb7, 0xbf} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*LAX",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Lax(cpu.unofficialAddress(opcode, &cycles))
+				return
+			}})
+	}
+
+	// SAX
+
+	//     Unofficial
+
+	for _, o := range []OpCode{0x83, 0x87, 0x8f, 0x97} {
+		opcode := o
+
+		instructions.AddInstruction(Instruction{
+			Mneumonic: "*SAX",
+			OpCode:    opcode,
+			Exec: func(cpu CPUer) (cycles uint16) {
+				cpu.Sax(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
 	}
