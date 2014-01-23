@@ -4,7 +4,6 @@ package m65go2
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // Flags used by P (Status) register
@@ -34,8 +33,10 @@ type Registers struct {
 
 // Creates a new set of Registers.  All registers are initialized to
 // 0.
-func NewRegisters() Registers {
-	return Registers{}
+func NewRegisters() (reg Registers) {
+	reg = Registers{}
+	reg.Reset()
+	return
 }
 
 // Resets all registers.  Register P is initialized with only the I
@@ -62,98 +63,6 @@ const (
 	Y
 )
 
-type CPUer interface {
-	Reset()
-	Execute() (cycles uint16, error error)
-	Run() (error error)
-	DisableDecimalMode()
-
-	controlAddress(opcode OpCode, cycles *uint16) (address uint16)
-	aluAddress(opcode OpCode, cycles *uint16) (address uint16)
-	rmwAddress(opcode OpCode, cycles *uint16) (address uint16)
-	unofficialAddress(opcode OpCode, cycles *uint16) (address uint16)
-
-	immediateAddress() (result uint16)
-	zeroPageAddress() (result uint16)
-	zeroPageIndexedAddress(index Index) (result uint16)
-	relativeAddress() (result uint16)
-	absoluteAddress() (result uint16)
-	indirectAddress() (result uint16)
-	absoluteIndexedAddress(index Index, cycles *uint16) (result uint16)
-	indexedIndirectAddress() (result uint16)
-	indirectIndexedAddress(cycles *uint16) (result uint16)
-
-	Lda(address uint16)
-	Lax(address uint16)
-	Ldx(address uint16)
-	Ldy(address uint16)
-	Sta(address uint16)
-	Sax(address uint16)
-	Stx(address uint16)
-	Sty(address uint16)
-	Tax()
-	Tay()
-	Txa()
-	Tya()
-	Tsx()
-	Txs()
-	Pha()
-	Php()
-	Pla()
-	Plp()
-	And(address uint16)
-	Eor(address uint16)
-	Ora(address uint16)
-	Bit(address uint16)
-	Adc(address uint16)
-	Sbc(address uint16)
-	Dcp(address uint16)
-	Isb(address uint16)
-	Slo(address uint16)
-	Rla(address uint16)
-	Sre(address uint16)
-	Rra(address uint16)
-	Cmp(address uint16)
-	Cpx(address uint16)
-	Cpy(address uint16)
-	Inc(address uint16)
-	Inx()
-	Iny()
-	Dec(address uint16)
-	Dex()
-	Dey()
-	AslA()
-	Asl(address uint16)
-	LsrA()
-	Lsr(address uint16)
-	RolA()
-	Rol(address uint16)
-	RorA()
-	Ror(address uint16)
-	Jmp(address uint16)
-	Jsr(address uint16)
-	Rts()
-	Bcc(address uint16, cycles *uint16)
-	Bcs(address uint16, cycles *uint16)
-	Beq(address uint16, cycles *uint16)
-	Bmi(address uint16, cycles *uint16)
-	Bne(address uint16, cycles *uint16)
-	Bpl(address uint16, cycles *uint16)
-	Bvc(address uint16, cycles *uint16)
-	Bvs(address uint16, cycles *uint16)
-	Clc()
-	Cld()
-	Cli()
-	Clv()
-	Sec()
-	Sed()
-	Sei()
-	Brk()
-	Nop()
-	NopAddress(address uint16)
-	Rti()
-}
-
 type decode struct {
 	enabled     bool
 	pc          uint16
@@ -178,27 +87,34 @@ type M6502 struct {
 	Memory       Memory
 	Instructions InstructionTable
 	decimalMode  bool
+	breakError   bool
 }
-
-const NTSC_CLOCK_RATE time.Duration = 46 * time.Nanosecond // 21.477272Mhz
-const PAL_CLOCK_RATE time.Duration = 37 * time.Nanosecond  // 26.601712MHz
 
 // Returns a pointer to a new CPU with the given Memory and clock.
 func NewM6502(mem Memory, clock Clocker) *M6502 {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
 
-	return &M6502{decode: decode{enabled: false}, clock: clock, Registers: NewRegisters(), Memory: mem, Instructions: instructions, decimalMode: true}
+	return &M6502{decode: decode{}, clock: clock, Registers: NewRegisters(), Memory: mem, Instructions: instructions, decimalMode: true, breakError: false}
 }
 
 // Resets the CPU by resetting both the registers and memory.
 func (cpu *M6502) Reset() {
 	cpu.Registers.Reset()
 	cpu.Memory.Reset()
+
+	low := cpu.Memory.Fetch(0xfffc)
+	high := cpu.Memory.Fetch(0xfffd)
+
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
 func (cpu *M6502) DisableDecimalMode() {
 	cpu.decimalMode = false
+}
+
+func (cpu *M6502) EnableDecode() {
+	cpu.decode.enabled = true
 }
 
 // Error type used to indicate that the CPU attempted to execute an
@@ -251,7 +167,7 @@ func (cpu *M6502) Execute() (cycles uint16, error error) {
 	// count cycles
 	cpu.clock.Await(ticks + uint64(cycles))
 
-	if opcode == 0x00 {
+	if cpu.breakError && opcode == 0x00 {
 		return cycles, BrkOpCodeError(opcode)
 	}
 
@@ -259,14 +175,25 @@ func (cpu *M6502) Execute() (cycles uint16, error error) {
 }
 
 // Executes instruction until Execute() returns an error.
-func (cpu *M6502) Run() (error error) {
+func (cpu *M6502) Run() (err error) {
 	for {
-		if _, error := cpu.Execute(); error != nil {
-			return error
+		if _, err = cpu.Execute(); err != nil {
+			return
 		}
 	}
 
-	return nil
+	return
+}
+
+func (cpu *M6502) Irq() {
+	cpu.push16(cpu.Registers.PC)
+	cpu.push(uint8(cpu.Registers.P | B))
+	cpu.Registers.P |= I
+
+	low := cpu.Memory.Fetch(0xfffe)
+	high := cpu.Memory.Fetch(0xffff)
+
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
 func (cpu *M6502) setZFlag(value uint8) uint8 {

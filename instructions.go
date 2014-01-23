@@ -9,7 +9,7 @@ type OpCode uint8
 type Instruction struct {
 	Mneumonic string
 	OpCode    OpCode
-	Exec      func(CPUer) (cycles uint16)
+	Exec      func(*M6502) (cycles uint16)
 }
 
 // Stores instructions understood by the 6502 CPU, indexed by opcode.
@@ -41,7 +41,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "LDA",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Lda(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -55,7 +55,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "LDX",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Ldx(cpu.rmwAddress(opcode, &cycles))
 				return
 			}})
@@ -69,7 +69,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "LDY",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Ldy(cpu.controlAddress(opcode, &cycles))
 				return
 			}})
@@ -83,7 +83,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "STA",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Sta(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -97,7 +97,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "STX",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Stx(cpu.rmwAddress(opcode, &cycles))
 				return
 			}})
@@ -111,7 +111,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "STY",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Sty(cpu.controlAddress(opcode, &cycles))
 				return
 			}})
@@ -123,7 +123,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "TAX",
 		OpCode:    0xaa,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Tax()
 			return
@@ -135,7 +135,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "TAY",
 		OpCode:    0xa8,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Tay()
 			return
@@ -147,7 +147,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "TXA",
 		OpCode:    0x8a,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Txa()
 			return
@@ -159,7 +159,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "TYA",
 		OpCode:    0x98,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Tya()
 			return
@@ -171,7 +171,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "TSX",
 		OpCode:    0xba,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Tsx()
 			return
@@ -183,7 +183,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "TXS",
 		OpCode:    0x9a,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Txs()
 			return
@@ -195,7 +195,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "PHA",
 		OpCode:    0x48,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 3
 			cpu.Pha()
 			return
@@ -207,7 +207,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "PHP",
 		OpCode:    0x08,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 3
 			cpu.Php()
 			return
@@ -219,7 +219,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "PLA",
 		OpCode:    0x68,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 4
 			cpu.Pla()
 			return
@@ -231,7 +231,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "PLP",
 		OpCode:    0x28,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 4
 			cpu.Plp()
 			return
@@ -245,7 +245,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "AND",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.And(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -259,7 +259,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "EOR",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Eor(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -273,7 +273,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "ORA",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Ora(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -287,7 +287,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "BIT",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Bit(cpu.controlAddress(opcode, &cycles))
 				return
 			}})
@@ -301,7 +301,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "ADC",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Adc(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -322,7 +322,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: mneumonic,
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Sbc(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -336,7 +336,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*DCP",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Dcp(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -350,7 +350,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*ISB",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Isb(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -364,7 +364,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*SLO",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Slo(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -378,7 +378,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*RLA",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Rla(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -392,7 +392,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*SRE",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Sre(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -406,7 +406,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*RRA",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Rra(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -420,7 +420,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "CMP",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Cmp(cpu.aluAddress(opcode, &cycles))
 				return
 			}})
@@ -434,7 +434,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "CPX",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Cpx(cpu.controlAddress(opcode, &cycles))
 				return
 			}})
@@ -448,7 +448,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "CPY",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Cpy(cpu.controlAddress(opcode, &cycles))
 				return
 			}})
@@ -460,7 +460,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "INC",
 		OpCode:    0xe6,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Inc(cpu.zeroPageAddress())
 			return
@@ -470,7 +470,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "INC",
 		OpCode:    0xf6,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Inc(cpu.zeroPageIndexedAddress(X))
 			return
@@ -480,7 +480,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "INC",
 		OpCode:    0xee,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Inc(cpu.absoluteAddress())
 			return
@@ -490,7 +490,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "INC",
 		OpCode:    0xfe,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Inc(cpu.absoluteIndexedAddress(X, &cycles))
 			cycles = 7
 			return
@@ -502,7 +502,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "INX",
 		OpCode:    0xe8,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Inx()
 			return
@@ -514,7 +514,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "INY",
 		OpCode:    0xc8,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Iny()
 			return
@@ -526,7 +526,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "DEC",
 		OpCode:    0xc6,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Dec(cpu.zeroPageAddress())
 			return
@@ -536,7 +536,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "DEC",
 		OpCode:    0xd6,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Dec(cpu.zeroPageIndexedAddress(X))
 			return
@@ -546,7 +546,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "DEC",
 		OpCode:    0xce,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Dec(cpu.absoluteAddress())
 			return
@@ -556,7 +556,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "DEC",
 		OpCode:    0xde,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Dec(cpu.absoluteIndexedAddress(X, &cycles))
 			cycles = 7
 			return
@@ -568,7 +568,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "DEX",
 		OpCode:    0xca,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Dex()
 			return
@@ -580,7 +580,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "DEY",
 		OpCode:    0x88,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Dey()
 			return
@@ -592,7 +592,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ASL",
 		OpCode:    0x0a,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.AslA()
 			return
@@ -602,7 +602,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ASL",
 		OpCode:    0x06,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Asl(cpu.zeroPageAddress())
 			return
@@ -612,7 +612,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ASL",
 		OpCode:    0x16,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Asl(cpu.zeroPageIndexedAddress(X))
 			return
@@ -622,7 +622,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ASL",
 		OpCode:    0x0e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Asl(cpu.absoluteAddress())
 			return
@@ -632,7 +632,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ASL",
 		OpCode:    0x1e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Asl(cpu.absoluteIndexedAddress(X, &cycles))
 			cycles = 7
 			return
@@ -644,7 +644,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "LSR",
 		OpCode:    0x4a,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.LsrA()
 			return
@@ -654,7 +654,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "LSR",
 		OpCode:    0x46,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Lsr(cpu.zeroPageAddress())
 			return
@@ -664,7 +664,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "LSR",
 		OpCode:    0x56,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Lsr(cpu.zeroPageIndexedAddress(X))
 			return
@@ -674,7 +674,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "LSR",
 		OpCode:    0x4e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Lsr(cpu.absoluteAddress())
 			return
@@ -684,7 +684,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "LSR",
 		OpCode:    0x5e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Lsr(cpu.absoluteIndexedAddress(X, &cycles))
 			cycles = 7
 			return
@@ -696,7 +696,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROL",
 		OpCode:    0x2a,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.RolA()
 			return
@@ -706,7 +706,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROL",
 		OpCode:    0x26,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Rol(cpu.zeroPageAddress())
 			return
@@ -716,7 +716,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROL",
 		OpCode:    0x36,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Rol(cpu.zeroPageIndexedAddress(X))
 			return
@@ -726,7 +726,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROL",
 		OpCode:    0x2e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Rol(cpu.absoluteAddress())
 			return
@@ -736,7 +736,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROL",
 		OpCode:    0x3e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Rol(cpu.absoluteIndexedAddress(X, &cycles))
 			cycles = 7
 			return
@@ -748,7 +748,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROR",
 		OpCode:    0x6a,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.RorA()
 			return
@@ -758,7 +758,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROR",
 		OpCode:    0x66,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Ror(cpu.zeroPageAddress())
 			return
@@ -768,7 +768,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROR",
 		OpCode:    0x76,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Ror(cpu.zeroPageIndexedAddress(X))
 			return
@@ -778,7 +778,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROR",
 		OpCode:    0x6e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Ror(cpu.absoluteAddress())
 			return
@@ -788,7 +788,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "ROR",
 		OpCode:    0x7e,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Ror(cpu.absoluteIndexedAddress(X, &cycles))
 			cycles = 7
 			return
@@ -800,7 +800,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "JMP",
 		OpCode:    0x4c,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 3
 			cpu.Jmp(cpu.absoluteAddress())
 			return
@@ -810,7 +810,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "JMP",
 		OpCode:    0x6c,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 5
 			cpu.Jmp(cpu.indirectAddress())
 			return
@@ -822,7 +822,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "JSR",
 		OpCode:    0x20,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Jsr(cpu.absoluteAddress())
 			return
@@ -834,7 +834,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "RTS",
 		OpCode:    0x60,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Rts()
 			return
@@ -846,7 +846,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BCC",
 		OpCode:    0x90,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bcc(cpu.controlAddress(0x90, &cycles), &cycles)
 			return
 		}})
@@ -857,7 +857,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BCS",
 		OpCode:    0xb0,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bcs(cpu.controlAddress(0xb0, &cycles), &cycles)
 			return
 		}})
@@ -868,7 +868,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BEQ",
 		OpCode:    0xf0,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Beq(cpu.controlAddress(0xf0, &cycles), &cycles)
 			return
 		}})
@@ -879,7 +879,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BMI",
 		OpCode:    0x30,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bmi(cpu.controlAddress(0x30, &cycles), &cycles)
 			return
 		}})
@@ -890,7 +890,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BNE",
 		OpCode:    0xd0,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bne(cpu.controlAddress(0xd0, &cycles), &cycles)
 			return
 		}})
@@ -901,7 +901,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BPL",
 		OpCode:    0x10,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bpl(cpu.controlAddress(0x10, &cycles), &cycles)
 			return
 		}})
@@ -912,7 +912,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BVC",
 		OpCode:    0x50,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bvc(cpu.controlAddress(0x50, &cycles), &cycles)
 			return
 		}})
@@ -923,7 +923,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BVS",
 		OpCode:    0x70,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cpu.Bvs(cpu.controlAddress(0x70, &cycles), &cycles)
 			return
 		}})
@@ -934,7 +934,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "CLC",
 		OpCode:    0x18,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Clc()
 			return
@@ -946,7 +946,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "CLD",
 		OpCode:    0xd8,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Cld()
 			return
@@ -958,7 +958,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "CLI",
 		OpCode:    0x58,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Cli()
 			return
@@ -970,7 +970,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "CLV",
 		OpCode:    0xb8,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Clv()
 			return
@@ -982,7 +982,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "SEC",
 		OpCode:    0x38,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Sec()
 			return
@@ -994,7 +994,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "SED",
 		OpCode:    0xf8,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Sed()
 			return
@@ -1006,7 +1006,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "SEI",
 		OpCode:    0x78,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Sei()
 			return
@@ -1018,7 +1018,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "BRK",
 		OpCode:    0x00,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 7
 			cpu.Brk()
 			return
@@ -1030,7 +1030,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "NOP",
 		OpCode:    0xea,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 2
 			cpu.Nop()
 			return
@@ -1044,7 +1044,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*NOP",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cycles = 2
 				cpu.Nop()
 				return
@@ -1057,7 +1057,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*NOP",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				var address uint16
 
 				switch {
@@ -1083,7 +1083,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*NOP",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				var address uint16
 
 				cycles = 4
@@ -1109,7 +1109,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*LAX",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Lax(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -1125,7 +1125,7 @@ func (instructions InstructionTable) InitInstructions() {
 		instructions.AddInstruction(Instruction{
 			Mneumonic: "*SAX",
 			OpCode:    opcode,
-			Exec: func(cpu CPUer) (cycles uint16) {
+			Exec: func(cpu *M6502) (cycles uint16) {
 				cpu.Sax(cpu.unofficialAddress(opcode, &cycles))
 				return
 			}})
@@ -1137,7 +1137,7 @@ func (instructions InstructionTable) InitInstructions() {
 	instructions.AddInstruction(Instruction{
 		Mneumonic: "RTI",
 		OpCode:    0x40,
-		Exec: func(cpu CPUer) (cycles uint16) {
+		Exec: func(cpu *M6502) (cycles uint16) {
 			cycles = 6
 			cpu.Rti()
 			return
