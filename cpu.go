@@ -109,6 +109,26 @@ func (cpu *M6502) Reset() {
 	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
+func (cpu *M6502) Irq() {
+	cpu.push16(cpu.Registers.PC)
+	cpu.push(uint8(cpu.Registers.P))
+
+	low := cpu.Memory.Fetch(0xfffe)
+	high := cpu.Memory.Fetch(0xffff)
+
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
+}
+
+func (cpu *M6502) Nmi() {
+	cpu.push16(cpu.Registers.PC)
+	cpu.push(uint8(cpu.Registers.P))
+
+	low := cpu.Memory.Fetch(0xfffa)
+	high := cpu.Memory.Fetch(0xfffb)
+
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
+}
+
 func (cpu *M6502) DisableDecimalMode() {
 	cpu.decimalMode = false
 }
@@ -183,17 +203,6 @@ func (cpu *M6502) Run() (err error) {
 	}
 
 	return
-}
-
-func (cpu *M6502) Irq() {
-	cpu.push16(cpu.Registers.PC)
-	cpu.push(uint8(cpu.Registers.P | B))
-	cpu.Registers.P |= I
-
-	low := cpu.Memory.Fetch(0xfffe)
-	high := cpu.Memory.Fetch(0xffff)
-
-	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
 func (cpu *M6502) setZFlag(value uint8) uint8 {
