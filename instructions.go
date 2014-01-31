@@ -1064,7 +1064,7 @@ func (instructions InstructionTable) InitInstructions() {
 				case opcode == 0x80:
 					cycles = 2
 					address = cpu.immediateAddress()
-				case (opcode>>4)%2 == 0:
+				case (opcode>>4)&0x01 == 0:
 					cycles = 3
 					address = cpu.zeroPageAddress()
 				default:
@@ -1088,7 +1088,7 @@ func (instructions InstructionTable) InitInstructions() {
 
 				cycles = 4
 
-				if (opcode>>4)%2 == 0 {
+				if (opcode>>4)&0x01 == 0 {
 					address = cpu.absoluteAddress()
 				} else {
 					address = cpu.absoluteIndexedAddress(X, &cycles)
