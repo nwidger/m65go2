@@ -56,6 +56,14 @@ func (reg *Registers) String() string {
 	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02X SP:%02X", reg.A, reg.X, reg.Y, reg.P, reg.SP)
 }
 
+type Interrupt uint8
+
+const (
+	Irq Interrupt = iota
+	Nmi
+	Rst
+)
+
 type Index uint8
 
 const (
@@ -83,6 +91,9 @@ func (d *decode) String() string {
 type M6502 struct {
 	decode       decode
 	clock        Clocker
+	Nmi          bool
+	Irq          bool
+	Rst          bool
 	Registers    Registers
 	Memory       Memory
 	Instructions InstructionTable
@@ -95,21 +106,70 @@ func NewM6502(mem Memory, clock Clocker) *M6502 {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
 
-	return &M6502{decode: decode{}, clock: clock, Registers: NewRegisters(), Memory: mem, Instructions: instructions, decimalMode: true, breakError: false}
+	return &M6502{
+		decode:       decode{},
+		clock:        clock,
+		Registers:    NewRegisters(),
+		Memory:       mem,
+		Instructions: instructions,
+		decimalMode:  true,
+		breakError:   false,
+		Nmi:          false,
+		Irq:          false,
+		Rst:          false,
+	}
 }
 
 // Resets the CPU by resetting both the registers and memory.
 func (cpu *M6502) Reset() {
 	cpu.Registers.Reset()
 	cpu.Memory.Reset()
-
-	low := cpu.Memory.Fetch(0xfffc)
-	high := cpu.Memory.Fetch(0xfffd)
-
-	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
+	cpu.PerformRst()
 }
 
-func (cpu *M6502) Irq() {
+func (cpu *M6502) Interrupt(which Interrupt, state bool) {
+	switch which {
+	case Irq:
+		cpu.Irq = state
+	case Nmi:
+		cpu.Nmi = state
+	case Rst:
+		cpu.Rst = state
+	}
+}
+
+func (cpu *M6502) GetInterrupt(which Interrupt) (state bool) {
+	switch which {
+	case Irq:
+		state = cpu.Irq
+	case Nmi:
+		state = cpu.Nmi
+	case Rst:
+		state = cpu.Rst
+	}
+
+	return
+}
+
+func (cpu *M6502) PerformInterrupts() {
+	// check interrupts
+	if cpu.Irq {
+		cpu.PerformIrq()
+		cpu.Irq = false
+	}
+
+	if cpu.Nmi {
+		cpu.PerformNmi()
+		cpu.Nmi = false
+	}
+
+	if cpu.Rst {
+		cpu.PerformRst()
+		cpu.Rst = false
+	}
+}
+
+func (cpu *M6502) PerformIrq() {
 	cpu.push16(cpu.Registers.PC)
 	cpu.push(uint8(cpu.Registers.P))
 
@@ -119,12 +179,19 @@ func (cpu *M6502) Irq() {
 	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
-func (cpu *M6502) Nmi() {
+func (cpu *M6502) PerformNmi() {
 	cpu.push16(cpu.Registers.PC)
 	cpu.push(uint8(cpu.Registers.P))
 
 	low := cpu.Memory.Fetch(0xfffa)
 	high := cpu.Memory.Fetch(0xfffb)
+
+	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
+}
+
+func (cpu *M6502) PerformRst() {
+	low := cpu.Memory.Fetch(0xfffc)
+	high := cpu.Memory.Fetch(0xfffd)
 
 	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
@@ -157,6 +224,9 @@ func (b BrkOpCodeError) Error() string {
 // function.  Returns the number of cycles executed and any error
 // (such as BadOpCodeError).
 func (cpu *M6502) Execute() (cycles uint16, error error) {
+	// check interrupts
+	cpu.PerformInterrupts()
+
 	ticks := cpu.clock.Ticks()
 
 	// fetch

@@ -5632,3 +5632,93 @@ func TestRom(t *testing.T) {
 
 	Teardown()
 }
+
+// Irq
+
+func TestIrq(t *testing.T) {
+	Setup()
+
+	cpu.Registers.P = 0xff
+	cpu.Registers.PC = 0x0100
+
+	cpu.Interrupt(Irq, true)
+	cpu.Memory.Store(0xfffe, 0x40)
+	cpu.Memory.Store(0xffff, 0x01)
+
+	cpu.PerformInterrupts()
+
+	if cpu.pull() != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	if cpu.pull16() != 0x0100 {
+		t.Error("Memory is not 0x0100")
+	}
+
+	if cpu.Registers.PC != 0x0140 {
+		t.Error("Register PC is not 0x0140")
+	}
+
+	if cpu.GetInterrupt(Irq) {
+		t.Error("Interrupt is set")
+	}
+
+	Teardown()
+}
+
+// Nmi
+
+func TestNmi(t *testing.T) {
+	Setup()
+
+	cpu.Registers.P = 0xff
+	cpu.Registers.PC = 0x0100
+
+	cpu.Interrupt(Nmi, true)
+	cpu.Memory.Store(0xfffa, 0x40)
+	cpu.Memory.Store(0xfffb, 0x01)
+
+	cpu.PerformInterrupts()
+
+	if cpu.pull() != 0xff {
+		t.Error("Memory is not 0xff")
+	}
+
+	if cpu.pull16() != 0x0100 {
+		t.Error("Memory is not 0x0100")
+	}
+
+	if cpu.Registers.PC != 0x0140 {
+		t.Error("Register PC is not 0x0140")
+	}
+
+	if cpu.GetInterrupt(Nmi) {
+		t.Error("Interrupt is set")
+	}
+
+	Teardown()
+}
+
+// Rst
+
+func TestRst(t *testing.T) {
+	Setup()
+
+	cpu.Registers.PC = 0x0100
+
+	cpu.Interrupt(Rst, true)
+	cpu.Memory.Store(0xfffc, 0x40)
+	cpu.Memory.Store(0xfffd, 0x01)
+
+	cpu.PerformInterrupts()
+
+	if cpu.Registers.PC != 0x0140 {
+		t.Error("Register PC is not 0x0140")
+	}
+
+	if cpu.GetInterrupt(Rst) {
+		t.Error("Interrupt is set")
+	}
+
+	Teardown()
+}
