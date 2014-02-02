@@ -138,6 +138,14 @@ func (cpu *M6502) Interrupt(which Interrupt, state bool) {
 	}
 }
 
+func (cpu *M6502) InterruptLine(which Interrupt) func(state bool) {
+	return func(state bool) {
+		if cpu != nil {
+			cpu.Interrupt(which, state)
+		}
+	}
+}
+
 func (cpu *M6502) GetInterrupt(which Interrupt) (state bool) {
 	switch which {
 	case Irq:
@@ -153,17 +161,14 @@ func (cpu *M6502) GetInterrupt(which Interrupt) (state bool) {
 
 func (cpu *M6502) PerformInterrupts() {
 	// check interrupts
-	if cpu.Irq {
+	switch {
+	case cpu.Irq && cpu.Registers.P&I == 0:
 		cpu.PerformIrq()
 		cpu.Irq = false
-	}
-
-	if cpu.Nmi {
+	case cpu.Nmi:
 		cpu.PerformNmi()
 		cpu.Nmi = false
-	}
-
-	if cpu.Rst {
+	case cpu.Rst:
 		cpu.PerformRst()
 		cpu.Rst = false
 	}
