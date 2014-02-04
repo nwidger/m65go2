@@ -5638,7 +5638,7 @@ func TestRom(t *testing.T) {
 func TestIrq(t *testing.T) {
 	Setup()
 
-	cpu.Registers.P = 0xff
+	cpu.Registers.P = 0xfb
 	cpu.Registers.PC = 0x0100
 
 	cpu.Interrupt(Irq, true)
@@ -5647,8 +5647,8 @@ func TestIrq(t *testing.T) {
 
 	cpu.PerformInterrupts()
 
-	if cpu.pull() != 0xff {
-		t.Error("Memory is not 0xff")
+	if cpu.pull() != 0xfb {
+		t.Error("Memory is not 0xfb")
 	}
 
 	if cpu.pull16() != 0x0100 {
