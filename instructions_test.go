@@ -10,7 +10,7 @@ var clock *Clock
 
 func Setup() {
 	clock = NewClock(1 * time.Nanosecond)
-	cpu = NewM6502(NewBasicMemory(), clock)
+	cpu = NewM6502(NewBasicMemory(DEFAULT_MEMORY_SIZE), clock)
 	cpu.Reset()
 	cpu.breakError = true
 	clock.Start()
