@@ -1,6 +1,8 @@
 package m65go2
 
 import (
+	_ "fmt"
+	"sync"
 	"time"
 )
 
@@ -29,6 +31,7 @@ type Clock struct {
 	ticks    uint64
 	ticker   *time.Ticker
 	stopChan chan int
+	mutex    sync.Mutex
 	waiting  map[uint64][]chan int
 }
 
@@ -49,9 +52,12 @@ func (clock *Clock) maintainTime() {
 	for {
 		select {
 		case <-clock.stopChan:
+			clock.ticker.Stop()
 			clock.ticker = nil
 			return
 		case _ = <-clock.ticker.C:
+			clock.mutex.Lock()
+
 			clock.ticks++
 
 			if Ca, ok := clock.waiting[clock.ticks]; ok {
@@ -61,12 +67,18 @@ func (clock *Clock) maintainTime() {
 
 				delete(clock.waiting, clock.ticks)
 			}
+
+			clock.mutex.Unlock()
 		}
 	}
 }
 
-func (clock *Clock) Ticks() uint64 {
-	return clock.ticks
+func (clock *Clock) Ticks() (ticks uint64) {
+	clock.mutex.Lock()
+	ticks = clock.ticks
+	clock.mutex.Unlock()
+
+	return
 }
 
 func (clock *Clock) Start() (ticks uint64) {
@@ -87,13 +99,19 @@ func (clock *Clock) Stop() {
 }
 
 func (clock *Clock) Await(tick uint64) (ticks uint64) {
-	if clock.ticks < tick {
+	clock.mutex.Lock()
+	ticks = clock.ticks
+
+	if ticks >= tick {
+		clock.mutex.Unlock()
+	} else {
 		C := make(chan int, 1)
 		clock.waiting[tick] = append(clock.waiting[tick], C)
+		clock.mutex.Unlock()
 		<-C
 	}
 
-	return clock.ticks
+	return
 }
 
 // Represents a clock divider which divides the tick frequency of
