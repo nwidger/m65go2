@@ -23,6 +23,9 @@ type Clocker interface {
 	// Returns immediately if the clock has already passed the
 	// given tick.
 	Await(tick uint64) (ticks uint64)
+
+	// Increment the Clocker's ticks counter by the given amount.
+	Increment(amount uint64) (ticks uint64)
 }
 
 // Represents a basic clock that increments at specific intervals.
@@ -48,6 +51,16 @@ func NewClock(rate time.Duration) *Clock {
 	}
 }
 
+func (clock *Clock) wakeWaiting() {
+	if Ca, ok := clock.waiting[clock.ticks]; ok {
+		for _, C := range Ca {
+			C <- 1
+		}
+
+		delete(clock.waiting, clock.ticks)
+	}
+}
+
 func (clock *Clock) maintainTime() {
 	for {
 		select {
@@ -57,17 +70,8 @@ func (clock *Clock) maintainTime() {
 			return
 		case _ = <-clock.ticker.C:
 			clock.mutex.Lock()
-
 			clock.ticks++
-
-			if Ca, ok := clock.waiting[clock.ticks]; ok {
-				for _, C := range Ca {
-					C <- 1
-				}
-
-				delete(clock.waiting, clock.ticks)
-			}
-
+			clock.wakeWaiting()
 			clock.mutex.Unlock()
 		}
 	}
@@ -96,6 +100,21 @@ func (clock *Clock) Stop() {
 	if clock.ticker != nil {
 		clock.stopChan <- 1
 	}
+}
+
+func (clock *Clock) Increment(amount uint64) (ticks uint64) {
+	clock.mutex.Lock()
+
+	for i := uint64(1); i <= amount; i++ {
+		clock.ticks++
+		clock.wakeWaiting()
+	}
+
+	ticks = clock.ticks
+
+	clock.mutex.Unlock()
+
+	return
 }
 
 func (clock *Clock) Await(tick uint64) (ticks uint64) {
@@ -141,4 +160,9 @@ func (clock *Divider) Stop() {
 
 func (clock *Divider) Await(tick uint64) (ticks uint64) {
 	return clock.master.Await(tick*clock.divisor) / clock.divisor
+}
+
+func (clock *Divider) Increment(amount uint64) (ticks uint64) {
+	ticks = clock.master.Increment(amount * clock.divisor)
+	return
 }
