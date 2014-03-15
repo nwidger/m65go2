@@ -90,7 +90,6 @@ func (d *decode) String() string {
 // Represents the 6502 CPU.
 type M6502 struct {
 	decode       decode
-	clock        Clocker
 	Nmi          bool
 	Irq          bool
 	Rst          bool
@@ -99,16 +98,16 @@ type M6502 struct {
 	Instructions InstructionTable
 	decimalMode  bool
 	breakError   bool
+	Cycles       chan uint16
 }
 
-// Returns a pointer to a new CPU with the given Memory and clock.
-func NewM6502(mem Memory, clock Clocker) *M6502 {
+// Returns a pointer to a new CPU with the given Memory.
+func NewM6502(mem Memory, cycles chan uint16) *M6502 {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
 
 	return &M6502{
 		decode:       decode{},
-		clock:        clock,
 		Registers:    NewRegisters(),
 		Memory:       mem,
 		Instructions: instructions,
@@ -117,6 +116,7 @@ func NewM6502(mem Memory, clock Clocker) *M6502 {
 		Nmi:          false,
 		Irq:          false,
 		Rst:          false,
+		Cycles:       cycles,
 	}
 }
 
@@ -225,14 +225,12 @@ func (b BrkOpCodeError) Error() string {
 }
 
 // Executes the instruction pointed to by the PC register in the
-// number of clock cycles as returned by the instruction's Exec
-// function.  Returns the number of cycles executed and any error
-// (such as BadOpCodeError).
+// number of cycles as returned by the instruction's Exec function.
+// Returns the number of cycles executed and any error (such as
+// BadOpCodeError).
 func (cpu *M6502) Execute() (cycles uint16, error error) {
 	// check interrupts
 	cpu.PerformInterrupts()
-
-	ticks := cpu.clock.Ticks()
 
 	// fetch
 	opcode := OpCode(cpu.Memory.Fetch(cpu.Registers.PC))
@@ -259,9 +257,6 @@ func (cpu *M6502) Execute() (cycles uint16, error error) {
 		fmt.Println(cpu.decode.String())
 	}
 
-	// count cycles
-	cpu.clock.Await(ticks + uint64(cycles))
-
 	if cpu.breakError && opcode == 0x00 {
 		return cycles, BrkOpCodeError(opcode)
 	}
@@ -271,13 +266,18 @@ func (cpu *M6502) Execute() (cycles uint16, error error) {
 
 // Executes instruction until Execute() returns an error.
 func (cpu *M6502) Run() (err error) {
+	var cycles uint16
+
 	for {
-		if _, err = cpu.Execute(); err != nil {
+		if cycles, err = cpu.Execute(); err != nil {
 			return
 		}
-	}
 
-	return
+		if cpu.Cycles != nil && cycles != 0 {
+			cpu.Cycles <- cycles
+			<-cpu.Cycles
+		}
+	}
 }
 
 func (cpu *M6502) setZFlag(value uint8) uint8 {

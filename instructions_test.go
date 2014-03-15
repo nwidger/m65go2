@@ -1,23 +1,17 @@
 package m65go2
 
-import (
-	"testing"
-	"time"
-)
+import "testing"
 
 var cpu *M6502
-var clock *Clock
 
 func Setup() {
-	clock = NewClock(1 * time.Nanosecond)
-	cpu = NewM6502(NewBasicMemory(DEFAULT_MEMORY_SIZE), clock)
+	cpu = NewM6502(NewBasicMemory(DEFAULT_MEMORY_SIZE), nil)
 	cpu.Reset()
 	cpu.breakError = true
-	clock.Start()
 }
 
 func Teardown() {
-	clock.Stop()
+
 }
 
 // BadOpCodeError
