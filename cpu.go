@@ -102,7 +102,7 @@ type M6502 struct {
 }
 
 // Returns a pointer to a new CPU with the given Memory.
-func NewM6502(mem Memory, cycles chan uint16) *M6502 {
+func NewM6502(mem Memory) *M6502 {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
 
@@ -116,7 +116,7 @@ func NewM6502(mem Memory, cycles chan uint16) *M6502 {
 		Nmi:          false,
 		Irq:          false,
 		Rst:          false,
-		Cycles:       cycles,
+		Cycles:       make(chan uint16),
 	}
 }
 
